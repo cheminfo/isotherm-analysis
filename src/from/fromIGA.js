@@ -148,8 +148,8 @@ export function fromIGA(text) {
 
   let analyses = [];
   const lineNumbers = getLineNumbersOfMeasurement(lines);
-  for (let lineNumber of lineNumbers) {
-    let meas = parseOneIGA(lines.slice(lineNumber[0], lineNumber[1]));
+  for (let i = 0; i < lineNumbers[0].length; i++) {
+    let meas = parseOneIGA(lines.slice(lineNumbers[0][i], lineNumbers[1][i]));
 
     let analysis = new Analysis();
 

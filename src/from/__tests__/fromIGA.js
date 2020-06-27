@@ -37,23 +37,7 @@ test('fromPerkinElmer', () => {
   expect(meas.meta.sampleNumber).toStrictEqual('0328');
   expect(meas.data.wtPercent).toHaveLength(30);
   expect(meas.data.wtPercent[29]).toStrictEqual(1.447);
-  // let analysis = fromIGA(file);
 
-  // let spectrum1 = analysis.getSpectrum();
-
-  // expect(spectrum1.variables.x.data).toHaveLength(1155);
-  // expect(spectrum1.variables.y.data).toHaveLength(1155);
-  // expect(spectrum1.variables.x.label).toStrictEqual('Temperature [°C]');
-  // expect(spectrum1.variables.y.label).toStrictEqual('Weight [mg]');
-  // expect(spectrum1.variables.x.units).toStrictEqual('°C');
-  // expect(spectrum1.variables.y.units).toStrictEqual('mg');
-
-  // let spectrum2 = analysis.getSpectrum({ flavor: 'mg vs s' });
-
-  // expect(spectrum2.variables.x.data).toHaveLength(1155);
-  // expect(spectrum2.variables.y.data).toHaveLength(1155);
-  // expect(spectrum2.variables.x.label).toStrictEqual('Time [s]');
-  // expect(spectrum2.variables.y.label).toStrictEqual('Weight [mg]');
-  // expect(spectrum2.variables.x.units).toStrictEqual('s');
-  // expect(spectrum2.variables.y.units).toStrictEqual('mg');
+  let spectra = fromIGA(file);
+  expect(spectra).toHaveLength(4);
 });
