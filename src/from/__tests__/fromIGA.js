@@ -2,7 +2,6 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 import { fromIGA, testables } from '../fromIGA';
-import { exception } from 'console';
 
 const {
   getLineNumbersOfMeasurement,

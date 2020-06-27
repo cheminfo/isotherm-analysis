@@ -13,6 +13,7 @@ function parseIGAMeasurmentHeader(lines) {
   metaData.systemSerialNumber = lineSplitTrim(lines[3]);
   metaData.sampleNumber = lineSplitTrim(lines[4]);
   metaData.experimentType = lineSplitTrim(lines[5]);
+  // eslint-disable-next-line radix
   metaData.experimentNumber = parseInt(lineSplitTrim(lines[6]));
   metaData.title = lineSplitTrim(lines[7]);
   metaData.comment = lineSplitTrim(lines[8]);
@@ -78,6 +79,7 @@ function parseIGAMeasurmentHeader(lines) {
 
   metaData.seriesType = lineSplitTrim(lines[59]);
 
+  // eslint-disable-next-line radix
   metaData.scan = parseInt(lineSplitTrim(lines[61]));
   metaData.course = lineSplitTrim(lines[62]);
   metaData.referenceStateDevice = lineSplitTrim(lines[63]);
