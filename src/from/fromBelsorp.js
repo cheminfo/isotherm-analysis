@@ -1,4 +1,5 @@
 import { Analysis } from '..';
+
 let xlsx = require('xlsx');
 
 function valueElseUndefined(cell) {
@@ -105,7 +106,6 @@ function parseAdsDesData(worksheet, adsorptionPoints, desorptionPoints) {
 
 export function fromBelsorp(path) {
   const workbook = xlsx.readFile(path);
-  console.log(workbook.SheetNames[0]);
 
   const adsDesSheet = workbook.Sheets.AdsDes;
 
@@ -117,7 +117,30 @@ export function fromBelsorp(path) {
     metaData.desorptionPoints,
   );
 
-  return adsDesSheet;
+  let analyses = [];
+
+  let analysis = new Analysis();
+
+  analysis.pushSpectrum(
+    {
+      x: {
+        data: data.adsorption.pe,
+        label: 'Pressure  [kPa]',
+      },
+      y: {
+        data: data.adsorption.va,
+        label: 'Adsorbed volume cm3 (STP) /g',
+      },
+    },
+    {
+      dataType: 'Isotherm',
+      title: metaData.comment1,
+      meta: metaData,
+    },
+  );
+
+  analyses.push(analysis);
+  return analyses;
 }
 
 export const testables = {
