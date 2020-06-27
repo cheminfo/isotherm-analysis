@@ -1,4 +1,5 @@
 import { Analysis } from '..';
+let xlsx = require('xlsx');
 
 function valueElseUndefined(cell) {
   return cell ? cell.v : undefined;
@@ -56,17 +57,71 @@ function getAdsDesMeta(adsDesSheet) {
   return metaData;
 }
 
-function parseAdsDesData(worksheet, adsorptionPoints, desorptionPoints) {}
+function parseIsothermBlock(worksheet, range) {
+  let data = {
+    pi: [],
+    pe: [],
+    pe2: [],
+    p0: [],
+    pp0: [],
+    va: [],
+  };
+
+  const adresses = [data.pi, data.pe, data.pe2, data.p0, data.pp0, data.va];
+
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    let counter = 0;
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      let cellAddress = { c: C, r: R };
+      let cellRef = xlsx.utils.encode_cell(cellAddress);
+      adresses[counter].push(valueElseUndefinedFloat(worksheet[cellRef]));
+      counter++;
+    }
+  }
+
+  return data;
+}
+
+function parseAdsDesData(worksheet, adsorptionPoints, desorptionPoints) {
+  // traverse the sheet
+  const rangeAds = {
+    s: { c: 1, r: 22 },
+    e: { c: 6, r: 22 + adsorptionPoints - 1 },
+  };
+
+  const rangeDes = {
+    s: { c: 1, r: 22 + adsorptionPoints + 1 },
+    e: { c: 6, r: 22 + adsorptionPoints + desorptionPoints },
+  };
+
+  const adsData = parseIsothermBlock(worksheet, rangeAds);
+  const desData = parseIsothermBlock(worksheet, rangeDes);
+
+  return {
+    adsorption: adsData,
+    desorption: desData,
+  };
+}
 
 export function fromBelsorp(path) {
-  let excelworkbook = require('xlsx');
-
-  const workbook = excelworkbook.readFile(path);
+  const workbook = xlsx.readFile(path);
   console.log(workbook.SheetNames[0]);
 
   const adsDesSheet = workbook.Sheets.AdsDes;
 
   let metaData = getAdsDesMeta(adsDesSheet);
-  console.log(metaData);
+
+  let data = parseAdsDesData(
+    adsDesSheet,
+    metaData.adsorptionPoints,
+    metaData.desorptionPoints,
+  );
+
   return adsDesSheet;
 }
+
+export const testables = {
+  parseIsothermBlock: parseIsothermBlock,
+  getAdsDesMeta: getAdsDesMeta,
+  parseAdsDesData: parseAdsDesData,
+};
