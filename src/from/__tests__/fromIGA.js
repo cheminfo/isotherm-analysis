@@ -10,7 +10,7 @@ const {
   parseOneIGA,
 } = testables;
 
-test('fromPerkinElmer', () => {
+test('fromIGA', () => {
   const file = readFileSync(
     join(__dirname, '../../../testFiles/IGA_raw.txt'),
     'latin1',
