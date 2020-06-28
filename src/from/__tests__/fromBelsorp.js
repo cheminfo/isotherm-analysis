@@ -1,6 +1,6 @@
 import { join } from 'path';
 
-import { testables } from '../fromBelsorp';
+import { fromBelsorp, testables } from '../fromBelsorp';
 
 let xlsx = require('xlsx');
 
@@ -44,4 +44,7 @@ test('fromBelsorp', () => {
 
   expect(data.desorption.p0[0]).toStrictEqual(83.744);
   expect(data.desorption.va[10]).toStrictEqual(198.1);
+
+  const analyses = fromBelsorp(join(__dirname, '../../../testFiles/BET.xls'));
+  expect(analyses).toHaveLength(2);
 });

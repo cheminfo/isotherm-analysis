@@ -140,6 +140,29 @@ export function fromBelsorp(path) {
   );
 
   analyses.push(analysis);
+
+  let analysisDes = new Analysis();
+
+  analysisDes.pushSpectrum(
+    {
+      x: {
+        data: data.desorption.pe,
+        label: 'Pressure  [kPa]',
+      },
+      y: {
+        data: data.desorption.va,
+        label: 'Adsorbed volume cm3 (STP) /g',
+      },
+    },
+    {
+      dataType: 'Isotherm',
+      title: metaData.comment1,
+      meta: metaData,
+    },
+  );
+
+  analyses.push(analysisDes);
+
   return analyses;
 }
 
