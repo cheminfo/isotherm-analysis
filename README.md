@@ -4,7 +4,7 @@
 [![build status][ci-image]][ci-url]
 [![npm download][download-image]][download-url]
 
-Important and analyze isotherms. For examples of the implemented source files, see examples folder.
+Parse and analyze isotherms. For examples of the implemented source files, see examples folder.
 
 ## Installation
 
@@ -13,13 +13,16 @@ Important and analyze isotherms. For examples of the implemented source files, s
 ## Usage
 
 ```js
-import library from 'isotherm-analysis';
+import IsothermAnalysis from 'isotherm-analysis';
 
-const result = library(args);
-// result is ...
+let isotherm = IsothermAnalysis.fromIGA(file);
 ```
 
 ## [API Documentation](https://cheminfo.github.io/isotherm-analysis/)
+
+## Development guidelines 
+- ideally convent pressure to kPa and excess adsorption to mmol/g
+- there are two data types `Adsorption Isotherm` and `Desorption Isotherm`
 
 ## License
 

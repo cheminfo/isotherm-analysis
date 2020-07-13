@@ -1,0 +1,29 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+import { fromMicrometricsCSV } from '../fromMicrometricsCSV';
+
+test('fromMicrometrics', () => {
+  const file = readFileSync(
+    join(__dirname, '../../../testFiles/micrometrics.csv'),
+    'latin1',
+  );
+
+  const analyses = fromMicrometricsCSV(file);
+  expect(analyses).toHaveLength(2);
+  const adsorption = analyses[0].getSpectrum();
+
+  expect(adsorption.variables.x.data).toHaveLength(68);
+  expect(adsorption.variables.x.data[0]).toStrictEqual(4.29539e-5);
+  expect(adsorption.variables.y.data).toHaveLength(68);
+  expect(adsorption.variables.y.data[0]).toBeCloseTo(221.8668, 3);
+
+  const desorption = analyses[1].getSpectrum();
+  expect(desorption.variables.x.data).toHaveLength(8);
+  expect(desorption.variables.x.data[0]).toStrictEqual(0.222905289); // common-spectrum sorts the data
+  expect(desorption.variables.y.data).toHaveLength(8);
+  expect(desorption.variables.y.data[0]).toBeCloseTo(
+    (285.0784237 / 22.413969545014) * 1000,
+    2,
+  );
+});

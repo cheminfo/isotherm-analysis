@@ -1,7 +1,7 @@
 {
   "name": "isotherm-analysis",
   "version": "0.0.0",
-  "description": "Important and analyze isotherms",
+  "description": "Parse and analyze isotherms",
   "main": "lib/index.js",
   "module": "src/index.js",
   "files": [
@@ -9,6 +9,8 @@
     "src"
   ],
   "scripts": {
+    "build": "cheminfo-build  --entry src/index.js --root IsothermAnalysis",
+    "build-doc": "cheminfo doc",
     "eslint": "eslint src",
     "eslint-fix": "npm run eslint -- --fix",
     "prepublishOnly": "rollup -c",
@@ -38,6 +40,8 @@
     "trailingComma": "all"
   },
   "devDependencies": {
+    "cheminfo-build": "^1.1.1",
+    "codecov": "^3.7.0",
     "@babel/plugin-transform-modules-commonjs": "^7.10.1",
     "@types/jest": "^26.0.3",
     "eslint": "^7.3.1",
@@ -51,6 +55,7 @@
   },
   "dependencies": {
     "common-spectrum": "^0.3.1",
+    "papaparse": "^5.2.0",
     "xlsx": "^0.16.2"
   }
 }

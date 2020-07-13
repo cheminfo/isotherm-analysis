@@ -1,5 +1,7 @@
 import { Analysis } from '..';
 
+import { idealGasConstant } from './constants';
+
 let xlsx = require('xlsx');
 
 function valueElseUndefined(cell) {
@@ -80,6 +82,10 @@ function parseIsothermBlock(worksheet, range) {
     }
   }
 
+  data.va = data.va.map(function (x) {
+    return (x / idealGasConstant) * 1000;
+  });
+
   return data;
 }
 
@@ -129,11 +135,11 @@ export function fromBelsorp(path) {
       },
       y: {
         data: data.adsorption.va,
-        label: 'Adsorbed volume cm3 (STP) /g',
+        label: 'Excess adsorption mmol /g',
       },
     },
     {
-      dataType: 'Isotherm',
+      dataType: 'Adsorption Isotherm',
       title: metaData.comment1,
       meta: metaData,
     },
@@ -151,11 +157,11 @@ export function fromBelsorp(path) {
       },
       y: {
         data: data.desorption.va,
-        label: 'Adsorbed volume cm3 (STP) /g',
+        label: 'Excess adsorption mmol /g',
       },
     },
     {
-      dataType: 'Isotherm',
+      dataType: 'Desorption Isotherm',
       title: metaData.comment1,
       meta: metaData,
     },

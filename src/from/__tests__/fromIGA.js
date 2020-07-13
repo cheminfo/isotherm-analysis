@@ -30,7 +30,7 @@ test('fromIGA', () => {
   expect(header.sampleWeightDry).toStrictEqual(8.9674);
 
   const dataBlock = parseIGADataBlock(lines.slice(73, 103));
-  expect(dataBlock.pressure[0]).toStrictEqual(-0.7);
+  expect(dataBlock.pressure[0]).toBeCloseTo(-0.07, 5);
   expect(dataBlock.gasDensity[0]).toStrictEqual(0.0);
 
   const meas = parseOneIGA(lines.slice(1, 106));

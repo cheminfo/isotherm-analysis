@@ -40,10 +40,10 @@ test('fromBelsorp', () => {
   expect(data.desorption.p0).toHaveLength(11);
 
   expect(data.adsorption.p0[0]).toStrictEqual(83.744);
-  expect(data.adsorption.va[20]).toStrictEqual(220.16);
+  expect(data.adsorption.va[20]).toBeCloseTo(9822.4457, 3);
 
   expect(data.desorption.p0[0]).toStrictEqual(83.744);
-  expect(data.desorption.va[10]).toStrictEqual(198.1);
+  expect(data.desorption.va[10]).toBeCloseTo(8838.2381176, 3);
 
   const analyses = fromBelsorp(join(__dirname, '../../../testFiles/BET.xls'));
   expect(analyses).toHaveLength(2);

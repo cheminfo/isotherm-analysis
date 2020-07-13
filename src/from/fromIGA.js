@@ -117,7 +117,7 @@ function parseIGADataBlock(lines) {
 
   for (let line of lines) {
     let tmp = line.split(/\s{3,}/);
-    dataBlock.pressure.push(parseFloat(tmp[0]));
+    dataBlock.pressure.push(parseFloat(tmp[0]) * 0.1);
     dataBlock.gasDensity.push(parseFloat(tmp[1]));
     dataBlock.pp0.push(parseFloat(tmp[2]));
     dataBlock.totalWeight.push(parseFloat(tmp[3]));
@@ -157,7 +157,7 @@ export function fromIGA(text) {
       {
         x: {
           data: meas.data.pressure,
-          label: 'Pressure  [mbar]',
+          label: 'Pressure  [kPa]',
         },
         y: {
           data: meas.data.excessAdsorption,
@@ -165,7 +165,7 @@ export function fromIGA(text) {
         },
       },
       {
-        dataType: 'Isotherm',
+        dataType: 'Adsorption Isotherm',
         title: meas.meta.experimentTitle,
         meta: meas.meta,
       },
@@ -175,7 +175,7 @@ export function fromIGA(text) {
       {
         x: {
           data: meas.data.pressure,
-          label: 'Pressure  [mbar]',
+          label: 'Pressure  [kPa]',
         },
         y: {
           data: meas.data.excessAdsorptionPercentage,
@@ -183,7 +183,7 @@ export function fromIGA(text) {
         },
       },
       {
-        dataType: 'Isotherm',
+        dataType: 'Adsorption Isotherm',
         title: meas.meta.experimentTitle,
         meta: meas.meta,
       },
@@ -201,7 +201,7 @@ export function fromIGA(text) {
         },
       },
       {
-        dataType: 'Isotherm',
+        dataType: 'Adsorption Isotherm',
         title: meas.meta.experimentTitle,
         meta: meas.meta,
       },
