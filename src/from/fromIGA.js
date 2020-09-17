@@ -163,21 +163,11 @@ export function fromIGA(text) {
           data: meas.data.excessAdsorption,
           label: 'Excess Adsorption [mmol/g]',
         },
-      },
-      {
-        dataType: 'Adsorption Isotherm',
-        title: meas.meta.experimentTitle,
-        meta: meas.meta,
-      },
-    );
-
-    analysis.pushSpectrum(
-      {
-        x: {
-          data: meas.data.pressure,
-          label: 'Pressure  [kPa]',
+        p: {
+          data: meas.data.pp0,
+          label: 'relative pressure',
         },
-        y: {
+        r: {
           data: meas.data.excessAdsorptionPercentage,
           label: 'Excess Adsorption [%]',
         },
@@ -188,26 +178,6 @@ export function fromIGA(text) {
         meta: meas.meta,
       },
     );
-
-    analysis.pushSpectrum(
-      {
-        x: {
-          data: meas.data.pp0,
-          label: 'relative pressure',
-        },
-        y: {
-          data: meas.data.excessAdsorption,
-          label: 'Excess Adsorption [mmol/g]',
-        },
-      },
-      {
-        dataType: 'Adsorption Isotherm',
-        title: meas.meta.experimentTitle,
-        meta: meas.meta,
-      },
-    );
-
-    analyses.push(analysis);
   }
 
   return analyses;
