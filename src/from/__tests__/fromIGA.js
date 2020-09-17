@@ -39,5 +39,5 @@ test('fromIGA', () => {
   expect(meas.data.wtPercent[29]).toStrictEqual(1.447);
 
   let spectra = fromIGA(file);
-  expect(spectra).toHaveLength(4);
+  expect(spectra.spectra).toHaveLength(4);
 });

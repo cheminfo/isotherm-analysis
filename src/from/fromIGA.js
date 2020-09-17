@@ -146,26 +146,24 @@ function parseOneIGA(lines) {
 export function fromIGA(text) {
   const lines = text.split(/[\r\n]+/);
 
-  let analyses = [];
   const lineNumbers = getLineNumbersOfMeasurement(lines);
+  let analysis = new Analysis();
   for (let i = 0; i < lineNumbers[0].length; i++) {
     let meas = parseOneIGA(lines.slice(lineNumbers[0][i], lineNumbers[1][i]));
-
-    let analysis = new Analysis();
 
     analysis.pushSpectrum(
       {
         x: {
+          data: meas.data.pp0,
+          label: 'relative pressure',
+        },
+        p: {
           data: meas.data.pressure,
           label: 'Pressure  [kPa]',
         },
         y: {
           data: meas.data.excessAdsorption,
           label: 'Excess Adsorption [mmol/g]',
-        },
-        p: {
-          data: meas.data.pp0,
-          label: 'relative pressure',
         },
         r: {
           data: meas.data.excessAdsorptionPercentage,
@@ -179,8 +177,7 @@ export function fromIGA(text) {
       },
     );
   }
-
-  return analyses;
+  return analysis;
 }
 
 export const testables = {
