@@ -4,7 +4,12 @@
 [![build status][ci-image]][ci-url]
 [![npm download][download-image]][download-url]
 
-Parse and analyze isotherms. For examples of the implemented source files, see examples folder.
+Parse and analyze isotherms. Implemented filetypes:
+
+- Excel files from Belsorp instruments
+- CSV files from Micrometrics
+- TXT files from Micrometrics
+- TXT files from IGA
 
 ## Installation
 
