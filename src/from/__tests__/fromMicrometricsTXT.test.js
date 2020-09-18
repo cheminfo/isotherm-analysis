@@ -62,5 +62,10 @@ test('parsing the metablock', () => {
 });
 test('create an analysis object', () => {
   let analysis = fromMicrometricsTXT(file);
-  expect(analysis.spectra).toHaveLength(1);
+  expect(Object.keys(analysis.spectra[0].variables)).toStrictEqual([
+    'x',
+    'y',
+    'p',
+  ]);
+  expect(analysis.spectra[0].dataType).toStrictEqual('Adsorption Isotherm');
 });

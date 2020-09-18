@@ -96,6 +96,7 @@ export function fromMicrometricsTXT(text) {
   let startsAndEnds = findDataBlocks(lines);
   let analysis = new Analysis();
   let data;
+  let type = 'Adsorption Isotherm';
   for (let i = 0; i < startsAndEnds[0].length; i++) {
     data = parseIsothermTable(
       lines.slice(startsAndEnds[0][i], startsAndEnds[1][i]),
@@ -104,6 +105,9 @@ export function fromMicrometricsTXT(text) {
     let meta = parseMetaBlock(lines, startsAndEnds[0][i]);
     meta.pSat = data.pSat;
 
+    if (data.x[1] > data.x[data.x.length - 1]) {
+      type = 'Desorption Isotherm';
+    }
     analysis.pushSpectrum(
       {
         x: {
@@ -120,7 +124,7 @@ export function fromMicrometricsTXT(text) {
         },
       },
       {
-        dataType: 'Adsorption Isotherm',
+        dataType: type,
         title: meta.sample,
         meta: meta,
       },
