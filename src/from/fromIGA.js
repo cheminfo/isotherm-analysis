@@ -1,10 +1,7 @@
 import mean from 'ml-array-mean';
 
 import { Analysis } from '..';
-
-function lineSplitTrim(line) {
-  return line.split(/\s{4,}/)[1].trim();
-}
+import { lineSplitTrim } from './utils';
 
 function parseIGAMeasurmentHeader(lines) {
   let metaData = {};
