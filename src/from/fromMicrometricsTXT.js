@@ -1,6 +1,60 @@
-import { lineSplit } from './utils';
 import { Analysis } from '..';
 
+import { lineSplit } from './utils';
+
+function parseMetaBlock(lines, dataStartIndex) {
+  let meta = {};
+  for (let i = dataStartIndex - 13; i < dataStartIndex; i++) {
+    if (lines[i].match('Sample: ')) {
+      meta.sample = lineSplit(lines[i])[2].trim();
+    }
+    if (lines[i].match('Operator:  ')) {
+      meta.operator = lineSplit(lines[i])[1].trim();
+    }
+    if (lines[i].match('Submitter: ')) {
+      meta.submitter = lineSplit(lines[i])[1].trim();
+    }
+    if (lines[i].match('File: ')) {
+      meta.file = lineSplit(lines[i])[2].trim();
+    }
+    if (lines[i].match('Started: ')) {
+      meta.started = lineSplit(lines[i])[2].trim();
+    }
+    if (lines[i].match('Analysis adsorptive: ')) {
+      meta.adsorptive = lineSplit(lines[i])[4].trim();
+    }
+    if (lines[i].match('Completed: ')) {
+      meta.completed = lineSplit(lines[i])[2].trim();
+    }
+    if (lines[i].match('Equilibration time: ')) {
+      let time = lineSplit(lines[i])[4].trim().split(' ');
+      meta.equilibrationTime = parseFloat(time[0]);
+      meta.equilibrationTimeUnit = time[1];
+    }
+    if (lines[i].match('Report time: ')) {
+      meta.reportTime = lineSplit(lines[i])[2].trim();
+    }
+    if (lines[i].match('Sample mass: ')) {
+      let mass = lineSplit(lines[i])[2].trim().split(' ');
+      meta.sampleWeight = parseFloat(mass[0]);
+      meta.sampleWeightUnit = mass[1];
+    }
+    if (lines[i].match('Gemini model: ')) {
+      meta.model = lineSplit(lines[i])[4].trim();
+    }
+    if (lines[i].match('Sample density: ')) {
+      let density = lineSplit(lines[i])[3].split(' ');
+      meta.sampleDensity = parseFloat(density[0]);
+      meta.sampleDensityUnit = density[1];
+    }
+    if (lines[i].match('Evac. rate:  ')) {
+      let evacRate = lineSplit(lines[i])[2].split(' ');
+      meta.evacRate = parseFloat(evacRate[0]);
+      meta.evacRateUnit = evacRate[1];
+    }
+  }
+  return meta;
+}
 function findDataBlocks(lines) {
   let isothermTableStarts = [];
   let isothermTableEnds = [];
@@ -47,20 +101,30 @@ export function fromMicrometricsTXT(text) {
       lines.slice(startsAndEnds[0][i], startsAndEnds[1][i]),
     );
 
-    analysis.pushSpectrum({
-      x: {
-        data: data.x,
-        label: 'relative pressure',
+    let meta = parseMetaBlock(lines, startsAndEnds[0][i]);
+    meta.pSat = data.pSat;
+
+    analysis.pushSpectrum(
+      {
+        x: {
+          data: data.x,
+          label: 'relative pressure',
+        },
+        y: {
+          data: data.y,
+          label: 'Excess Adsorption [mmol/g]',
+        },
+        p: {
+          data: data.p,
+          label: 'Pressure [kPa]',
+        },
       },
-      y: {
-        data: data.y,
-        label: 'Excess Adsorption [mmol/g]',
+      {
+        dataType: 'Adsorption Isotherm',
+        title: meta.sample,
+        meta: meta,
       },
-      p: {
-        data: data.p,
-        label: 'Pressure [kPa]',
-      },
-    });
+    );
   }
 
   return analysis;
@@ -69,4 +133,5 @@ export function fromMicrometricsTXT(text) {
 export const testables = {
   findDataBlocks: findDataBlocks,
   parseIsothermTable: parseIsothermTable,
+  parseMetaBlock: parseMetaBlock,
 };

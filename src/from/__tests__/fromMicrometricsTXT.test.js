@@ -3,7 +3,7 @@ import { join } from 'path';
 
 import { testables, fromMicrometricsTXT } from '../fromMicrometricsTXT';
 
-const { findDataBlocks, parseIsothermTable } = testables;
+const { findDataBlocks, parseIsothermTable, parseMetaBlock } = testables;
 const file = readFileSync(
   join(__dirname, '../../../testFiles/GVM-BET-Gemini.VII.2390.v1.03.TXT'),
   'utf16le',
@@ -36,6 +36,30 @@ test('parsing the datablocks', () => {
   expect(data.y[28]).toStrictEqual(10.3795);
 });
 
+test('parsing the metablock', () => {
+  let meta = parseMetaBlock(lines, 35);
+  expect(meta.sample).toStrictEqual('gvmh97400');
+  expect(meta.operator).toStrictEqual('manohara');
+  expect(meta.submitter).toStrictEqual('degas 100');
+  expect(meta.file).toStrictEqual(
+    'C:\\Gemini VII\\data\\USERS\\Manohara\\gvmh97.SMP',
+  );
+  expect(meta.started).toStrictEqual('20/07/2020 15:17:42');
+  expect(meta.adsorptive).toStrictEqual('N2');
+  expect(meta.completed).toStrictEqual('20/07/2020 21:54:54');
+  expect(meta.equilibrationTime).toStrictEqual(10);
+  expect(meta.equilibrationTimeUnit).toStrictEqual('s');
+  expect(meta.reportTime).toStrictEqual('21/07/2020 12:10:01');
+
+  expect(meta.sampleWeight).toStrictEqual(0.121);
+  expect(meta.sampleWeightUnit).toStrictEqual('g');
+
+  expect(meta.model).toStrictEqual('2390 a');
+  expect(meta.sampleDensity).toStrictEqual(1.0);
+  expect(meta.sampleDensityUnit).toStrictEqual('g/cm³');
+  expect(meta.evacRate).toStrictEqual(20);
+  expect(meta.evacRateUnit).toStrictEqual('mmHg/min');
+});
 test('create an analysis object', () => {
   let analysis = fromMicrometricsTXT(file);
   expect(analysis.spectra).toHaveLength(1);

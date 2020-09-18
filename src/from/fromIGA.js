@@ -1,6 +1,7 @@
 import mean from 'ml-array-mean';
 
 import { Analysis } from '..';
+
 import { lineSplitTrim } from './utils';
 
 function parseIGAMeasurmentHeader(lines) {
