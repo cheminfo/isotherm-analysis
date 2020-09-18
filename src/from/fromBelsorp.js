@@ -123,13 +123,15 @@ export function fromBelsorp(path) {
     metaData.desorptionPoints,
   );
 
-  let analyses = [];
-
   let analysis = new Analysis();
 
   analysis.pushSpectrum(
     {
       x: {
+        data: data.adsorption.pp0,
+        label: 'relative pressure',
+      },
+      p: {
         data: data.adsorption.pe,
         label: 'Pressure  [kPa]',
       },
@@ -145,13 +147,13 @@ export function fromBelsorp(path) {
     },
   );
 
-  analyses.push(analysis);
-
-  let analysisDes = new Analysis();
-
-  analysisDes.pushSpectrum(
+  analysis.pushSpectrum(
     {
       x: {
+        data: data.desorption.pp0,
+        label: 'relative pressure',
+      },
+      p: {
         data: data.desorption.pe,
         label: 'Pressure  [kPa]',
       },
@@ -167,9 +169,7 @@ export function fromBelsorp(path) {
     },
   );
 
-  analyses.push(analysisDes);
-
-  return analyses;
+  return analysis;
 }
 
 export const testables = {

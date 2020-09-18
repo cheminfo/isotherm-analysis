@@ -1,3 +1,5 @@
+import mean from 'ml-array-mean';
+
 import { Analysis } from '..';
 
 function lineSplitTrim(line) {
@@ -79,8 +81,7 @@ function parseIGAMeasurmentHeader(lines) {
 
   metaData.seriesType = lineSplitTrim(lines[59]);
 
-  // eslint-disable-next-line radix
-  metaData.scan = parseInt(lineSplitTrim(lines[61]));
+  metaData.scan = parseInt(lineSplitTrim(lines[61]), 10);
   metaData.course = lineSplitTrim(lines[62]);
   metaData.referenceStateDevice = lineSplitTrim(lines[63]);
   metaData.scanTitle = lineSplitTrim(lines[64]);
@@ -151,6 +152,9 @@ export function fromIGA(text) {
   for (let i = 0; i < lineNumbers[0].length; i++) {
     let meas = parseOneIGA(lines.slice(lineNumbers[0][i], lineNumbers[1][i]));
 
+    meas.meta.adsorptionT = mean(meas.data.sampleT);
+    meas.meta.adsorptionTUnit = '°C';
+
     analysis.pushSpectrum(
       {
         x: {
@@ -168,6 +172,10 @@ export function fromIGA(text) {
         r: {
           data: meas.data.excessAdsorptionPercentage,
           label: 'Excess Adsorption [%]',
+        },
+        t: {
+          data: meas.data.sampleT,
+          label: 'Sample Temperature [°C]',
         },
       },
       {

@@ -38,6 +38,22 @@ test('fromIGA', () => {
   expect(meas.data.wtPercent).toHaveLength(30);
   expect(meas.data.wtPercent[29]).toStrictEqual(1.447);
 
-  let spectra = fromIGA(file);
-  expect(spectra.spectra).toHaveLength(4);
+  let analysis = fromIGA(file);
+  expect(analysis.spectra).toHaveLength(4);
+  for (let i = 0; i < 4; i++) {
+    expect(Object.keys(analysis.spectra[i].variables)).toStrictEqual([
+      'x',
+      'p',
+      'y',
+      'r',
+      't',
+    ]);
+
+    expect(analysis.spectra[i].dataType).toBe('Adsorption Isotherm');
+  }
+
+  expect(analysis.spectra[0].meta.adsorptionT).toBeCloseTo(20, 0);
+  expect(analysis.spectra[1].meta.adsorptionT).toBeCloseTo(39, 0);
+  expect(analysis.spectra[2].meta.adsorptionT).toBeCloseTo(59, 0);
+  expect(analysis.spectra[3].meta.adsorptionT).toBeCloseTo(68, 0);
 });

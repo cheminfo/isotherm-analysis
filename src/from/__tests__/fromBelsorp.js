@@ -45,6 +45,21 @@ test('fromBelsorp', () => {
   expect(data.desorption.p0[0]).toStrictEqual(83.744);
   expect(data.desorption.va[10]).toBeCloseTo(8838.2381176, 3);
 
-  const analyses = fromBelsorp(join(__dirname, '../../../testFiles/BET.xls'));
-  expect(analyses).toHaveLength(2);
+  const analysis = fromBelsorp(join(__dirname, '../../../testFiles/BET.xls'));
+
+  expect(analysis.spectra).toHaveLength(2);
+
+  expect(Object.keys(analysis.spectra[0].variables)).toStrictEqual([
+    'x',
+    'p',
+    'y',
+  ]);
+  expect(Object.keys(analysis.spectra[1].variables)).toStrictEqual([
+    'x',
+    'p',
+    'y',
+  ]);
+
+  expect(analysis.spectra[0].dataType).toBe('Adsorption Isotherm');
+  expect(analysis.spectra[1].dataType).toBe('Desorption Isotherm');
 });
