@@ -20,9 +20,22 @@ let isotherm = IsothermAnalysis.fromIGA(file);
 
 ## [API Documentation](https://cheminfo.github.io/isotherm-analysis/)
 
-## Development guidelines 
-- ideally convent pressure to kPa and excess adsorption to mmol/g
-- there are two data types `Adsorption Isotherm` and `Desorption Isotherm`
+## Development guidelines
+
+- there are two data types `Adsorption Isotherm` and `Desorption Isotherm`. Ideally, this is directly provided in the file and we parse it from there. Otherwise, if the pressure is descending, it is desorption.
+- the `jcamp` has the following fields:
+
+| field | meaning                                                       | typical unit |
+| ----- | ------------------------------------------------------------- | ------------ |
+| x     | relative pressure (pressure relative to staturation pressure) | unitless     |
+| y     | gravimetric excess uptake                                     | mmol/g       |
+| p     | absolute pressure                                             | kPa          |
+
+If available, we try to use the following fields for metadata:
+
+- `sampleWeight`: For example, 1.
+- `sampleWeightUnit`: For example, g.
+- `adsorptive`: For example, N2.
 
 ## License
 
