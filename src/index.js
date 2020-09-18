@@ -17,3 +17,6 @@ export {
 };
 
 export { fromIGA } from './from/fromIGA';
+export { fromMicrometricsTXT } from './from/fromMicrometricsTXT';
+export { fromMicrometricsCSV } from './from/fromMicrometricsCSV';
+export { fromBelsorp } from './from/fromBelsorp';
