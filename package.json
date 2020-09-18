@@ -23,7 +23,7 @@
     "url": "git+https://github.com/cheminfo/isotherm-analysis.git"
   },
   "keywords": [],
-  "author": "Kevin M. Jablonka",
+  "author": "Kevin M. Jablonka, Luc Patiny",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/cheminfo/isotherm-analysis/issues"
@@ -43,6 +43,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.10.1",
     "@types/jest": "^26.0.3",
     "cheminfo-build": "^1.1.1",
+    "cheminfo-publish": "^1.0.13",
     "codecov": "^3.7.0",
     "eslint-config-cheminfo": "^4.0.0",
     "eslint-plugin-import": "^2.21.2",
