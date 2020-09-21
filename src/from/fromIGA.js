@@ -158,22 +158,27 @@ export function fromIGA(text) {
         x: {
           data: meas.data.pp0,
           label: 'relative pressure',
+          type: 'independent',
         },
         p: {
           data: meas.data.pressure,
           label: 'Pressure  [kPa]',
+          type: 'independent',
         },
         y: {
           data: meas.data.excessAdsorption,
           label: 'Excess Adsorption [mmol/g]',
+          type: 'dependent',
         },
         r: {
           data: meas.data.excessAdsorptionPercentage,
           label: 'Excess Adsorption [%]',
+          type: 'dependent',
         },
         t: {
           data: meas.data.sampleT,
           label: 'Sample Temperature [°C]',
+          type: 'independent',
         },
       },
       {

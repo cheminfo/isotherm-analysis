@@ -1,4 +1,5 @@
-// import Papa from 'papaparse';
+import Papa from 'papaparse';
+
 import { lineSplitComma } from './utils';
 
 function parseMeta(lines) {
@@ -91,16 +92,38 @@ function parseMeta(lines) {
   return meta;
 }
 
-// function parseData(lines) {
-//   // ToDo: somehow ugly to first split and then join again
-//   let text = lines.join('\r\n');
-//   let parsed = Papa.parse(text, {
-//     delimiter: ',',
-//     dynamicTyping: true,
-//     skipEmptyLines: true,
-//   }).data;
-// }
+function findAdsDesSwitches(targetPressure) {
+  // The file might contain adsorption/desorption cycles, we find this by checking when the target pressure switches
+}
+
+function parseData(lines, dataStartRow) {
+  // ToDo: somehow ugly to first split and then join again
+  let text = lines.slice(dataStartRow - 1, lines.length).join('\r\n');
+  let parsed = Papa.parse(text, {
+    delimiter: ',',
+    dynamicTyping: true,
+    skipEmptyLines: true,
+  }).data;
+
+  let data = {};
+  const arrayColumn = (arr, n) => arr.map((x) => x[n]);
+  data.time = arrayColumn(parsed, 0);
+  data.RH = arrayColumn(parsed, 26);
+  data.targetRH = arrayColumn(parsed, 25);
+  data.targetp = arrayColumn(parsed, 9).map(function (item) {
+    return item * 0.133322; // Torr to kPa
+  });
+  data.p = arrayColumn(parsed, 10).map(function (item) {
+    return item * 0.133322; // Torr to kPa
+  });
+  data.x = arrayColumn(parsed, 9).map(function (item) {
+    return item / 100;
+  });
+
+  return data;
+}
 
 export const testables = {
   parseMeta: parseMeta,
+  parseData: parseData,
 };

@@ -63,6 +63,7 @@ export function fromMicrometricsCSV(text) {
             return parseFloat(x);
           }),
         label: 'relative pressure p/p0',
+        type: 'independent',
       },
       y: {
         data: arrayColumn(parsed, 3)
@@ -73,6 +74,7 @@ export function fromMicrometricsCSV(text) {
             return (parseFloat(x) / idealGasConstant) * 1000;
           }),
         label: 'Excess adsorption mmol /g',
+        type: 'dependent',
       },
     },
     {

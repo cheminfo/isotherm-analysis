@@ -10,7 +10,7 @@ const file = readFileSync(
 
 const lines = file.split(/\r?\n/);
 
-const { parseMeta } = testables;
+const { parseMeta, parseData } = testables;
 test('parse meta data', () => {
   let meta = parseMeta(lines);
   expect(meta.methodName).toStrictEqual('Co-adsorption25C30RH_MARK2');
@@ -37,4 +37,9 @@ test('parse meta data', () => {
   expect(meta.dataSavingInterval).toStrictEqual(5);
   expect(meta.dataSavingIntervalUnit).toStrictEqual('s');
   expect(meta.fileVersion).toStrictEqual('1.2');
+});
+
+test('parse data', () => {
+  let parseResult = parseData(lines, 43);
+  console.log(parseResult);
 });

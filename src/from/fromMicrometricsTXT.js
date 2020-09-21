@@ -113,14 +113,17 @@ export function fromMicrometricsTXT(text) {
         x: {
           data: data.x,
           label: 'relative pressure',
+          type: 'independent',
         },
         y: {
           data: data.y,
           label: 'Excess Adsorption [mmol/g]',
+          type: 'dependent',
         },
         p: {
           data: data.p,
           label: 'Pressure [kPa]',
+          type: 'independent',
         },
       },
       {

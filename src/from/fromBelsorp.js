@@ -130,14 +130,17 @@ export function fromBelsorp(path) {
       x: {
         data: data.adsorption.pp0,
         label: 'relative pressure',
+        type: 'independent' 
       },
       p: {
         data: data.adsorption.pe,
         label: 'Pressure  [kPa]',
+        type: 'independent' 
       },
       y: {
         data: data.adsorption.va,
         label: 'Excess adsorption mmol /g',
+        type: 'dependent' 
       },
     },
     {
