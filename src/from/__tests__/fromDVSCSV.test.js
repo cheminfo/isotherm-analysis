@@ -41,5 +41,5 @@ test('parse meta data', () => {
 
 test('parse data', () => {
   let parseResult = parseData(lines, 43);
-  console.log(parseResult);
+  expect(parseResult).toBeInstanceOf(Object);
 });

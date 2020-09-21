@@ -92,9 +92,9 @@ function parseMeta(lines) {
   return meta;
 }
 
-function findAdsDesSwitches(targetPressure) {
-  // The file might contain adsorption/desorption cycles, we find this by checking when the target pressure switches
-}
+// function findAdsDesSwitches(targetPressure) {
+//   // The file might contain adsorption/desorption cycles, we find this by checking when the target pressure switches
+// }
 
 function parseData(lines, dataStartRow) {
   // ToDo: somehow ugly to first split and then join again
