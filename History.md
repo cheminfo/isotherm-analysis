@@ -1,3 +1,12 @@
+## [0.1.1](https://github.com/cheminfo/isotherm-analysis/compare/v0.1.0...v0.1.1) (2020-09-22)
+
+
+### Bug Fixes
+
+* added variable type, [#20](https://github.com/cheminfo/isotherm-analysis/issues/20) ([2b8cd1c](https://github.com/cheminfo/isotherm-analysis/commit/2b8cd1c1d0bf2a00da5093b274e1a99b226685cb))
+
+
+
 # 0.1.0 (2020-09-18)
 
 
