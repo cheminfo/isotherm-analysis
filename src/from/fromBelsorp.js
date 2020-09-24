@@ -2,7 +2,10 @@ import { Analysis } from '..';
 
 import { idealGasConstant } from './constants';
 
-let xlsx = require('xlsx');
+const {
+  readFile,
+  utils: { encode_cell },
+} = require('xlsx');
 
 function valueElseUndefined(cell) {
   return cell ? cell.v : undefined;
@@ -76,7 +79,7 @@ function parseIsothermBlock(worksheet, range) {
     let counter = 0;
     for (let C = range.s.c; C <= range.e.c; ++C) {
       let cellAddress = { c: C, r: R };
-      let cellRef = xlsx.utils.encode_cell(cellAddress);
+      let cellRef = encode_cell(cellAddress);
       adresses[counter].push(valueElseUndefinedFloat(worksheet[cellRef]));
       counter++;
     }
@@ -111,7 +114,7 @@ function parseAdsDesData(worksheet, adsorptionPoints, desorptionPoints) {
 }
 
 export function fromBelsorp(path) {
-  const workbook = xlsx.readFile(path);
+  const workbook = readFile(path);
 
   const adsDesSheet = workbook.Sheets.AdsDes;
 
