@@ -15,7 +15,6 @@ export function fromMicrometricsCSV(text) {
   const arrayColumn = (arr, n) => arr.map((x) => x[n]);
 
   const headerRow = parsed.shift();
-  let analyses = [];
 
   let analysis = new Analysis();
 
@@ -51,10 +50,7 @@ export function fromMicrometricsCSV(text) {
     },
   );
 
-  analyses.push(analysis);
-
-  let desorption = new Analysis();
-  desorption.pushSpectrum(
+  analysis.pushSpectrum(
     {
       x: {
         data: arrayColumn(parsed, 2)
@@ -86,7 +82,5 @@ export function fromMicrometricsCSV(text) {
     },
   );
 
-  analyses.push(desorption);
-
-  return analyses;
+  return analysis;
 }
