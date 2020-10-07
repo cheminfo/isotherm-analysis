@@ -23,45 +23,45 @@ function parseIGAMeasurmentHeader(lines) {
   metaData.experimentTitle = lineSplitTrim(lines[12]);
   let tmp = lineSplitTrim(lines[14]).split(/\s/);
   metaData.sampleWeight = parseFloat(tmp[0]);
-  metaData.sampleWeightUnit = tmp[1];
+  metaData.sampleWeightunits = tmp[1];
 
   tmp = lineSplitTrim(lines[15]).split(/\s/);
   metaData.sampleWeightDry = parseFloat(tmp[0]);
-  metaData.sampleWeightDryUnit = tmp[1];
+  metaData.sampleWeightDryunits = tmp[1];
 
   tmp = lineSplitTrim(lines[18]).split(/\s/);
   metaData.balanceTrimV = parseFloat(tmp[0]);
-  metaData.balanceTrimVUnit = tmp[1];
+  metaData.balanceTrimVunits = tmp[1];
 
   metaData.balanceTrimT = lineSplitTrim(lines[19]);
 
   tmp = lineSplitTrim(lines[20]).split(/\s/);
   metaData.counterWeightM = parseFloat(tmp[0]);
-  metaData.counterWeightMUnit = tmp[1];
+  metaData.counterWeightMunits = tmp[1];
 
   tmp = lineSplitTrim(lines[21]).split(/\s/);
   metaData.counterWeightRho = parseFloat(tmp[0]);
-  metaData.counterWeightRhoUnit = tmp[1];
+  metaData.counterWeightRhounits = tmp[1];
 
   metaData.counterWeightT = lineSplitTrim(lines[22]);
 
   tmp = lineSplitTrim(lines[23]).split(/\s/);
   metaData.tungstenM = parseFloat(tmp[0]);
-  metaData.tungstenMUnit = tmp[1];
+  metaData.tungstenMunits = tmp[1];
 
   tmp = lineSplitTrim(lines[24]).split(/\s/);
   metaData.tungstenRho = parseFloat(tmp[0]);
-  metaData.tungstenRhoUnit = tmp[1];
+  metaData.tungstenRhounits = tmp[1];
 
   metaData.counterWeightT = lineSplitTrim(lines[25]);
 
   tmp = lineSplitTrim(lines[26]).split(/\s/);
   metaData.chainExcessM = parseFloat(tmp[0]);
-  metaData.chainExcessMUnit = tmp[1];
+  metaData.chainExcessMunits = tmp[1];
 
   tmp = lineSplitTrim(lines[27]).split(/\s/);
   metaData.chainExcessRho = parseFloat(tmp[0]);
-  metaData.chainExcessRhoUnit = tmp[1];
+  metaData.chainExcessRhounits = tmp[1];
 
   metaData.chainExcessT = lineSplitTrim(lines[28]);
 
@@ -151,7 +151,7 @@ export function fromIGA(text) {
     let meas = parseOneIGA(lines.slice(lineNumbers[0][i], lineNumbers[1][i]));
 
     meas.meta.adsorptionT = mean(meas.data.sampleT);
-    meas.meta.adsorptionTUnit = '°C';
+    meas.meta.adsorptionTunits = '°C';
 
     analysis.pushSpectrum(
       {
@@ -159,26 +159,31 @@ export function fromIGA(text) {
           data: meas.data.pp0,
           label: 'relative pressure',
           type: 'independent',
+          units: '',
         },
         p: {
           data: meas.data.pressure,
-          label: 'Pressure  [kPa]',
+          label: 'Pressure',
           type: 'independent',
+          units: 'kPa',
         },
         y: {
           data: meas.data.excessAdsorption,
           label: 'Excess Adsorption [mmol/g]',
           type: 'dependent',
+          units: 'mmol/g',
         },
         r: {
           data: meas.data.excessAdsorptionPercentage,
-          label: 'Excess Adsorption [%]',
+          label: 'Excess Adsorption',
           type: 'dependent',
+          units: '%',
         },
         t: {
           data: meas.data.sampleT,
-          label: 'Sample Temperature [°C]',
+          label: 'Sample Temperature',
           type: 'independent',
+          units: '°C',
         },
       },
       {

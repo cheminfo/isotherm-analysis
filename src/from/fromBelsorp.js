@@ -16,7 +16,7 @@ function valueElseUndefinedInt(cell) {
   return cell ? parseFloat(cell.v) : undefined;
 }
 
-function valueElseUndefinedStripUnit(cell) {
+function valueElseUndefinedStripunits(cell) {
   let val = cell ? cell.v : undefined;
   return val.replace(']', '').replace('[', '');
 }
@@ -33,26 +33,26 @@ function getAdsDesMeta(adsDesSheet) {
   metaData.serialNumber = valueElseUndefined(adsDesSheet.C9);
   metaData.version = valueElseUndefined(adsDesSheet.C10);
   metaData.sampleWeight = valueElseUndefinedFloat(adsDesSheet.C12);
-  metaData.sampleWeightUnit = valueElseUndefinedStripUnit(adsDesSheet.D12);
+  metaData.sampleWeightUnit = valueElseUndefinedStripunits(adsDesSheet.D12);
   metaData.standardVolume = valueElseUndefinedFloat(adsDesSheet.C13);
-  metaData.standardVolumeUnit = valueElseUndefinedStripUnit(adsDesSheet.D13);
+  metaData.standardVolumeUnit = valueElseUndefinedStripunits(adsDesSheet.D13);
   metaData.deadVolume = valueElseUndefinedFloat(adsDesSheet.C14);
-  metaData.deadVolumeUnit = valueElseUndefinedStripUnit(adsDesSheet.D14);
+  metaData.deadVolumeUnit = valueElseUndefinedStripunits(adsDesSheet.D14);
   metaData.equilibriumTime = valueElseUndefinedFloat(adsDesSheet.C15);
-  metaData.equilibriumTimeUnit = valueElseUndefinedStripUnit(adsDesSheet.D15);
+  metaData.equilibriumTimeUnit = valueElseUndefinedStripunits(adsDesSheet.D15);
   metaData.adsorptive = valueElseUndefined(adsDesSheet.C16);
   metaData.apparatusT = valueElseUndefined(adsDesSheet.C17);
-  metaData.apparatusTUnit = valueElseUndefinedStripUnit(adsDesSheet.D17);
+  metaData.apparatusTUnit = valueElseUndefinedStripunits(adsDesSheet.D17);
   metaData.adsorptionT = valueElseUndefinedFloat(adsDesSheet.C18);
-  metaData.adsorptionTUnit = valueElseUndefinedStripUnit(adsDesSheet.D18);
+  metaData.adsorptionTUnit = valueElseUndefinedStripunits(adsDesSheet.D18);
   metaData.saturatedVaporPressure = valueElseUndefinedFloat(adsDesSheet.H12);
-  metaData.saturatedVaporPressureUnit = valueElseUndefinedStripUnit(
+  metaData.saturatedVaporPressureUnit = valueElseUndefinedStripunits(
     adsDesSheet.I12,
   );
   metaData.adsorptionCrossSectionArea = valueElseUndefinedFloat(
     adsDesSheet.H13,
   );
-  metaData.adsorptionCrossSectionAreaUnit = valueElseUndefinedStripUnit(
+  metaData.adsorptionCrossSectionAreaUnit = valueElseUndefinedStripunits(
     adsDesSheet.I13,
   );
   metaData.adsorptionPoints = valueElseUndefinedInt(adsDesSheet.H17);
@@ -131,16 +131,19 @@ export function fromBelsorp(path) {
         data: data.adsorption.pp0,
         label: 'relative pressure',
         type: 'independent',
+        units: '',
       },
       p: {
         data: data.adsorption.pe,
-        label: 'Pressure  [kPa]',
+        label: 'Pressure',
         type: 'independent',
+        units: 'kPa',
       },
       y: {
         data: data.adsorption.va,
-        label: 'Excess adsorption mmol /g',
+        label: 'Excess adsorption',
         type: 'dependent',
+        units: 'mmol/g',
       },
     },
     {
@@ -156,16 +159,19 @@ export function fromBelsorp(path) {
         data: data.desorption.pp0,
         label: 'relative pressure',
         type: 'independent',
+        units: '',
       },
       p: {
         data: data.desorption.pe,
-        label: 'Pressure  [kPa]',
+        label: 'Pressure',
         type: 'independent',
+        units: 'kPa',
       },
       y: {
         data: data.desorption.va,
-        label: 'Excess adsorption mmol /g',
+        label: 'Excess adsorption',
         type: 'dependent',
+        units: 'mmol/g',
       },
     },
     {

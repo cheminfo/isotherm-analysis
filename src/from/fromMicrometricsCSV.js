@@ -30,6 +30,7 @@ export function fromMicrometricsCSV(text) {
           }),
         label: 'relative pressure p/p0',
         type: 'independent',
+        units: '',
       },
       y: {
         data: arrayColumn(parsed, 1)
@@ -39,8 +40,9 @@ export function fromMicrometricsCSV(text) {
           .map(function (x) {
             return (parseFloat(x) / idealGasConstant) * 1000;
           }),
-        label: 'Excess adsorption mmol /g',
+        label: 'Excess adsorption',
         type: 'dependent',
+        units: 'mmol/g',
       },
     },
     {
@@ -62,6 +64,7 @@ export function fromMicrometricsCSV(text) {
           }),
         label: 'relative pressure p/p0',
         type: 'independent',
+        units: '',
       },
       y: {
         data: arrayColumn(parsed, 3)
@@ -71,8 +74,9 @@ export function fromMicrometricsCSV(text) {
           .map(function (x) {
             return (parseFloat(x) / idealGasConstant) * 1000;
           }),
-        label: 'Excess adsorption mmol /g',
+        label: 'Excess adsorption',
         type: 'dependent',
+        units: 'mmol/g',
       },
     },
     {

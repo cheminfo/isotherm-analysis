@@ -114,16 +114,19 @@ export function fromMicrometricsTXT(text) {
           data: data.x,
           label: 'relative pressure',
           type: 'independent',
+          units: '',
         },
         y: {
           data: data.y,
-          label: 'Excess Adsorption [mmol/g]',
+          label: 'Excess Adsorption',
           type: 'dependent',
+          units: 'mmol/g',
         },
         p: {
           data: data.p,
           label: 'Pressure [kPa]',
           type: 'independent',
+          units: 'kPa',
         },
       },
       {
