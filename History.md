@@ -1,3 +1,10 @@
+### [0.1.3](https://github.com/cheminfo/isotherm-analysis/compare/v0.1.2...v0.1.3) (2020-10-12)
+
+
+### Bug Fixes
+
+* units in proper format ([97bffe1](https://github.com/cheminfo/isotherm-analysis/commit/97bffe19b83925b507ec8f837b66d22269ff76f3))
+
 ## [0.1.1](https://github.com/cheminfo/isotherm-analysis/compare/v0.1.0...v0.1.1) (2020-09-22)
 
 
