@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.1.4](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.1.3...v0.1.4) (2020-10-12)
+
+
+### Bug Fixes
+
+* remove docs folder ([bf02867](https://www.github.com/cheminfo/isotherm-analysis/commit/bf02867bf2ca0463490f679791eef4315e66ecf1))
+
 ### [0.1.3](https://github.com/cheminfo/isotherm-analysis/compare/v0.1.2...v0.1.3) (2020-10-12)
 
 
@@ -29,6 +36,3 @@
 * MicrometricsCSV and more consistent x/y ([bce34e8](https://github.com/cheminfo/isotherm-analysis/commit/bce34e8862a6bde23af946579be212641515e904)), closes [#6](https://github.com/cheminfo/isotherm-analysis/issues/6) [#3](https://github.com/cheminfo/isotherm-analysis/issues/3)
 * starting to work on belsorp ([179bc2c](https://github.com/cheminfo/isotherm-analysis/commit/179bc2c0aa398bd3ab04e24d4133c5834257779b))
 * working on belsorp parsing. ([35288da](https://github.com/cheminfo/isotherm-analysis/commit/35288daf3d6a1e359c3128798473ea1f7123d431))
-
-
-
