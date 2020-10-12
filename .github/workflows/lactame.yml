@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Get package name
+        run: echo "PACKAGENAME=$(grep -m1 "\"name\":"  package.json | awk -F ":" '{ print $2 }' | sed 's/[ ",]//g')" >> $GITHUB_ENV
       - uses: actions/setup-node@v2-beta
         with:
           node-version: 14.x
@@ -20,5 +22,5 @@ jobs:
         uses: zakodium/lactame-action@v1
         with:
           token: ${{ secrets.LACTAME_TOKEN }}
-          name: isotherm-analysis
+          name: $PACKAGENAME
           folder: dist
