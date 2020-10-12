@@ -42,20 +42,20 @@
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.10.4",
     "@types/jest": "^26.0.14",
-    "cheminfo-build": "^1.1.6",
-    "cheminfo-publish": "^1.0.14",
+    "cheminfo-build": "^1.1.7",
+    "cheminfo-publish": "^1.0.19",
     "codecov": "^3.8.0",
     "eslint-config-cheminfo": "^5.2.2",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^24.1.0",
     "eslint-plugin-prettier": "^3.1.4",
     "prettier": "^2.1.2",
-    "rollup": "^2.28.2"
+    "rollup": "^2.29.0"
   },
   "dependencies": {
     "common-spectrum": "^0.10.0",
-    "eslint": "^7.10.0",
-    "jest": "^26.5.2",
+    "eslint": "^7.11.0",
+    "jest": "^26.5.3",
     "ml-array-max": "^1.2.0",
     "ml-array-mean": "^1.1.4",
     "papaparse": "^5.3.0",

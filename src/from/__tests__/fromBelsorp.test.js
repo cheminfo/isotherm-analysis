@@ -1,4 +1,5 @@
 import { join } from 'path';
+import { readFileSync } from 'fs';
 
 import { fromBelsorp, testables } from '../fromBelsorp';
 
@@ -45,7 +46,8 @@ test('fromBelsorp', () => {
   expect(data.desorption.p0[0]).toStrictEqual(83.744);
   expect(data.desorption.va[10]).toBeCloseTo(8838.2381176, 3);
 
-  const analysis = fromBelsorp(join(__dirname, '../../../testFiles/BET.xls'));
+  const dataFile = readFileSync(join(__dirname, '../../../testFiles/BET.xls'));
+  const analysis = fromBelsorp(dataFile);
 
   expect(analysis.spectra).toHaveLength(2);
 

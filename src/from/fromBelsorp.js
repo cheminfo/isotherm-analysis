@@ -1,8 +1,8 @@
+import { read, utils } from 'xlsx';
+
 import { Analysis } from '..';
 
 import { idealGasConstant } from './constants';
-
-import { readFile, utils } from 'xlsx';
 
 function valueElseUndefined(cell) {
   return cell ? cell.v : undefined;
@@ -110,8 +110,8 @@ function parseAdsDesData(worksheet, adsorptionPoints, desorptionPoints) {
   };
 }
 
-export function fromBelsorp(path) {
-  const workbook = readFile(path);
+export function fromBelsorp(dataFile) {
+  const workbook = read(dataFile);
 
   const adsDesSheet = workbook.Sheets.AdsDes;
 
