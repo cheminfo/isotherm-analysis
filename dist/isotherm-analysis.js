@@ -1,6 +1,6 @@
 /**
  * isotherm-analysis - Parse and analyze isotherms
- * @version v0.1.2
+ * @version v0.1.4
  * @link https://github.com/cheminfo/isotherm-analysis#readme
  * @license MIT
  */
@@ -11104,34 +11104,34 @@ ${points.join('\n')}
     metaData.experimentTitle = lineSplitTrim(lines[12]);
     let tmp = lineSplitTrim(lines[14]).split(/\s/);
     metaData.sampleWeight = parseFloat(tmp[0]);
-    metaData.sampleWeightUnit = tmp[1];
+    metaData.sampleWeightunits = tmp[1];
     tmp = lineSplitTrim(lines[15]).split(/\s/);
     metaData.sampleWeightDry = parseFloat(tmp[0]);
-    metaData.sampleWeightDryUnit = tmp[1];
+    metaData.sampleWeightDryunits = tmp[1];
     tmp = lineSplitTrim(lines[18]).split(/\s/);
     metaData.balanceTrimV = parseFloat(tmp[0]);
-    metaData.balanceTrimVUnit = tmp[1];
+    metaData.balanceTrimVunits = tmp[1];
     metaData.balanceTrimT = lineSplitTrim(lines[19]);
     tmp = lineSplitTrim(lines[20]).split(/\s/);
     metaData.counterWeightM = parseFloat(tmp[0]);
-    metaData.counterWeightMUnit = tmp[1];
+    metaData.counterWeightMunits = tmp[1];
     tmp = lineSplitTrim(lines[21]).split(/\s/);
     metaData.counterWeightRho = parseFloat(tmp[0]);
-    metaData.counterWeightRhoUnit = tmp[1];
+    metaData.counterWeightRhounits = tmp[1];
     metaData.counterWeightT = lineSplitTrim(lines[22]);
     tmp = lineSplitTrim(lines[23]).split(/\s/);
     metaData.tungstenM = parseFloat(tmp[0]);
-    metaData.tungstenMUnit = tmp[1];
+    metaData.tungstenMunits = tmp[1];
     tmp = lineSplitTrim(lines[24]).split(/\s/);
     metaData.tungstenRho = parseFloat(tmp[0]);
-    metaData.tungstenRhoUnit = tmp[1];
+    metaData.tungstenRhounits = tmp[1];
     metaData.counterWeightT = lineSplitTrim(lines[25]);
     tmp = lineSplitTrim(lines[26]).split(/\s/);
     metaData.chainExcessM = parseFloat(tmp[0]);
-    metaData.chainExcessMUnit = tmp[1];
+    metaData.chainExcessMunits = tmp[1];
     tmp = lineSplitTrim(lines[27]).split(/\s/);
     metaData.chainExcessRho = parseFloat(tmp[0]);
-    metaData.chainExcessRhoUnit = tmp[1];
+    metaData.chainExcessRhounits = tmp[1];
     metaData.chainExcessT = lineSplitTrim(lines[28]);
     metaData.applicationCode = lineSplitTrim(lines[44]);
     metaData.mode = lineSplitTrim(lines[44]);
@@ -11222,32 +11222,37 @@ ${points.join('\n')}
     for (let i = 0; i < lineNumbers[0].length; i++) {
       let meas = parseOneIGA(lines.slice(lineNumbers[0][i], lineNumbers[1][i]));
       meas.meta.adsorptionT = mean(meas.data.sampleT);
-      meas.meta.adsorptionTUnit = '°C';
+      meas.meta.adsorptionTunits = '°C';
       analysis.pushSpectrum({
         x: {
           data: meas.data.pp0,
           label: 'relative pressure',
-          type: 'independent'
+          type: 'independent',
+          units: ''
         },
         p: {
           data: meas.data.pressure,
-          label: 'Pressure  [kPa]',
-          type: 'independent'
+          label: 'Pressure',
+          type: 'independent',
+          units: 'kPa'
         },
         y: {
           data: meas.data.excessAdsorption,
           label: 'Excess Adsorption [mmol/g]',
-          type: 'dependent'
+          type: 'dependent',
+          units: 'mmol/g'
         },
         r: {
           data: meas.data.excessAdsorptionPercentage,
-          label: 'Excess Adsorption [%]',
-          type: 'dependent'
+          label: 'Excess Adsorption',
+          type: 'dependent',
+          units: '%'
         },
         t: {
           data: meas.data.sampleT,
-          label: 'Sample Temperature [°C]',
-          type: 'independent'
+          label: 'Sample Temperature',
+          type: 'independent',
+          units: '°C'
         }
       }, {
         dataType: 'Adsorption Isotherm',
@@ -11388,17 +11393,20 @@ ${points.join('\n')}
         x: {
           data: data.x,
           label: 'relative pressure',
-          type: 'independent'
+          type: 'independent',
+          units: ''
         },
         y: {
           data: data.y,
-          label: 'Excess Adsorption [mmol/g]',
-          type: 'dependent'
+          label: 'Excess Adsorption',
+          type: 'dependent',
+          units: 'mmol/g'
         },
         p: {
           data: data.p,
           label: 'Pressure [kPa]',
-          type: 'independent'
+          type: 'independent',
+          units: 'kPa'
         }
       }, {
         dataType: type,
@@ -12211,7 +12219,8 @@ ${points.join('\n')}
           return parseFloat(x);
         }),
         label: 'relative pressure p/p0',
-        type: 'independent'
+        type: 'independent',
+        units: ''
       },
       y: {
         data: arrayColumn(parsed, 1).filter(function (value) {
@@ -12219,8 +12228,9 @@ ${points.join('\n')}
         }).map(function (x) {
           return parseFloat(x) / idealGasConstant * 1000;
         }),
-        label: 'Excess adsorption mmol /g',
-        type: 'dependent'
+        label: 'Excess adsorption',
+        type: 'dependent',
+        units: 'mmol/g'
       }
     }, {
       dataType: 'Adsorption Isotherm',
@@ -12237,7 +12247,8 @@ ${points.join('\n')}
           return parseFloat(x);
         }),
         label: 'relative pressure p/p0',
-        type: 'independent'
+        type: 'independent',
+        units: ''
       },
       y: {
         data: arrayColumn(parsed, 3).filter(function (value) {
@@ -12245,8 +12256,9 @@ ${points.join('\n')}
         }).map(function (x) {
           return parseFloat(x) / idealGasConstant * 1000;
         }),
-        label: 'Excess adsorption mmol /g',
-        type: 'dependent'
+        label: 'Excess adsorption',
+        type: 'dependent',
+        units: 'mmol/g'
       }
     }, {
       dataType: 'Desorption Isotherm',
@@ -28183,7 +28195,7 @@ ${points.join('\n')}
     return cell ? parseFloat(cell.v) : undefined;
   }
 
-  function valueElseUndefinedStripUnit(cell) {
+  function valueElseUndefinedStripunits(cell) {
     let val = cell ? cell.v : undefined;
     return val.replace(']', '').replace('[', '');
   }
@@ -28200,22 +28212,22 @@ ${points.join('\n')}
     metaData.serialNumber = valueElseUndefined(adsDesSheet.C9);
     metaData.version = valueElseUndefined(adsDesSheet.C10);
     metaData.sampleWeight = valueElseUndefinedFloat(adsDesSheet.C12);
-    metaData.sampleWeightUnit = valueElseUndefinedStripUnit(adsDesSheet.D12);
+    metaData.sampleWeightUnit = valueElseUndefinedStripunits(adsDesSheet.D12);
     metaData.standardVolume = valueElseUndefinedFloat(adsDesSheet.C13);
-    metaData.standardVolumeUnit = valueElseUndefinedStripUnit(adsDesSheet.D13);
+    metaData.standardVolumeUnit = valueElseUndefinedStripunits(adsDesSheet.D13);
     metaData.deadVolume = valueElseUndefinedFloat(adsDesSheet.C14);
-    metaData.deadVolumeUnit = valueElseUndefinedStripUnit(adsDesSheet.D14);
+    metaData.deadVolumeUnit = valueElseUndefinedStripunits(adsDesSheet.D14);
     metaData.equilibriumTime = valueElseUndefinedFloat(adsDesSheet.C15);
-    metaData.equilibriumTimeUnit = valueElseUndefinedStripUnit(adsDesSheet.D15);
+    metaData.equilibriumTimeUnit = valueElseUndefinedStripunits(adsDesSheet.D15);
     metaData.adsorptive = valueElseUndefined(adsDesSheet.C16);
     metaData.apparatusT = valueElseUndefined(adsDesSheet.C17);
-    metaData.apparatusTUnit = valueElseUndefinedStripUnit(adsDesSheet.D17);
+    metaData.apparatusTUnit = valueElseUndefinedStripunits(adsDesSheet.D17);
     metaData.adsorptionT = valueElseUndefinedFloat(adsDesSheet.C18);
-    metaData.adsorptionTUnit = valueElseUndefinedStripUnit(adsDesSheet.D18);
+    metaData.adsorptionTUnit = valueElseUndefinedStripunits(adsDesSheet.D18);
     metaData.saturatedVaporPressure = valueElseUndefinedFloat(adsDesSheet.H12);
-    metaData.saturatedVaporPressureUnit = valueElseUndefinedStripUnit(adsDesSheet.I12);
+    metaData.saturatedVaporPressureUnit = valueElseUndefinedStripunits(adsDesSheet.I12);
     metaData.adsorptionCrossSectionArea = valueElseUndefinedFloat(adsDesSheet.H13);
-    metaData.adsorptionCrossSectionAreaUnit = valueElseUndefinedStripUnit(adsDesSheet.I13);
+    metaData.adsorptionCrossSectionAreaUnit = valueElseUndefinedStripunits(adsDesSheet.I13);
     metaData.adsorptionPoints = valueElseUndefinedInt(adsDesSheet.H17);
     metaData.desorptionPoints = valueElseUndefinedInt(adsDesSheet.H18);
     return metaData;
@@ -28282,8 +28294,8 @@ ${points.join('\n')}
     };
   }
 
-  function fromBelsorp(path) {
-    const workbook = xlsx.readFile(path);
+  function fromBelsorp(dataFile) {
+    const workbook = xlsx.read(dataFile);
     const adsDesSheet = workbook.Sheets.AdsDes;
     let metaData = getAdsDesMeta(adsDesSheet);
     let data = parseAdsDesData(adsDesSheet, metaData.adsorptionPoints, metaData.desorptionPoints);
@@ -28292,17 +28304,20 @@ ${points.join('\n')}
       x: {
         data: data.adsorption.pp0,
         label: 'relative pressure',
-        type: 'independent'
+        type: 'independent',
+        units: ''
       },
       p: {
         data: data.adsorption.pe,
-        label: 'Pressure  [kPa]',
-        type: 'independent'
+        label: 'Pressure',
+        type: 'independent',
+        units: 'kPa'
       },
       y: {
         data: data.adsorption.va,
-        label: 'Excess adsorption mmol /g',
-        type: 'dependent'
+        label: 'Excess adsorption',
+        type: 'dependent',
+        units: 'mmol/g'
       }
     }, {
       dataType: 'Adsorption Isotherm',
@@ -28313,17 +28328,20 @@ ${points.join('\n')}
       x: {
         data: data.desorption.pp0,
         label: 'relative pressure',
-        type: 'independent'
+        type: 'independent',
+        units: ''
       },
       p: {
         data: data.desorption.pe,
-        label: 'Pressure  [kPa]',
-        type: 'independent'
+        label: 'Pressure',
+        type: 'independent',
+        units: 'kPa'
       },
       y: {
         data: data.desorption.va,
-        label: 'Excess adsorption mmol /g',
-        type: 'dependent'
+        label: 'Excess adsorption',
+        type: 'dependent',
+        units: 'mmol/g'
       }
     }, {
       dataType: 'Desorption Isotherm',

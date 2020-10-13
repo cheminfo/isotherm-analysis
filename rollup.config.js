@@ -3,5 +3,5 @@ export default {
   output: {
     format: 'cjs',
     file: 'lib/index.js'
-  }
+  },
 };
