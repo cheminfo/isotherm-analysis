@@ -53,10 +53,10 @@
     "eslint-plugin-prettier": "^3.1.4",
     "jest": "^26.5.3",
     "prettier": "^2.1.2",
-    "rollup": "^2.29.0"
+    "rollup": "^2.30.0"
   },
   "dependencies": {
-    "common-spectrum": "^0.12.0",
+    "common-spectrum": "^0.13.0",
     "ml-array-max": "^1.2.0",
     "ml-array-mean": "^1.1.4",
     "papaparse": "^5.3.0",
