@@ -4,15 +4,13 @@ on:
   release:
     types: [published]
 
-  workflow_dispatch:
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Get package name
-        run: echo "PACKAGENAME=$(grep -m1 "\"name\":"  package.json | awk -F ":" '{ print $2 }' | sed 's/[ ",]//g')" >> $GITHUB_ENV
+        run: echo "PACKAGENAME=$(jq .name package.json | tr -d '"')" >> $GITHUB_ENV
       - uses: actions/setup-node@v2-beta
         with:
           node-version: 14.x
