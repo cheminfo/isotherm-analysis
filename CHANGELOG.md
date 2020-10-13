@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.1.5](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.1.4...v0.1.5) (2020-10-13)
+
+
+### Bug Fixes
+
+* dev dependencies ([584f709](https://www.github.com/cheminfo/isotherm-analysis/commit/584f70912d70244a108991d5cb6b61bb8f1c53d2))
+
 ### [0.1.4](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.1.3...v0.1.4) (2020-10-12)
 
 
