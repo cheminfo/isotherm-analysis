@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.1.4...v0.2.0) (2020-10-13)
+
+
+### Features
+
+* add more filter to retrieve data ([e1b1795](https://www.github.com/cheminfo/isotherm-analysis/commit/e1b1795d4ddc98abae0b0e5ff1e7ee625ef56be3))
+* update common-spectrum ([52fe84e](https://www.github.com/cheminfo/isotherm-analysis/commit/52fe84e3de01dda67017ec50ccf0bf61dffda5da))
+
+
+### Bug Fixes
+
+* dev dependencies ([584f709](https://www.github.com/cheminfo/isotherm-analysis/commit/584f70912d70244a108991d5cb6b61bb8f1c53d2))
+
 ### [0.1.4](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.1.3...v0.1.4) (2020-10-12)
 
 
