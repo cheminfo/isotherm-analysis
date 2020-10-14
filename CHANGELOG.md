@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.2.0...v0.3.0) (2020-10-14)
+
+
+### Features
+
+* add getDistinctLabels and getDistinctUnits ([af235b3](https://www.github.com/cheminfo/isotherm-analysis/commit/af235b34113bf7f7c89f19dc0982b46e00ccb04c))
+
 ## [0.2.0](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.1.4...v0.2.0) (2020-10-13)
 
 
