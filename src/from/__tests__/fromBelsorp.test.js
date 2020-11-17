@@ -64,6 +64,4 @@ test('fromBelsorp', () => {
 
   expect(analysis.spectra[0].dataType).toBe('Adsorption Isotherm');
   expect(analysis.spectra[1].dataType).toBe('Desorption Isotherm');
-
-  console.log(analysis);
 });
