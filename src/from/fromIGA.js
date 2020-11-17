@@ -4,6 +4,12 @@ import { Analysis } from '..';
 
 import { lineSplitTrim } from './utils';
 
+/**
+ * Parses and standardizes the metadata
+ *
+ * @param {array<string>} lines
+ * @returns {object}
+ */
 function parseIGAMeasurmentHeader(lines) {
   let metaData = {};
   // Let's use some cleaner names
@@ -87,7 +93,12 @@ function parseIGAMeasurmentHeader(lines) {
 
   return metaData;
 }
-
+/**
+ * Find the start and end line numbers of the measurement
+ *
+ * @param {Array<string>} lines
+ * @returns {Array<number>} Array of length 2 [startIndex, endIndex]
+ */
 function getLineNumbersOfMeasurement(lines) {
   let starts = [];
   let ends = [];
@@ -138,7 +149,8 @@ function parseOneIGA(lines) {
   return { meta: meta, data: dataBlock };
 }
 /**
- * Creates a new Analysis element
+ * Orchestrates the parsing of a IGA file. Creates a new Analysis element
+ *
  * @param {string} text - String containing the IGA analysis data, maybe contain multiple measurements
  * @return {Analysis} - New class element with the given data
  */

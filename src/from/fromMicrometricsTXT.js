@@ -2,6 +2,15 @@ import { Analysis } from '..';
 
 import { lineSplit } from './utils';
 
+/**
+ * Parses some relevant fields in the meta data
+ * Tries to use naming that is consistent with the other
+ * isotherm parsers
+ *
+ * @param {array<string>} lines
+ * @param {number} dataStartIndex
+ * @returns {object}
+ */
 function parseMetaBlock(lines, dataStartIndex) {
   let meta = {};
   for (let i = dataStartIndex - 13; i < dataStartIndex; i++) {
@@ -55,6 +64,13 @@ function parseMetaBlock(lines, dataStartIndex) {
   }
   return meta;
 }
+/**
+ * Find the line numbers of start and end of the
+ * isotherm data
+ *
+ * @param {array<string>} lines
+ * @returns {Array<number>} array of length two [startIndex, endIndex]
+ */
 function findDataBlocks(lines) {
   let isothermTableStarts = [];
   let isothermTableEnds = [];
@@ -73,6 +89,14 @@ function findDataBlocks(lines) {
 
   return [isothermTableStarts, isothermTableEnds];
 }
+
+/**
+ * Parses the relevant fields from the isotherm table,
+ * converts the pressure to kPa and creates floats
+ *
+ * @param {Array<string>} lines
+ * @returns {Object}
+ */
 function parseIsothermTable(lines) {
   let pSat = parseFloat(lines[5].trim() * 0.13332); // convert mmHg to kPa
   let data = {
@@ -91,6 +115,15 @@ function parseIsothermTable(lines) {
   return data;
 }
 
+/**
+ * Orchestrates the parsing of a micrometrics TXT file.
+ * Takes the text and returns an Analysis object.
+ * Also parses relevant metadata and converts some units
+ *
+ * @export
+ * @param {string} parsed text
+ * @returns {Analysis}
+ */
 export function fromMicrometricsTXT(text) {
   const lines = text.split(/\r?\n/).filter((line) => !line.match(/^\s*$/));
   let startsAndEnds = findDataBlocks(lines);

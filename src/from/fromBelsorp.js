@@ -20,7 +20,13 @@ function valueElseUndefinedStripunits(cell) {
   let val = cell ? cell.v : undefined;
   return val.replace(']', '').replace('[', '');
 }
-
+/**
+ * Find metadata in the excelsheet and safe it with
+ * standardized names
+ *
+ * @param {object} adsDesSheet sheetjs worksheet
+ * @returns {object}
+ */
 function getAdsDesMeta(adsDesSheet) {
   let metaData = {};
   metaData.fileName = valueElseUndefined(adsDesSheet.C2);
@@ -59,7 +65,13 @@ function getAdsDesMeta(adsDesSheet) {
   metaData.desorptionPoints = valueElseUndefinedInt(adsDesSheet.H18);
   return metaData;
 }
-
+/**
+ * Parses the cells with actual isotherm data
+ *
+ * @param {object} worksheet sheetjs worksheet
+ * @param {object} range sheetjs range
+ * @returns
+ */
 function parseIsothermBlock(worksheet, range) {
   let data = {
     pi: [],
@@ -88,9 +100,15 @@ function parseIsothermBlock(worksheet, range) {
 
   return data;
 }
-
+/**
+ * Finds the cells with the isotherm data and calls the parser on them
+ *
+ * @param {object} worksheet sheetjs worksheet
+ * @param {number} adsorptionPoints number of pressure points in the adsorption measurement
+ * @param {number} desorptionPoints number of pressure points in the desorption measurement
+ * @returns {object} with keys adsorption and desorption, values of which are arrays of floats
+ */
 function parseAdsDesData(worksheet, adsorptionPoints, desorptionPoints) {
-  // traverse the sheet
   const rangeAds = {
     s: { c: 1, r: 22 },
     e: { c: 6, r: 22 + adsorptionPoints - 1 },
@@ -109,7 +127,13 @@ function parseAdsDesData(worksheet, adsorptionPoints, desorptionPoints) {
     desorption: desData,
   };
 }
-
+/**
+ * Orchestrates the parsing of a Belsorp Excel (xls) file.
+ *
+ * @export
+ * @param {Buffer} dataFile input excel file, e.g., read with readfilesync
+ * @returns {Analysis}
+ */
 export function fromBelsorp(dataFile) {
   const workbook = read(dataFile);
 

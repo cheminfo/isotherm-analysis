@@ -4,6 +4,13 @@ import { Analysis } from '..';
 
 import { idealGasConstant } from './constants';
 
+/**
+ * Create an Analysis object from a micrometrics CSV file
+ *
+ * @export
+ * @param {string} text
+ * @returns {Analysis}
+ */
 export function fromMicrometricsCSV(text) {
   text = text.replace(/,/g, '.');
   let parsed = Papa.parse(text, {
