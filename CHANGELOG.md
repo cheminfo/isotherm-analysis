@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.3.1](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.3.0...v0.3.1) (2020-11-17)
+
+
+### Bug Fixes
+
+* throw an error if the format is not as expected, closes [#31](https://www.github.com/cheminfo/isotherm-analysis/issues/31) ([1541eed](https://www.github.com/cheminfo/isotherm-analysis/commit/1541eed0329ca6cd9ad217a3e67c520053860059))
+
 ## [0.3.0](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.2.0...v0.3.0) (2020-10-14)
 
 
