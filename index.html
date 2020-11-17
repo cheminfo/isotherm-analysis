@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset='utf-8'>
-  <title>isotherm-analysis 0.3.0 | Documentation</title>
+  <title>isotherm-analysis 0.3.1 | Documentation</title>
   <meta name='description' content='Parse and analyze isotherms'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>isotherm-analysis</h3>
-          <div class='mb1'><code>0.3.0</code></div>
+          <div class='mb1'><code>0.3.1</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -29,9 +29,119 @@
               
                 
                 <li><a
+                  href='#finddatablocks'
+                  class="">
+                  findDataBlocks
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#frombelsorp'
+                  class="">
+                  fromBelsorp
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
                   href='#fromiga'
                   class="">
                   fromIGA
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#frommicrometricscsv'
+                  class="">
+                  fromMicrometricsCSV
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#frommicrometricstxt'
+                  class="">
+                  fromMicrometricsTXT
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#getadsdesmeta'
+                  class="">
+                  getAdsDesMeta
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#getlinenumbersofmeasurement'
+                  class="">
+                  getLineNumbersOfMeasurement
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#parseadsdesdata'
+                  class="">
+                  parseAdsDesData
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#parseigameasurmentheader'
+                  class="">
+                  parseIGAMeasurmentHeader
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#parseisothermblock'
+                  class="">
+                  parseIsothermBlock
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#parseisothermtable'
+                  class="">
+                  parseIsothermTable
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#parsemetablock'
+                  class="">
+                  parseMetaBlock
                   
                 </a>
                 
@@ -52,19 +162,172 @@
   
   <div class='clearfix'>
     
+    <h3 class='fl m0' id='finddatablocks'>
+      findDataBlocks
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromMicrometricsTXT.js#L74-L91'>
+      <span>src/from/fromMicrometricsTXT.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Find the line numbers of start and end of the
+isotherm data</p>
+
+    <div class='pre p1 fill-light mt0'>findDataBlocks(lines: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>lines</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>></code>:
+        array of length two 
+[startIndex, endIndex]
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='frombelsorp'>
+      fromBelsorp
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromBelsorp.js#L137-L209'>
+      <span>src/from/fromBelsorp.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Orchestrates the parsing of a Belsorp Excel (xls) file.</p>
+
+    <div class='pre p1 fill-light mt0'>fromBelsorp(dataFile: <a href="https://nodejs.org/api/buffer.html">Buffer</a>): Analysis</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>dataFile</span> <code class='quiet'>(<a href="https://nodejs.org/api/buffer.html">Buffer</a>)</code>
+	    input excel file, e.g., read with readfilesync
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>Analysis</code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
     <h3 class='fl m0' id='fromiga'>
       fromIGA
     </h3>
     
     
-      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/fbb4dd2a0f3f85810465d488ab05351070f59697/src/from/fromIGA.js#L145-L197'>
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromIGA.js#L157-L209'>
       <span>src/from/fromIGA.js</span>
       </a>
     
   </div>
   
 
-  <p>Creates a new Analysis element</p>
+  <p>Orchestrates the parsing of a IGA file. Creates a new Analysis element</p>
 
     <div class='pre p1 fill-light mt0'>fromIGA(text: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): Analysis</div>
   
@@ -100,6 +363,727 @@
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code>Analysis</code>:
         New class element with the given data
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='frommicrometricscsv'>
+      fromMicrometricsCSV
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromMicrometricsCSV.js#L14-L102'>
+      <span>src/from/fromMicrometricsCSV.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Create an Analysis object from a micrometrics CSV file</p>
+
+    <div class='pre p1 fill-light mt0'>fromMicrometricsCSV(text: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): Analysis</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>text</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>Analysis</code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='frommicrometricstxt'>
+      fromMicrometricsTXT
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromMicrometricsTXT.js#L127-L174'>
+      <span>src/from/fromMicrometricsTXT.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Orchestrates the parsing of a micrometrics TXT file.
+Takes the text and returns an Analysis object.
+Also parses relevant metadata and converts some units</p>
+
+    <div class='pre p1 fill-light mt0'>fromMicrometricsTXT(text: any, parsed: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): Analysis</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>text</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>parsed</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+	    text
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>Analysis</code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='getadsdesmeta'>
+      getAdsDesMeta
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromBelsorp.js#L30-L67'>
+      <span>src/from/fromBelsorp.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Find metadata in the excelsheet and safe it with
+standardized names</p>
+
+    <div class='pre p1 fill-light mt0'>getAdsDesMeta(adsDesSheet: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>adsDesSheet</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>)</code>
+	    sheetjs worksheet
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='getlinenumbersofmeasurement'>
+      getLineNumbersOfMeasurement
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromIGA.js#L102-L113'>
+      <span>src/from/fromIGA.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Find the start and end line numbers of the measurement</p>
+
+    <div class='pre p1 fill-light mt0'>getLineNumbersOfMeasurement(lines: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>lines</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>></code>:
+        Array of length 2 
+[startIndex, endIndex]
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='parseadsdesdata'>
+      parseAdsDesData
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromBelsorp.js#L111-L129'>
+      <span>src/from/fromBelsorp.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Finds the cells with the isotherm data and calls the parser on them</p>
+
+    <div class='pre p1 fill-light mt0'>parseAdsDesData(worksheet: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>, adsorptionPoints: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, desorptionPoints: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>worksheet</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>)</code>
+	    sheetjs worksheet
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>adsorptionPoints</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    number of pressure points in the adsorption measurement
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>desorptionPoints</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    number of pressure points in the desorption measurement
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a></code>:
+        with keys adsorption and desorption, values of which are arrays of floats
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='parseigameasurmentheader'>
+      parseIGAMeasurmentHeader
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromIGA.js#L13-L95'>
+      <span>src/from/fromIGA.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Parses and standardizes the metadata</p>
+
+    <div class='pre p1 fill-light mt0'>parseIGAMeasurmentHeader(lines: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>lines</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='parseisothermblock'>
+      parseIsothermBlock
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromBelsorp.js#L75-L102'>
+      <span>src/from/fromBelsorp.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Parses the cells with actual isotherm data</p>
+
+    <div class='pre p1 fill-light mt0'>parseIsothermBlock(worksheet: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>, range: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>worksheet</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>)</code>
+	    sheetjs worksheet
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>range</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>)</code>
+	    sheetjs range
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='parseisothermtable'>
+      parseIsothermTable
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromMicrometricsTXT.js#L100-L116'>
+      <span>src/from/fromMicrometricsTXT.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Parses the relevant fields from the isotherm table,
+converts the pressure to kPa and creates floats</p>
+
+    <div class='pre p1 fill-light mt0'>parseIsothermTable(lines: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>lines</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='parsemetablock'>
+      parseMetaBlock
+    </h3>
+    
+    
+      <a class='fr fill-darken0 round round pad1x quiet h5' href='https://github.com/cheminfo/isotherm-analysis/blob/e3d91c17365e4ce0585e0bda9170468ae668dd13/src/from/fromMicrometricsTXT.js#L14-L66'>
+      <span>src/from/fromMicrometricsTXT.js</span>
+      </a>
+    
+  </div>
+  
+
+  <p>Parses some relevant fields in the meta data
+Tries to use naming that is consistent with the other
+isotherm parsers</p>
+
+    <div class='pre p1 fill-light mt0'>parseMetaBlock(lines: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>, dataStartIndex: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>lines</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>)</code>
+	    
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>dataStartIndex</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a></code>:
+        
 
       
     
