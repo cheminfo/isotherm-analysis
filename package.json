@@ -40,23 +40,23 @@
     "trailingComma": "all"
   },
   "devDependencies": {
-    "@babel/plugin-transform-modules-commonjs": "^7.10.4",
+    "@babel/plugin-transform-modules-commonjs": "^7.12.1",
     "@rollup/plugin-alias": "^3.1.1",
-    "@types/jest": "^26.0.14",
-    "cheminfo-build": "^1.1.7",
-    "cheminfo-publish": "^1.0.19",
-    "codecov": "^3.8.0",
-    "eslint": "^7.11.0",
+    "@types/jest": "^26.0.15",
+    "cheminfo-build": "^1.1.8",
+    "cheminfo-publish": "^1.0.20",
+    "codecov": "^3.8.1",
+    "eslint": "^7.13.0",
     "eslint-config-cheminfo": "^5.2.2",
     "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-jest": "^24.1.3",
     "eslint-plugin-prettier": "^3.1.4",
-    "jest": "^26.5.3",
+    "jest": "^26.6.3",
     "prettier": "^2.1.2",
-    "rollup": "^2.30.0"
+    "rollup": "^2.33.2"
   },
   "dependencies": {
-    "common-spectrum": "^0.14.0",
+    "common-spectrum": "^0.15.0",
     "ml-array-max": "^1.2.0",
     "ml-array-mean": "^1.1.4",
     "papaparse": "^5.3.0",
