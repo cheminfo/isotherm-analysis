@@ -24,74 +24,79 @@ export function fromMicrometricsCSV(text) {
   const headerRow = parsed.shift();
 
   let analysis = new Analysis();
+  try {
+    analysis.pushSpectrum(
+      {
+        x: {
+          data: arrayColumn(parsed, 0)
+            .filter(function (value) {
+              return value !== '';
+            })
+            .map(function (x) {
+              return parseFloat(x);
+            }),
+          label: 'relative pressure p/p0',
+          type: 'independent',
+          units: '',
+        },
+        y: {
+          data: arrayColumn(parsed, 1)
+            .filter(function (value) {
+              return value !== '';
+            })
+            .map(function (x) {
+              return (parseFloat(x) / idealGasConstant) * 1000;
+            }),
+          label: 'Excess adsorption',
+          type: 'dependent',
+          units: 'mmol/g',
+        },
+      },
+      {
+        dataType: 'Adsorption Isotherm',
+        title: 'Adsorption',
+        meta: { header: headerRow },
+      },
+    );
 
-  analysis.pushSpectrum(
-    {
-      x: {
-        data: arrayColumn(parsed, 0)
-          .filter(function (value) {
-            return value !== '';
-          })
-          .map(function (x) {
-            return parseFloat(x);
-          }),
-        label: 'relative pressure p/p0',
-        type: 'independent',
-        units: '',
+    analysis.pushSpectrum(
+      {
+        x: {
+          data: arrayColumn(parsed, 2)
+            .filter(function (value) {
+              return value !== '';
+            })
+            .map(function (x) {
+              return parseFloat(x);
+            }),
+          label: 'relative pressure p/p0',
+          type: 'independent',
+          units: '',
+        },
+        y: {
+          data: arrayColumn(parsed, 3)
+            .filter(function (value) {
+              return value !== '';
+            })
+            .map(function (x) {
+              return (parseFloat(x) / idealGasConstant) * 1000;
+            }),
+          label: 'Excess adsorption',
+          type: 'dependent',
+          units: 'mmol/g',
+        },
       },
-      y: {
-        data: arrayColumn(parsed, 1)
-          .filter(function (value) {
-            return value !== '';
-          })
-          .map(function (x) {
-            return (parseFloat(x) / idealGasConstant) * 1000;
-          }),
-        label: 'Excess adsorption',
-        type: 'dependent',
-        units: 'mmol/g',
+      {
+        dataType: 'Desorption Isotherm',
+        title: 'Desorption',
+        meta: {},
       },
-    },
-    {
-      dataType: 'Adsorption Isotherm',
-      title: 'Adsorption',
-      meta: { header: headerRow },
-    },
-  );
-
-  analysis.pushSpectrum(
-    {
-      x: {
-        data: arrayColumn(parsed, 2)
-          .filter(function (value) {
-            return value !== '';
-          })
-          .map(function (x) {
-            return parseFloat(x);
-          }),
-        label: 'relative pressure p/p0',
-        type: 'independent',
-        units: '',
-      },
-      y: {
-        data: arrayColumn(parsed, 3)
-          .filter(function (value) {
-            return value !== '';
-          })
-          .map(function (x) {
-            return (parseFloat(x) / idealGasConstant) * 1000;
-          }),
-        label: 'Excess adsorption',
-        type: 'dependent',
-        units: 'mmol/g',
-      },
-    },
-    {
-      dataType: 'Desorption Isotherm',
-      title: 'Desorption',
-      meta: {},
-    },
-  );
+    );
+  } catch {
+    throw Error(
+      'Could not parse desorption section. Please report an issue with our example file!',
+    );
+  }
 
   return analysis;
 }
