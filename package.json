@@ -1,7 +1,7 @@
 {
   "name": "isotherm-analysis",
   "version": "0.3.1",
-  "description": "Parse and analyze isotherms",
+  "description": "isotherm-analysis allows to parse and analyze isotherms. It converts from multiple formats to JCAMP-DX and provides utilities for basic analysis.",
   "main": "lib/index.js",
   "module": "src/index.js",
   "files": [
@@ -40,26 +40,67 @@
     "trailingComma": "all"
   },
   "devDependencies": {
-    "@babel/plugin-transform-modules-commonjs": "^7.12.1",
+    "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@rollup/plugin-alias": "^3.1.2",
-    "@types/jest": "^26.0.20",
-    "cheminfo-build": "^1.1.9",
+    "@types/jest": "^26.0.22",
+    "cheminfo-build": "^1.1.10",
     "cheminfo-publish": "^1.0.20",
     "codecov": "^3.8.1",
-    "eslint": "^7.19.0",
-    "eslint-config-cheminfo": "^5.2.2",
+    "eslint": "^7.23.0",
+    "eslint-config-cheminfo": "^5.2.3",
     "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^24.1.3",
+    "eslint-plugin-jest": "^24.3.3",
     "eslint-plugin-prettier": "^3.3.1",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
-    "rollup": "^2.38.4"
+    "rollup": "^2.44.0"
   },
   "dependencies": {
-    "common-spectrum": "^0.18.2",
-    "ml-array-max": "^1.2.0",
-    "ml-array-mean": "^1.1.4",
+    "common-spectrum": "^0.30.1",
+    "ml-array-max": "^1.2.3",
+    "ml-array-mean": "^1.1.5",
     "papaparse": "^5.3.0",
     "xlsx": "^0.16.9"
+  },
+  "cheminfo": {
+    "logo": "https://raw.githubusercontent.com/cheminfo/font/master/src/isotherm/assignment.svg",
+    "domain": [
+      "Physical Chemistry",
+      "Materials Science"
+    ],
+    "technique": {
+      "name": "Isotherm",
+      "chmo": "0001992",
+      "iupac": "https://doi.org/10.1351/goldbook.AT06934"
+    },
+    "functionality": {
+      "fileTypes:": [
+        {
+          "extension": "csv",
+          "manufacturer": "Micrometrics",
+          "example": "https://raw.githubusercontent.com/cheminfo/isotherm-analysis/master/testFiles/micrometrics.csv"
+        },
+        {
+          "extension": "txt",
+          "manufacturer": "IGA",
+          "example": "https://raw.githubusercontent.com/cheminfo/isotherm-analysis/master/testFiles/IGA_raw_no_blank.txt"
+        },
+        {
+          "extension": "txt",
+          "manufacturer": "Micrometrics",
+          "example": "https://raw.githubusercontent.com/cheminfo/isotherm-analysis/master/testFiles/GVM-BET-Gemini.VII.2390.v1.03.TXT"
+        },
+        {
+          "extension": "xls",
+          "manufacturer": "Belsorp",
+          "example": "https://github.com/cheminfo/isotherm-analysis/blob/master/testFiles/BET.xls?raw=true"
+        },
+        {
+          "extension": "csv",
+          "manufacturer": "DVS-Vacuum",
+          "example": "https://raw.githubusercontent.com/cheminfo/isotherm-analysis/master/testFiles/CO2H2O_25C_30RH.csv"
+        }
+      ]
+    }
   }
 }
