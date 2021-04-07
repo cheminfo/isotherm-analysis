@@ -27,6 +27,7 @@ export function fromMicrometricsCSV(text) {
   try {
     analysis.pushSpectrum(
       {
+        //FixMe: this should be p
         x: {
           data: arrayColumn(parsed, 0)
             .filter(function (value) {
@@ -92,9 +93,9 @@ export function fromMicrometricsCSV(text) {
         meta: {},
       },
     );
-  } catch {
+  } catch (err) {
     throw Error(
-      'Could not parse desorption section. Please report an issue with our example file!',
+      `Could not parse desorption section due to ${err}. Please report an issue with an example file!`,
     );
   }
 

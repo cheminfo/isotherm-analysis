@@ -43,8 +43,8 @@ test('fromIGA', () => {
   for (let i = 0; i < 4; i++) {
     expect(Object.keys(analysis.spectra[i].variables)).toStrictEqual([
       'x',
-      'p',
       'y',
+      'p',
       'r',
       't',
     ]);

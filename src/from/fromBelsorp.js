@@ -152,12 +152,6 @@ export function fromBelsorp(dataFile) {
   analysis.pushSpectrum(
     {
       x: {
-        data: data.adsorption.pp0,
-        label: 'relative pressure',
-        type: 'independent',
-        units: '',
-      },
-      p: {
         data: data.adsorption.pe,
         label: 'Pressure',
         type: 'independent',
@@ -168,6 +162,12 @@ export function fromBelsorp(dataFile) {
         label: 'Excess adsorption',
         type: 'dependent',
         units: 'mmol/g',
+      },
+      p: {
+        data: data.adsorption.pp0,
+        label: 'relative pressure',
+        type: 'independent',
+        units: '',
       },
     },
     {
@@ -185,17 +185,17 @@ export function fromBelsorp(dataFile) {
         type: 'independent',
         units: '',
       },
-      p: {
-        data: data.desorption.pe,
-        label: 'Pressure',
-        type: 'independent',
-        units: 'kPa',
-      },
       y: {
         data: data.desorption.va,
         label: 'Excess adsorption',
         type: 'dependent',
         units: 'mmol/g',
+      },
+      p: {
+        data: data.desorption.pe,
+        label: 'Pressure',
+        type: 'independent',
+        units: 'kPa',
       },
     },
     {
