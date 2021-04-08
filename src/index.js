@@ -4,9 +4,19 @@ import {
   fromJcamp,
   toJcamp,
   toJcamps,
+  JSGraph,
 } from 'common-spectrum';
 
-export { Analysis, AnalysesManager, fromJcamp, toJcamp, toJcamps };
+const { getJSGraph, getNormalizationAnnotations } = JSGraph;
+export {
+  Analysis,
+  AnalysesManager,
+  fromJcamp,
+  toJcamp,
+  toJcamps,
+  getJSGraph,
+  getNormalizationAnnotations,
+};
 
 export { fromIGA } from './from/fromIGA';
 export { fromMicrometricsTXT } from './from/fromMicrometricsTXT';
