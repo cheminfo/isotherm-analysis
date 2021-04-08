@@ -168,12 +168,6 @@ export function fromIGA(text) {
     analysis.pushSpectrum(
       {
         x: {
-          data: meas.data.pp0,
-          label: 'relative pressure',
-          type: 'independent',
-          units: '',
-        },
-        p: {
           data: meas.data.pressure,
           label: 'Pressure',
           type: 'independent',
@@ -184,6 +178,12 @@ export function fromIGA(text) {
           label: 'Excess Adsorption [mmol/g]',
           type: 'dependent',
           units: 'mmol/g',
+        },
+        p: {
+          data: meas.data.pp0,
+          label: 'relative pressure',
+          type: 'independent',
+          units: '',
         },
         r: {
           data: meas.data.excessAdsorptionPercentage,

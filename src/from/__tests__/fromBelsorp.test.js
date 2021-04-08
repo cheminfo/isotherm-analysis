@@ -53,13 +53,13 @@ test('fromBelsorp', () => {
 
   expect(Object.keys(analysis.spectra[0].variables)).toStrictEqual([
     'x',
-    'p',
     'y',
+    'p',
   ]);
   expect(Object.keys(analysis.spectra[1].variables)).toStrictEqual([
     'x',
-    'p',
     'y',
+    'p',
   ]);
 
   expect(analysis.spectra[0].dataType).toBe('Adsorption Isotherm');

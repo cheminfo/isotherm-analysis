@@ -3,15 +3,17 @@ import {
   AnalysesManager,
   fromJcamp,
   toJcamp,
-  getJSGraph,
-  getNormalizationAnnotations,
+  toJcamps,
+  JSGraph,
 } from 'common-spectrum';
 
+const { getJSGraph, getNormalizationAnnotations } = JSGraph;
 export {
   Analysis,
   AnalysesManager,
   fromJcamp,
   toJcamp,
+  toJcamps,
   getJSGraph,
   getNormalizationAnnotations,
 };

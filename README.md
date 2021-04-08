@@ -32,9 +32,9 @@ let isotherm = IsothermAnalysis.fromIGA(file);
 
 | field | meaning                                                       | typical unit |
 | ----- | ------------------------------------------------------------- | ------------ |
-| x     | relative pressure (pressure relative to staturation pressure) | unitless     |
+| x     | absolute pressure                                             | kPa          |
+| p     | relative pressure (pressure relative to staturation pressure) | unitless     |
 | y     | gravimetric excess uptake                                     | mmol/g       |
-| p     | absolute pressure                                             | kPa          |
 
 If available, we try to use the following fields for metadata:
 
