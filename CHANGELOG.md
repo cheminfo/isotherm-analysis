@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.3.1...v0.4.0) (2021-04-07)
+
+
+### Features
+
+* rename x -> p ([71b88f9](https://www.github.com/cheminfo/isotherm-analysis/commit/71b88f9d52749046885fc71c28f48b26cdefd226))
+
 ### [0.3.1](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.3.0...v0.3.1) (2020-11-17)
 
 
