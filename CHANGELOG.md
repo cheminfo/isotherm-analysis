@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.4.2](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.4.1...v0.4.2) (2021-04-08)
+
+
+### Bug Fixes
+
+* export getJSGraph ([5731884](https://www.github.com/cheminfo/isotherm-analysis/commit/5731884c5c319ced8c37e7b2c0af4418416d1b10))
+
 ### [0.4.1](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.4.0...v0.4.1) (2021-04-08)
 
 
