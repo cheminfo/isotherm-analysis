@@ -1,6 +1,6 @@
 /**
  * isotherm-analysis - Parse and analyze isotherms
- * @version v0.4.0
+ * @version v0.4.1
  * @link https://github.com/cheminfo/isotherm-analysis#readme
  * @license MIT
  */
@@ -549,6 +549,34 @@
     return {
       x: ansX,
       y: ansY
+    };
+  }
+
+  /**
+   * Filter out all the points for which x <= 0. Useful to display log scale data
+   * @param {DataXY} [data={}]
+   * @return {{x:[],y:[]}} An object with the filtered data
+   */
+
+  function xyFilterXPositive(data = {}) {
+    xyCheck(data);
+    const {
+      x,
+      y
+    } = data;
+    const newX = [];
+    const newY = [];
+
+    for (let i = 0; i < x.length; i++) {
+      if (x[i] > 0) {
+        newX.push(x[i]);
+        newY.push(y[i]);
+      }
+    }
+
+    return {
+      x: newX,
+      y: newY
     };
   }
 
@@ -4719,6 +4747,169 @@ ${indent}columns: ${matrix.columns}
     } else {
       return leftHandSide.isSquare() ? new LuDecomposition(leftHandSide).solve(rightHandSide) : new QrDecomposition(leftHandSide).solve(rightHandSide);
     }
+  }
+
+  function addStyle(serie, spectrum, options = {}) {
+    let {
+      color = '#A9A9A9',
+      opacity = 1,
+      lineWidth = 1
+    } = options; // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
+
+    if (color.match(/#[0-9A-F]{6}$/i)) {
+      color = (color + (opacity * 255 >> 0).toString(16)).toUpperCase();
+    } else {
+      color = color.replace(/rgb ?\((.*)\)/, `rgba($1,${opacity})`);
+    }
+
+    serie.style = [{
+      name: 'unselected',
+      style: {
+        line: {
+          color,
+          width: lineWidth,
+          dash: 1
+        }
+      }
+    }, {
+      name: 'selected',
+      style: {
+        line: {
+          color,
+          width: lineWidth + 2,
+          dash: 1
+        }
+      }
+    }];
+    serie.name = spectrum.label || spectrum.id;
+  }
+
+  const COLORS = ['#FFB300', '#803E75', '#FF6800', '#A6BDD7', '#C10020', '#CEA262', '#817066', '#007D34', '#F6768E', '#00538A', '#FF7A5C', '#53377A', '#FF8E00', '#B32851', '#F4C800', '#7F180D', '#93AA00', '#593315', '#F13A13', '#232C16'];
+
+  /**
+   * Generate a jsgraph chart format from an array of Analysis
+   */
+
+  function getJSGraph$1(analyses, options = {}) {
+    const {
+      colors = COLORS,
+      opacities = [1],
+      linesWidth = [1],
+      selector = {},
+      normalization,
+      xAxis = {},
+      yAxis = {}
+    } = options;
+    let series = [];
+    let xLabel = '';
+    let yLabel = '';
+
+    for (let i = 0; i < analyses.length; i++) {
+      const analysis = analyses[i];
+      let serie = {};
+      let currentData = analysis.getNormalizedSpectrum({
+        selector,
+        normalization
+      });
+      if (!currentData) continue;
+      if (!xLabel) xLabel = currentData.variables.x.label;
+      if (!yLabel) yLabel = currentData.variables.y.label;
+      addStyle(serie, analysis, {
+        color: colors[i % colors.length],
+        opacity: opacities[i % opacities.length],
+        lineWidth: linesWidth[i % linesWidth.length]
+      });
+      serie.data = {
+        x: currentData.variables.x.data,
+        y: currentData.variables.y.data
+      };
+
+      if (xAxis.logScale) {
+        serie.data = xyFilterXPositive(serie.data);
+      }
+
+      series.push(serie);
+    }
+
+    return {
+      axes: {
+        x: {
+          label: xLabel,
+          unit: '',
+          flipped: false,
+          display: true,
+          ...xAxis
+        },
+        y: {
+          label: yLabel,
+          unit: '',
+          flipped: false,
+          display: true,
+          ...yAxis
+        }
+      },
+      series
+    };
+  }
+
+  function getNormalizationAnnotations$1(filter = {}, boundary = {
+    y: {
+      min: '0px',
+      max: '2000px'
+    }
+  }) {
+    let {
+      exclusions = []
+    } = filter;
+    let annotations = [];
+    exclusions = exclusions.filter(exclusion => !exclusion.ignore);
+    annotations = exclusions.map(exclusion => {
+      let annotation = {
+        type: 'rect',
+        position: [{
+          x: exclusion.from,
+          y: boundary.y.min
+        }, {
+          x: exclusion.to,
+          y: boundary.y.max
+        }],
+        strokeWidth: 0,
+        fillColor: 'rgba(255,255,224,1)'
+      };
+      return annotation;
+    });
+
+    if (filter.from !== undefined) {
+      annotations.push({
+        type: 'rect',
+        position: [{
+          x: Number.MIN_SAFE_INTEGER,
+          y: boundary.y.min
+        }, {
+          x: filter.from,
+          y: boundary.y.max
+        }],
+        strokeWidth: 0,
+        fillColor: 'rgba(255,255,224,1)'
+      });
+    }
+
+    if (filter.to !== undefined) {
+      annotations.push({
+        type: 'rect',
+        position: [{
+          x: filter.to,
+          y: boundary.y.min
+        }, {
+          x: Number.MAX_SAFE_INTEGER,
+          y: boundary.y.max
+        }],
+        strokeWidth: 0,
+        fillColor: 'rgba(255,255,224,1)'
+      });
+    }
+
+    return annotations;
   }
 
   function appendDistinctParameter(values, key, value) {
@@ -11587,6 +11778,11 @@ ${points.join('\n')}
   function toJcamp(analysis, options = {}) {
     return toJcamps(analysis, options).join('\n');
   }
+
+  const JSGraph = {
+    getJSGraph: getJSGraph$1,
+    getNormalizationAnnotations: getNormalizationAnnotations$1
+  };
 
   function lineSplitTrim(line) {
     return lineSplit(line)[1].trim();
@@ -28957,6 +29153,11 @@ ${points.join('\n')}
     return analysis;
   }
 
+  const {
+    getJSGraph,
+    getNormalizationAnnotations
+  } = JSGraph;
+
   exports.AnalysesManager = AnalysesManager;
   exports.Analysis = Analysis;
   exports.fromBelsorp = fromBelsorp;
@@ -28964,6 +29165,8 @@ ${points.join('\n')}
   exports.fromJcamp = fromJcamp;
   exports.fromMicrometricsCSV = fromMicrometricsCSV;
   exports.fromMicrometricsTXT = fromMicrometricsTXT;
+  exports.getJSGraph = getJSGraph;
+  exports.getNormalizationAnnotations = getNormalizationAnnotations;
   exports.toJcamp = toJcamp;
   exports.toJcamps = toJcamps;
 
