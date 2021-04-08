@@ -3,18 +3,10 @@ import {
   AnalysesManager,
   fromJcamp,
   toJcamp,
-  getJSGraph,
-  getNormalizationAnnotations,
+  toJcamps,
 } from 'common-spectrum';
 
-export {
-  Analysis,
-  AnalysesManager,
-  fromJcamp,
-  toJcamp,
-  getJSGraph,
-  getNormalizationAnnotations,
-};
+export { Analysis, AnalysesManager, fromJcamp, toJcamp, toJcamps };
 
 export { fromIGA } from './from/fromIGA';
 export { fromMicrometricsTXT } from './from/fromMicrometricsTXT';
