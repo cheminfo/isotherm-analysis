@@ -1,6 +1,6 @@
 /**
  * isotherm-analysis - Parse and analyze isotherms
- * @version v0.1.4
+ * @version v0.4.0
  * @link https://github.com/cheminfo/isotherm-analysis#readme
  * @license MIT
  */
@@ -10,87 +10,71 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.IsothermAnalysis = {}));
 }(this, (function (exports) { 'use strict';
 
-  class AnalysesManager {
-    constructor() {
-      this.analyses = [];
-    }
-
-    addAnalysis(analysis) {
-      let index = this.getAnalysisIndex(analysis.id);
-
-      if (index === undefined) {
-        this.analyses.push(analysis);
-      } else {
-        this.analyses[index] = analysis;
-      }
-    }
-
-    getAnalyses(options = {}) {
-      const {
-        ids
-      } = options;
-      let analyses = [];
-
-      for (const analysis of this.analyses) {
-        if (!ids || ids.includes(analysis.id)) {
-          analyses.push(analysis);
-        }
-      }
-
-      return analyses;
-    }
-
-    removeAllAnalyses() {
-      this.analyses.splice(0);
-    }
-    /**
-     * Remove the analysis from the AnalysesManager for the specified id
-     * @param {string} id
-     */
-
-
-    removeAnalysis(id) {
-      let index = this.getAnalysisIndex(id);
-      if (index === undefined) return undefined;
-      return this.analyses.splice(index, 1);
-    }
-    /**
-     * Returns the index of the analysis in the analyses array
-     * @param {string} id
-     * @returns {number}
-     */
-
-
-    getAnalysisIndex(id) {
-      if (!id) return undefined;
-
-      for (let i = 0; i < this.analyses.length; i++) {
-        let analysis = this.analyses[i];
-        if (analysis.id === id) return i;
-      }
-
-      return undefined;
-    }
-    /**
-     * Checks if the ID of an analysis exists in the AnalysesManager
-     * @param {string} id
-     */
-
-
-    includes(id) {
-      return !isNaN(this.getAnalysisIndex(id));
-    }
-
-  }
-
   const toString = Object.prototype.toString;
   function isAnyArray(object) {
     return toString.call(object).endsWith('Array]');
   }
 
-  function max(input) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
+  function getAugmentedNamespace(n) {
+  	if (n.__esModule) return n;
+  	var a = Object.defineProperty({}, '__esModule', {value: true});
+  	Object.keys(n).forEach(function (k) {
+  		var d = Object.getOwnPropertyDescriptor(n, k);
+  		Object.defineProperty(a, k, d.get ? d : {
+  			enumerable: true,
+  			get: function () {
+  				return n[k];
+  			}
+  		});
+  	});
+  	return a;
+  }
+
+  function createCommonjsModule(fn) {
+    var module = { exports: {} };
+  	return fn(module, module.exports), module.exports;
+  }
+
+  function commonjsRequire (target) {
+  	throw new Error('Could not dynamically require "' + target + '". Please configure the dynamicRequireTargets option of @rollup/plugin-commonjs appropriately for this require call to behave properly.');
+  }
+
+  var medianQuickselect_min = createCommonjsModule(function (module) {
+    (function () {
+      function a(d) {
+        for (var e = 0, f = d.length - 1, g = void 0, h = void 0, i = void 0, j = c(e, f); !0;) {
+          if (f <= e) return d[j];
+          if (f == e + 1) return d[e] > d[f] && b(d, e, f), d[j];
+
+          for (g = c(e, f), d[g] > d[f] && b(d, g, f), d[e] > d[f] && b(d, e, f), d[g] > d[e] && b(d, g, e), b(d, g, e + 1), h = e + 1, i = f; !0;) {
+            do h++; while (d[e] > d[h]);
+
+            do i--; while (d[i] > d[e]);
+
+            if (i < h) break;
+            b(d, h, i);
+          }
+
+          b(d, e, i), i <= j && (e = h), i >= j && (f = i - 1);
+        }
+      }
+
+      var b = function b(d, e, f) {
+        var _ref;
+
+        return _ref = [d[f], d[e]], d[e] = _ref[0], d[f] = _ref[1], _ref;
+      },
+          c = function c(d, e) {
+        return ~~((d + e) / 2);
+      };
+
+      module.exports ? module.exports = a : window.median = a;
+    })();
+  });
+
+  function median(input) {
     if (!isAnyArray(input)) {
       throw new TypeError('input must be an array');
     }
@@ -99,26 +83,329 @@
       throw new TypeError('input must not be empty');
     }
 
-    var _options$fromIndex = options.fromIndex,
-        fromIndex = _options$fromIndex === void 0 ? 0 : _options$fromIndex,
-        _options$toIndex = options.toIndex,
-        toIndex = _options$toIndex === void 0 ? input.length : _options$toIndex;
+    return medianQuickselect_min(input.slice());
+  }
 
-    if (fromIndex < 0 || fromIndex >= input.length || !Number.isInteger(fromIndex)) {
-      throw new Error('fromIndex must be a positive integer smaller than length');
+  /**
+   * This function xAdd the first array by the second array or a constant value to each element of the first array
+   * @param {Array<Number>} array1 - the array that will be rotated
+   * @param {Array|Number} array2
+   * @return {Array}
+   */
+
+  function xAdd(array1, array2) {
+    let isConstant = false;
+    let constant;
+
+    if (isAnyArray(array2)) {
+      if (array1.length !== array2.length) {
+        throw new Error('sub: size of array1 and array2 must be identical');
+      }
+    } else {
+      isConstant = true;
+      constant = Number(array2);
     }
 
-    if (toIndex <= fromIndex || toIndex > input.length || !Number.isInteger(toIndex)) {
-      throw new Error('toIndex must be an integer greater than fromIndex and at most equal to length');
+    let array3 = new Array(array1.length);
+
+    if (isConstant) {
+      for (let i = 0; i < array1.length; i++) {
+        array3[i] = array1[i] + constant;
+      }
+    } else {
+      for (let i = 0; i < array1.length; i++) {
+        array3[i] = array1[i] + array2[i];
+      }
     }
 
-    var maxValue = input[fromIndex];
+    return array3;
+  }
 
-    for (var i = fromIndex + 1; i < toIndex; i++) {
-      if (input[i] > maxValue) maxValue = input[i];
+  /**
+   * This function xMultiply the first array by the second array or a constant value to each element of the first array
+   * @param {Array} array1 - the array that will be rotated
+   * @param {Array|Number} array2
+   * @return {Float64Array}
+   */
+
+  function xMultiply(array1, array2) {
+    let isConstant = false;
+    let constant;
+
+    if (isAnyArray(array2)) {
+      if (array1.length !== array2.length) {
+        throw new Error('sub: size of array1 and array2 must be identical');
+      }
+    } else {
+      isConstant = true;
+      constant = Number(array2);
     }
 
-    return maxValue;
+    let array3 = new Float64Array(array1.length);
+
+    if (isConstant) {
+      for (let i = 0; i < array1.length; i++) {
+        array3[i] = array1[i] * constant;
+      }
+    } else {
+      for (let i = 0; i < array1.length; i++) {
+        array3[i] = array1[i] * array2[i];
+      }
+    }
+
+    return array3;
+  }
+
+  /**
+   * This function divide the first array by the second array or a constant value to each element of the first array
+   * @param {Array<Number>} array1 - the array that will be rotated
+   * @param {Array<Number>|Number} array2
+   * @return {Array}
+   */
+
+  function xDivide(array1, array2) {
+    let isConstant = false;
+    let constant;
+
+    if (isAnyArray(array2)) {
+      if (array1.length !== array2.length) {
+        throw new Error('sub: size of array1 and array2 must be identical');
+      }
+    } else {
+      isConstant = true;
+      constant = Number(array2);
+    }
+
+    let array3 = new Array(array1.length);
+
+    if (isConstant) {
+      for (let i = 0; i < array1.length; i++) {
+        array3[i] = array1[i] / constant;
+      }
+    } else {
+      for (let i = 0; i < array1.length; i++) {
+        array3[i] = array1[i] / array2[i];
+      }
+    }
+
+    return array3;
+  }
+
+  /**
+   * Checks if input is valdi
+   * @param {Array<number>} input
+
+   */
+
+  function xCheck(input) {
+    if (!isAnyArray(input)) {
+      throw new TypeError('input must be an array');
+    }
+
+    if (input.length === 0) {
+      throw new TypeError('input must not be empty');
+    }
+  }
+
+  /**
+   * Returns true if x is monotone
+   * @param {Array} array
+   * @return {boolean}
+   */
+  function xIsMonotone(array) {
+    if (array.length <= 2) {
+      return true;
+    }
+
+    if (array[0] === array[1]) {
+      // maybe a constant series
+      for (let i = 1; i < array.length - 1; i++) {
+        if (array[i] !== array[i + 1]) return false;
+      }
+
+      return true;
+    }
+
+    if (array[0] < array[array.length - 1]) {
+      for (let i = 0; i < array.length - 1; i++) {
+        if (array[i] >= array[i + 1]) return false;
+      }
+    } else {
+      for (let i = 0; i < array.length - 1; i++) {
+        if (array[i] <= array[i + 1]) return false;
+      }
+    }
+
+    return true;
+  }
+
+  function sum(input) {
+    if (!isAnyArray(input)) {
+      throw new TypeError('input must be an array');
+    }
+
+    if (input.length === 0) {
+      throw new TypeError('input must not be empty');
+    }
+
+    var sumValue = 0;
+
+    for (var i = 0; i < input.length; i++) {
+      sumValue += input[i];
+    }
+
+    return sumValue;
+  }
+
+  function mean(input) {
+    return sum(input) / input.length;
+  }
+
+  /**
+   * This function pads an array
+   * @param {Array} array - the array that will be padded
+   * @param {object} [options={}]
+   * @param {string} [options.algorithm=''] '', value, circular, duplicate
+   * @param {number} [options.size=0] padding size before first element and after last element
+   * @param {number} [options.value=0] value to use for padding (if algorithm='value')
+   * @return {Array}
+   */
+
+  function xPadding(array, options = {}) {
+    const {
+      size = 0,
+      value = 0,
+      algorithm = ''
+    } = options;
+    xCheck(array);
+
+    if (!algorithm) {
+      if (array instanceof Float64Array) {
+        return array.slice();
+      } else {
+        return Float64Array.from(array);
+      }
+    }
+
+    let result = new Float64Array(array.length + size * 2);
+
+    for (let i = 0; i < array.length; i++) {
+      result[i + size] = array[i];
+    }
+
+    let fromEnd = size + array.length;
+    let toEnd = 2 * size + array.length;
+
+    switch (algorithm.toLowerCase()) {
+      case 'value':
+        for (let i = 0; i < size; i++) {
+          result[i] = value;
+        }
+
+        for (let i = fromEnd; i < toEnd; i++) {
+          result[i] = value;
+        }
+
+        break;
+
+      case 'duplicate':
+        for (let i = 0; i < size; i++) {
+          result[i] = array[0];
+        }
+
+        for (let i = fromEnd; i < toEnd; i++) {
+          result[i] = array[array.length - 1];
+        }
+
+        break;
+
+      case 'circular':
+        for (let i = 0; i < size; i++) {
+          result[i] = array[(array.length - size % array.length + i) % array.length];
+        }
+
+        for (let i = 0; i < size; i++) {
+          result[i + fromEnd] = array[i % array.length];
+        }
+
+        break;
+
+      default:
+        throw Error('xPadding: unknown algorithm');
+    }
+
+    return result;
+  }
+
+  /**
+   * This function calculates a rolling average
+   * @param {Array<Number>} array - the array that will be rotated
+   * @param {function} fct callback function that from an array returns a value.
+   * @param {object} [options={}]
+   * @param {number} [options.window=5] rolling window
+   * @param {string} [options.padding.size=0] none, value, circular, duplicate
+   * @param {string} [options.padding.algorithm='value'] none, value, circular, duplicate
+   * @param {number} [options.padding.value=0] value to use for padding (if algorithm='value')
+   * @return {Array<Number>}
+   */
+
+  function xRolling(array, fct, options = {}) {
+    xCheck(array);
+    if (typeof fct !== 'function') throw Error('fct has to be a function');
+    const {
+      window = 5,
+      padding = {}
+    } = options;
+    const {
+      size = window - 1,
+      algorithm,
+      value
+    } = padding;
+    array = xPadding(array, {
+      size,
+      algorithm,
+      value
+    }); // ensure we get a copy and it is float64
+
+    const newArray = [];
+
+    for (let i = 0; i < array.length - window + 1; i++) {
+      let subArray = new Float64Array(array.buffer, i * 8, window); // we will send a view to the original buffer
+
+      newArray.push(fct(subArray));
+    }
+
+    return newArray;
+  }
+
+  /**
+   * This function calculates a rolling average
+   * @param {Array<Number>} array - the array that will be rotated
+   * @param {object} [options={}]
+   * @param {number} [options.window=5] rolling window
+   * @param {string} [options.padding.size=window-1] none, value, circular, duplicate
+   * @param {string} [options.padding.algorithm=''] none, value, circular, duplicate
+   * @param {number} [options.padding.value=0] value to use for padding (if algorithm='value')
+   * @return {Array<Number>}
+   */
+
+  function xRollingAverage(array, options = {}) {
+    return xRolling(array, mean, options);
+  }
+
+  /**
+   * This function calculates a rolling average
+   * @param {Array<Number>} array - the array that will be rotated
+   * @param {object} [options={}]
+   * @param {number} [options.window=5] rolling window
+   * @param {string} [options.padding.size=window-1] none, value, circular, duplicate
+   * @param {string} [options.padding.algorithm=''] none, value, circular, duplicate
+   * @param {number} [options.padding.value=0] value to use for padding (if algorithm='value')
+   * @return {Array<Number>}
+   */
+
+  function xRollingMedian(array, options = {}) {
+    return xRolling(array, median, options);
   }
 
   function min(input) {
@@ -154,71 +441,9 @@
     return minValue;
   }
 
-  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+  function max(input) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-  function createCommonjsModule(fn, basedir, module) {
-  	return module = {
-  		path: basedir,
-  		exports: {},
-  		require: function (path, base) {
-  			return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
-  		}
-  	}, fn(module, module.exports), module.exports;
-  }
-
-  function getAugmentedNamespace(n) {
-  	if (n.__esModule) return n;
-  	var a = Object.defineProperty({}, '__esModule', {value: true});
-  	Object.keys(n).forEach(function (k) {
-  		var d = Object.getOwnPropertyDescriptor(n, k);
-  		Object.defineProperty(a, k, d.get ? d : {
-  			enumerable: true,
-  			get: function () {
-  				return n[k];
-  			}
-  		});
-  	});
-  	return a;
-  }
-
-  function commonjsRequire () {
-  	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
-  }
-
-  var medianQuickselect_min = createCommonjsModule(function (module) {
-    (function () {
-      function a(d) {
-        for (var e = 0, f = d.length - 1, g = void 0, h = void 0, i = void 0, j = c(e, f); !0;) {
-          if (f <= e) return d[j];
-          if (f == e + 1) return d[e] > d[f] && b(d, e, f), d[j];
-
-          for (g = c(e, f), d[g] > d[f] && b(d, g, f), d[e] > d[f] && b(d, e, f), d[g] > d[e] && b(d, g, e), b(d, g, e + 1), h = e + 1, i = f; !0;) {
-            do h++; while (d[e] > d[h]);
-
-            do i--; while (d[i] > d[e]);
-
-            if (i < h) break;
-            b(d, h, i);
-          }
-
-          b(d, e, i), i <= j && (e = h), i >= j && (f = i - 1);
-        }
-      }
-
-      var b = function b(d, e, f) {
-        var _ref;
-
-        return _ref = [d[f], d[e]], d[e] = _ref[0], d[f] = _ref[1], _ref;
-      },
-          c = function c(d, e) {
-        return ~~((d + e) / 2);
-      };
-
-       module.exports ? module.exports = a : window.median = a;
-    })();
-  });
-
-  function median(input) {
     if (!isAnyArray(input)) {
       throw new TypeError('input must be an array');
     }
@@ -227,622 +452,27 @@
       throw new TypeError('input must not be empty');
     }
 
-    return medianQuickselect_min(input.slice());
+    var _options$fromIndex = options.fromIndex,
+        fromIndex = _options$fromIndex === void 0 ? 0 : _options$fromIndex,
+        _options$toIndex = options.toIndex,
+        toIndex = _options$toIndex === void 0 ? input.length : _options$toIndex;
+
+    if (fromIndex < 0 || fromIndex >= input.length || !Number.isInteger(fromIndex)) {
+      throw new Error('fromIndex must be a positive integer smaller than length');
+    }
+
+    if (toIndex <= fromIndex || toIndex > input.length || !Number.isInteger(toIndex)) {
+      throw new Error('toIndex must be an integer greater than fromIndex and at most equal to length');
+    }
+
+    var maxValue = input[fromIndex];
+
+    for (var i = fromIndex + 1; i < toIndex; i++) {
+      if (input[i] > maxValue) maxValue = input[i];
+    }
+
+    return maxValue;
   }
-
-  /**
-
-  /**
-   * This function xAdd the first array by the second array or a constant value to each element of the first array
-   * @param {Array<Number>} array1 - the array that will be rotated
-   * @param {Array|Number} array2
-   * @return {Array}
-   */
-  function xAdd(array1, array2) {
-    let isConstant = false;
-    let constant;
-
-    if (Array.isArray(array2)) {
-      if (array1.length !== array2.length) {
-        throw new Error('sub: size of array1 and array2 must be identical');
-      }
-    } else {
-      isConstant = true;
-      constant = Number(array2);
-    }
-
-    let array3 = new Array(array1.length);
-
-    if (isConstant) {
-      for (let i = 0; i < array1.length; i++) {
-        array3[i] = array1[i] + constant;
-      }
-    } else {
-      for (let i = 0; i < array1.length; i++) {
-        array3[i] = array1[i] + array2[i];
-      }
-    }
-
-    return array3;
-  }
-
-  /**
-
-  /**
-   * This function xMultiply the first array by the second array or a constant value to each element of the first array
-   * @param {Array} array1 - the array that will be rotated
-   * @param {Array|Number} array2
-   * @return {Float64Array}
-   */
-  function xMultiply(array1, array2) {
-    let isConstant = false;
-    let constant;
-
-    if (Array.isArray(array2)) {
-      if (array1.length !== array2.length) {
-        throw new Error('sub: size of array1 and array2 must be identical');
-      }
-    } else {
-      isConstant = true;
-      constant = Number(array2);
-    }
-
-    let array3 = new Float64Array(array1.length);
-
-    if (isConstant) {
-      for (let i = 0; i < array1.length; i++) {
-        array3[i] = array1[i] * constant;
-      }
-    } else {
-      for (let i = 0; i < array1.length; i++) {
-        array3[i] = array1[i] * array2[i];
-      }
-    }
-
-    return array3;
-  }
-
-  /**
-
-  /**
-   * This function divide the first array by the second array or a constant value to each element of the first array
-   * @param {Array<Number>} array1 - the array that will be rotated
-   * @param {Array<Number>|Number} array2
-   * @return {Array}
-   */
-  function xDivide(array1, array2) {
-    let isConstant = false;
-    let constant;
-
-    if (Array.isArray(array2)) {
-      if (array1.length !== array2.length) {
-        throw new Error('sub: size of array1 and array2 must be identical');
-      }
-    } else {
-      isConstant = true;
-      constant = Number(array2);
-    }
-
-    let array3 = new Array(array1.length);
-
-    if (isConstant) {
-      for (let i = 0; i < array1.length; i++) {
-        array3[i] = array1[i] / constant;
-      }
-    } else {
-      for (let i = 0; i < array1.length; i++) {
-        array3[i] = array1[i] / array2[i];
-      }
-    }
-
-    return array3;
-  }
-
-  /**
-   * Returns true if x is monotone
-   * @param {Array} array
-   * @return {boolean}
-   */
-  function xIsMonotone(array) {
-    if (array.length < 3) return true;
-
-    if (array[0] < array[1]) {
-      for (let i = 0; i < array.length - 1; i++) {
-        if (array[i] >= array[i + 1]) return false;
-      }
-    } else {
-      for (let i = 0; i < array.length - 1; i++) {
-        if (array[i] <= array[i + 1]) return false;
-      }
-    }
-
-    return true;
-  }
-
-  var d3Array = createCommonjsModule(function (module, exports) {
-    (function (global, factory) {
-       factory(exports) ;
-    })(commonjsGlobal, function (exports) {
-
-      function ascending(a, b) {
-        return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
-      }
-
-      function bisector(compare) {
-        if (compare.length === 1) compare = ascendingComparator(compare);
-        return {
-          left: function (a, x, lo, hi) {
-            if (lo == null) lo = 0;
-            if (hi == null) hi = a.length;
-
-            while (lo < hi) {
-              var mid = lo + hi >>> 1;
-              if (compare(a[mid], x) < 0) lo = mid + 1;else hi = mid;
-            }
-
-            return lo;
-          },
-          right: function (a, x, lo, hi) {
-            if (lo == null) lo = 0;
-            if (hi == null) hi = a.length;
-
-            while (lo < hi) {
-              var mid = lo + hi >>> 1;
-              if (compare(a[mid], x) > 0) hi = mid;else lo = mid + 1;
-            }
-
-            return lo;
-          }
-        };
-      }
-
-      function ascendingComparator(f) {
-        return function (d, x) {
-          return ascending(f(d), x);
-        };
-      }
-
-      var ascendingBisect = bisector(ascending);
-      var bisectRight = ascendingBisect.right;
-      var bisectLeft = ascendingBisect.left;
-
-      function descending(a, b) {
-        return b < a ? -1 : b > a ? 1 : b >= a ? 0 : NaN;
-      }
-
-      function number$1(x) {
-        return x === null ? NaN : +x;
-      }
-
-      function variance(array, f) {
-        var n = array.length,
-            m = 0,
-            a,
-            d,
-            s = 0,
-            i = -1,
-            j = 0;
-
-        if (f == null) {
-          while (++i < n) {
-            if (!isNaN(a = number$1(array[i]))) {
-              d = a - m;
-              m += d / ++j;
-              s += d * (a - m);
-            }
-          }
-        } else {
-          while (++i < n) {
-            if (!isNaN(a = number$1(f(array[i], i, array)))) {
-              d = a - m;
-              m += d / ++j;
-              s += d * (a - m);
-            }
-          }
-        }
-
-        if (j > 1) return s / (j - 1);
-      }
-
-      function deviation(array, f) {
-        var v = variance(array, f);
-        return v ? Math.sqrt(v) : v;
-      }
-
-      function extent(array, f) {
-        var i = -1,
-            n = array.length,
-            a,
-            b,
-            c;
-
-        if (f == null) {
-          while (++i < n) if ((b = array[i]) != null && b >= b) {
-            a = c = b;
-            break;
-          }
-
-          while (++i < n) if ((b = array[i]) != null) {
-            if (a > b) a = b;
-            if (c < b) c = b;
-          }
-        } else {
-          while (++i < n) if ((b = f(array[i], i, array)) != null && b >= b) {
-            a = c = b;
-            break;
-          }
-
-          while (++i < n) if ((b = f(array[i], i, array)) != null) {
-            if (a > b) a = b;
-            if (c < b) c = b;
-          }
-        }
-
-        return [a, c];
-      }
-
-      function constant(x) {
-        return function () {
-          return x;
-        };
-      }
-
-      function identity(x) {
-        return x;
-      }
-
-      function range(start, stop, step) {
-        start = +start, stop = +stop, step = (n = arguments.length) < 2 ? (stop = start, start = 0, 1) : n < 3 ? 1 : +step;
-        var i = -1,
-            n = Math.max(0, Math.ceil((stop - start) / step)) | 0,
-            range = new Array(n);
-
-        while (++i < n) {
-          range[i] = start + i * step;
-        }
-
-        return range;
-      }
-
-      var e10 = Math.sqrt(50);
-      var e5 = Math.sqrt(10);
-      var e2 = Math.sqrt(2);
-
-      function ticks(start, stop, count) {
-        var step = tickStep(start, stop, count);
-        return range(Math.ceil(start / step) * step, Math.floor(stop / step) * step + step / 2, // inclusive
-        step);
-      }
-
-      function tickStep(start, stop, count) {
-        var step0 = Math.abs(stop - start) / Math.max(0, count),
-            step1 = Math.pow(10, Math.floor(Math.log(step0) / Math.LN10)),
-            error = step0 / step1;
-        if (error >= e10) step1 *= 10;else if (error >= e5) step1 *= 5;else if (error >= e2) step1 *= 2;
-        return stop < start ? -step1 : step1;
-      }
-
-      function sturges(values) {
-        return Math.ceil(Math.log(values.length) / Math.LN2) + 1;
-      }
-
-      function number(x) {
-        return +x;
-      }
-
-      function histogram() {
-        var value = identity,
-            domain = extent,
-            threshold = sturges;
-
-        function histogram(data) {
-          var i,
-              n = data.length,
-              x,
-              values = new Array(n); // Coerce values to numbers.
-
-          for (i = 0; i < n; ++i) {
-            values[i] = +value(data[i], i, data);
-          }
-
-          var xz = domain(values),
-              x0 = +xz[0],
-              x1 = +xz[1],
-              tz = threshold(values, x0, x1); // Convert number of thresholds into uniform thresholds.
-
-          if (!Array.isArray(tz)) tz = ticks(x0, x1, +tz); // Coerce thresholds to numbers, ignoring any outside the domain.
-
-          var m = tz.length;
-
-          for (i = 0; i < m; ++i) tz[i] = +tz[i];
-
-          while (tz[0] <= x0) tz.shift(), --m;
-
-          while (tz[m - 1] >= x1) tz.pop(), --m;
-
-          var bins = new Array(m + 1),
-              bin; // Initialize bins.
-
-          for (i = 0; i <= m; ++i) {
-            bin = bins[i] = [];
-            bin.x0 = i > 0 ? tz[i - 1] : x0;
-            bin.x1 = i < m ? tz[i] : x1;
-          } // Assign data to bins by value, ignoring any outside the domain.
-
-
-          for (i = 0; i < n; ++i) {
-            x = values[i];
-
-            if (x0 <= x && x <= x1) {
-              bins[bisectRight(tz, x, 0, m)].push(data[i]);
-            }
-          }
-
-          return bins;
-        }
-
-        histogram.value = function (_) {
-          return arguments.length ? (value = typeof _ === "function" ? _ : constant(+_), histogram) : value;
-        };
-
-        histogram.domain = function (_) {
-          return arguments.length ? (domain = typeof _ === "function" ? _ : constant([+_[0], +_[1]]), histogram) : domain;
-        };
-
-        histogram.thresholds = function (_) {
-          if (!arguments.length) return threshold;
-          threshold = typeof _ === "function" ? _ : Array.isArray(_) ? constant(Array.prototype.map.call(_, number)) : constant(+_);
-          return histogram;
-        };
-
-        return histogram;
-      }
-
-      function quantile(array, p, f) {
-        if (f == null) f = number$1;
-        if (!(n = array.length)) return;
-        if ((p = +p) <= 0 || n < 2) return +f(array[0], 0, array);
-        if (p >= 1) return +f(array[n - 1], n - 1, array);
-        var n,
-            h = (n - 1) * p,
-            i = Math.floor(h),
-            a = +f(array[i], i, array),
-            b = +f(array[i + 1], i + 1, array);
-        return a + (b - a) * (h - i);
-      }
-
-      function freedmanDiaconis(values, min, max) {
-        values.sort(ascending);
-        return Math.ceil((max - min) / (2 * (quantile(values, 0.75) - quantile(values, 0.25)) * Math.pow(values.length, -1 / 3)));
-      }
-
-      function scott(values, min, max) {
-        return Math.ceil((max - min) / (3.5 * deviation(values) * Math.pow(values.length, -1 / 3)));
-      }
-
-      function max(array, f) {
-        var i = -1,
-            n = array.length,
-            a,
-            b;
-
-        if (f == null) {
-          while (++i < n) if ((b = array[i]) != null && b >= b) {
-            a = b;
-            break;
-          }
-
-          while (++i < n) if ((b = array[i]) != null && b > a) a = b;
-        } else {
-          while (++i < n) if ((b = f(array[i], i, array)) != null && b >= b) {
-            a = b;
-            break;
-          }
-
-          while (++i < n) if ((b = f(array[i], i, array)) != null && b > a) a = b;
-        }
-
-        return a;
-      }
-
-      function mean(array, f) {
-        var s = 0,
-            n = array.length,
-            a,
-            i = -1,
-            j = n;
-
-        if (f == null) {
-          while (++i < n) if (!isNaN(a = number$1(array[i]))) s += a;else --j;
-        } else {
-          while (++i < n) if (!isNaN(a = number$1(f(array[i], i, array)))) s += a;else --j;
-        }
-
-        if (j) return s / j;
-      }
-
-      function median(array, f) {
-        var numbers = [],
-            n = array.length,
-            a,
-            i = -1;
-
-        if (f == null) {
-          while (++i < n) if (!isNaN(a = number$1(array[i]))) numbers.push(a);
-        } else {
-          while (++i < n) if (!isNaN(a = number$1(f(array[i], i, array)))) numbers.push(a);
-        }
-
-        return quantile(numbers.sort(ascending), 0.5);
-      }
-
-      function merge(arrays) {
-        var n = arrays.length,
-            m,
-            i = -1,
-            j = 0,
-            merged,
-            array;
-
-        while (++i < n) j += arrays[i].length;
-
-        merged = new Array(j);
-
-        while (--n >= 0) {
-          array = arrays[n];
-          m = array.length;
-
-          while (--m >= 0) {
-            merged[--j] = array[m];
-          }
-        }
-
-        return merged;
-      }
-
-      function min(array, f) {
-        var i = -1,
-            n = array.length,
-            a,
-            b;
-
-        if (f == null) {
-          while (++i < n) if ((b = array[i]) != null && b >= b) {
-            a = b;
-            break;
-          }
-
-          while (++i < n) if ((b = array[i]) != null && a > b) a = b;
-        } else {
-          while (++i < n) if ((b = f(array[i], i, array)) != null && b >= b) {
-            a = b;
-            break;
-          }
-
-          while (++i < n) if ((b = f(array[i], i, array)) != null && a > b) a = b;
-        }
-
-        return a;
-      }
-
-      function pairs(array) {
-        var i = 0,
-            n = array.length - 1,
-            p = array[0],
-            pairs = new Array(n < 0 ? 0 : n);
-
-        while (i < n) pairs[i] = [p, p = array[++i]];
-
-        return pairs;
-      }
-
-      function permute(array, indexes) {
-        var i = indexes.length,
-            permutes = new Array(i);
-
-        while (i--) permutes[i] = array[indexes[i]];
-
-        return permutes;
-      }
-
-      function scan(array, compare) {
-        if (!(n = array.length)) return;
-        var i = 0,
-            n,
-            j = 0,
-            xi,
-            xj = array[j];
-        if (!compare) compare = ascending;
-
-        while (++i < n) if (compare(xi = array[i], xj) < 0 || compare(xj, xj) !== 0) xj = xi, j = i;
-
-        if (compare(xj, xj) === 0) return j;
-      }
-
-      function shuffle(array, i0, i1) {
-        var m = (i1 == null ? array.length : i1) - (i0 = i0 == null ? 0 : +i0),
-            t,
-            i;
-
-        while (m) {
-          i = Math.random() * m-- | 0;
-          t = array[m + i0];
-          array[m + i0] = array[i + i0];
-          array[i + i0] = t;
-        }
-
-        return array;
-      }
-
-      function sum(array, f) {
-        var s = 0,
-            n = array.length,
-            a,
-            i = -1;
-
-        if (f == null) {
-          while (++i < n) if (a = +array[i]) s += a; // Note: zero and null are equivalent.
-
-        } else {
-          while (++i < n) if (a = +f(array[i], i, array)) s += a;
-        }
-
-        return s;
-      }
-
-      function transpose(matrix) {
-        if (!(n = matrix.length)) return [];
-
-        for (var i = -1, m = min(matrix, length), transpose = new Array(m); ++i < m;) {
-          for (var j = -1, n, row = transpose[i] = new Array(n); ++j < n;) {
-            row[j] = matrix[j][i];
-          }
-        }
-
-        return transpose;
-      }
-
-      function length(d) {
-        return d.length;
-      }
-
-      function zip() {
-        return transpose(arguments);
-      }
-
-      var version = "0.7.1";
-      exports.version = version;
-      exports.bisect = bisectRight;
-      exports.bisectRight = bisectRight;
-      exports.bisectLeft = bisectLeft;
-      exports.ascending = ascending;
-      exports.bisector = bisector;
-      exports.descending = descending;
-      exports.deviation = deviation;
-      exports.extent = extent;
-      exports.histogram = histogram;
-      exports.thresholdFreedmanDiaconis = freedmanDiaconis;
-      exports.thresholdScott = scott;
-      exports.thresholdSturges = sturges;
-      exports.max = max;
-      exports.mean = mean;
-      exports.median = median;
-      exports.merge = merge;
-      exports.min = min;
-      exports.pairs = pairs;
-      exports.permute = permute;
-      exports.quantile = quantile;
-      exports.range = range;
-      exports.scan = scan;
-      exports.shuffle = shuffle;
-      exports.sum = sum;
-      exports.ticks = ticks;
-      exports.tickStep = tickStep;
-      exports.transpose = transpose;
-      exports.variance = variance;
-      exports.zip = zip;
-    });
-  });
 
   /**
    * This function xSubtract the first array by the second array or a constant value from each element of the first array
@@ -850,11 +480,12 @@
    * @param {Array|Number} array2
    * @return {Array}
    */
+
   function xSubtract(array1, array2) {
     let isConstant = false;
     let constant;
 
-    if (Array.isArray(array2)) {
+    if (isAnyArray(array2)) {
       if (array1.length !== array2.length) {
         throw new Error('sub: size of array1 and array2 must be identical');
       }
@@ -878,104 +509,47 @@
     return array3;
   }
 
-  function sum(input) {
-    if (!isAnyArray(input)) {
-      throw new TypeError('input must be an array');
+  /**
+   * Throw an error in no an object of x,y arrays
+   * @param {DataXY} [data={}]
+   */
+
+  function xyCheck(data = {}) {
+    if (!isAnyArray(data.x) || !isAnyArray(data.y)) {
+      throw new Error('Points must be an object of x and y arrays');
     }
 
-    if (input.length === 0) {
-      throw new TypeError('input must not be empty');
+    if (data.x.length !== data.y.length) {
+      throw new Error('The x and y arrays mush have the same length');
     }
-
-    var sumValue = 0;
-
-    for (var i = 0; i < input.length; i++) {
-      sumValue += input[i];
-    }
-
-    return sumValue;
   }
 
-  function norm(input) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var _options$algorithm = options.algorithm,
-        algorithm = _options$algorithm === void 0 ? 'absolute' : _options$algorithm,
-        _options$sumValue = options.sumValue,
-        sumValue = _options$sumValue === void 0 ? 1 : _options$sumValue,
-        _options$maxValue = options.maxValue,
-        maxValue = _options$maxValue === void 0 ? 1 : _options$maxValue;
+  /**
+   * Filters x,y values to allow strictly growing values in x axis.
+   * @param {DataXY} [data={}] - Object that contains property x (an ordered increasing array) and y (an array)
+   * @return {DataXY}
+   */
 
-    if (!isAnyArray(input)) {
-      throw new Error('input must be an array');
-    }
+  function xyEnsureGrowingX(data = {}) {
+    xyCheck(data);
+    const x = Array.from(data.x);
+    const y = Array.from(data.y);
+    let prevX = -Infinity;
+    let ansX = [];
+    let ansY = [];
 
-    var output;
-
-    if (options.output !== undefined) {
-      if (!isAnyArray(options.output)) {
-        throw new TypeError('output option must be an array if specified');
+    for (let index = 0; index < x.length; index++) {
+      if (prevX < x[index]) {
+        ansX.push(x[index]);
+        ansY.push(y[index]);
+        prevX = x[index];
       }
-
-      output = options.output;
-    } else {
-      output = new Array(input.length);
     }
 
-    if (input.length === 0) {
-      throw new Error('input must not be empty');
-    }
-
-    switch (algorithm.toLowerCase()) {
-      case 'absolute':
-        {
-          var absoluteSumValue = absoluteSum(input) / sumValue;
-          if (absoluteSumValue === 0) return input.slice(0);
-
-          for (var i = 0; i < input.length; i++) {
-            output[i] = input[i] / absoluteSumValue;
-          }
-
-          return output;
-        }
-
-      case 'max':
-        {
-          var currentMaxValue = max(input);
-          if (currentMaxValue === 0) return input.slice(0);
-          var factor = maxValue / currentMaxValue;
-
-          for (var _i = 0; _i < input.length; _i++) {
-            output[_i] = input[_i] * factor;
-          }
-
-          return output;
-        }
-
-      case 'sum':
-        {
-          var sumFactor = sum(input) / sumValue;
-          if (sumFactor === 0) return input.slice(0);
-
-          for (var _i2 = 0; _i2 < input.length; _i2++) {
-            output[_i2] = input[_i2] / sumFactor;
-          }
-
-          return output;
-        }
-
-      default:
-        throw new Error("norm: unknown algorithm: ".concat(algorithm));
-    }
-  }
-
-  function absoluteSum(input) {
-    var sumValue = 0;
-
-    for (var i = 0; i < input.length; i++) {
-      sumValue += Math.abs(input[i]);
-    }
-
-    return sumValue;
+    return {
+      x: ansX,
+      y: ansY
+    };
   }
 
   function rescale(input) {
@@ -1022,645 +596,6 @@
     }
 
     return output;
-  }
-
-  function _typeof(obj) {
-    "@babel/helpers - typeof";
-
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-      _typeof = function (obj) {
-        return typeof obj;
-      };
-    } else {
-      _typeof = function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-      };
-    }
-
-    return _typeof(obj);
-  }
-  /**
-   * Fill an array with sequential numbers
-   * @param {Array<number>} [input] - optional destination array (if not provided a new array will be created)
-   * @param {object} [options={}]
-   * @param {number} [options.from=0] - first value in the array
-   * @param {number} [options.to=10] - last value in the array
-   * @param {number} [options.size=input.length] - size of the array (if not provided calculated from step)
-   * @param {number} [options.step] - if not provided calculated from size
-   * @return {Array<number>}
-   */
-
-
-  function sequentialFill() {
-    var input = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-    if (_typeof(input) === 'object' && !isAnyArray(input)) {
-      options = input;
-      input = [];
-    }
-
-    if (!isAnyArray(input)) {
-      throw new TypeError('input must be an array');
-    }
-
-    var _options = options,
-        _options$from = _options.from,
-        from = _options$from === void 0 ? 0 : _options$from,
-        _options$to = _options.to,
-        to = _options$to === void 0 ? 10 : _options$to,
-        _options$size = _options.size,
-        size = _options$size === void 0 ? input.length : _options$size,
-        step = _options.step;
-
-    if (size !== 0 && step) {
-      throw new Error('step is defined by the array size');
-    }
-
-    if (!size) {
-      if (step) {
-        size = Math.floor((to - from) / step) + 1;
-      } else {
-        size = to - from + 1;
-      }
-    }
-
-    if (!step && size) {
-      step = (to - from) / (size - 1);
-    }
-
-    if (Array.isArray(input)) {
-      // only works with normal array
-      input.length = 0;
-
-      for (var i = 0; i < size; i++) {
-        input.push(from);
-        from += step;
-      }
-    } else {
-      if (input.length !== size) {
-        throw new Error('sequentialFill typed array must have the correct length');
-      }
-
-      for (var _i = 0; _i < size; _i++) {
-        input[_i] = from;
-        from += step;
-      }
-    }
-
-    return input;
-  }
-
-  /**
-   * Normalize an array of zones:
-   * - ensure than from < to
-   * - merge overlapping zones
-   *
-   * The method will always check if from if lower than to and will swap if required.
-   * @param {Array} [zones=[]]
-   * @param {object} [options={}]
-   * @param {number} [options.from=Number.NEGATIVE_INFINITY] Specify min value of a zone
-   * @param {number} [options.to=Number.POSITIVE_INFINITY] Specify max value of a zone
-   */
-  function normalize(zones = [], options = {}) {
-    if (zones.length === 0) return [];
-    let {
-      from = Number.NEGATIVE_INFINITY,
-      to = Number.POSITIVE_INFINITY
-    } = options;
-    if (from > to) [from, to] = [to, from];
-    zones = JSON.parse(JSON.stringify(zones)).map(zone => zone.from > zone.to ? {
-      from: zone.to,
-      to: zone.from
-    } : zone);
-    zones = zones.sort((a, b) => {
-      if (a.from !== b.from) return a.from - b.from;
-      return a.to - b.to;
-    });
-    zones.forEach(zone => {
-      if (from > zone.from) zone.from = from;
-      if (to < zone.to) zone.to = to;
-    });
-    zones = zones.filter(zone => zone.from <= zone.to);
-    if (zones.length === 0) return [];
-    let currentZone = zones[0];
-    let result = [currentZone];
-
-    for (let i = 1; i < zones.length; i++) {
-      let zone = zones[i];
-
-      if (zone.from <= currentZone.to) {
-        currentZone.to = zone.to;
-      } else {
-        currentZone = zone;
-        result.push(currentZone);
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * Convert an array of exclusions and keep only from / to
-   *
-   * The method will always check if from if lower than to and will swap if required.
-   * @param {Array} [exclusions=[]]
-   * @param {object} [options={}]
-   * @param {number} [options.from=Number.NEGATIVE_INFINITY] Specify min value of zones (after inversion)
-   * @param {number} [options.to=Number.POSITIVE_INFINITY] Specify max value of zones (after inversion)
-   */
-
-  function invert(exclusions = [], options = {}) {
-    let {
-      from = Number.NEGATIVE_INFINITY,
-      to = Number.POSITIVE_INFINITY
-    } = options;
-    if (from > to) [from, to] = [to, from];
-    exclusions = normalize(exclusions, {
-      from,
-      to
-    });
-    if (exclusions.length === 0) return [{
-      from,
-      to
-    }];
-    let zones = [];
-
-    for (let i = 0; i < exclusions.length; i++) {
-      let exclusion = exclusions[i];
-      let nextExclusion = exclusions[i + 1];
-
-      if (i === 0) {
-        if (exclusion.from > from) {
-          zones.push({
-            from,
-            to: exclusion.from
-          });
-        }
-      }
-
-      if (i === exclusions.length - 1) {
-        if (exclusion.to < to) {
-          zones.push({
-            from: exclusion.to,
-            to
-          });
-        }
-      } else {
-        zones.push({
-          from: exclusion.to,
-          to: nextExclusion.from
-        });
-      }
-    }
-
-    return zones;
-  }
-
-  /**
-   * Add the number of points per zone to reach a specified total
-   * @param {Array} [zones=[]]
-   * @param {number} [numberOfPoints] Total number of points to distribute between zones
-   * @param {object} [options={}]
-   * @param {number} [options.from=Number.NEGATIVE_INFINITY] Specify min value of a zone
-   * @param {number} [options.to=Number.POSITIVE_INFINITY] Specify max value of a zone
-   */
-
-  function zonesWithPoints(zones, numberOfPoints, options = {}) {
-    if (zones.length === 0) return zones;
-    zones = normalize(zones, options);
-    const totalSize = zones.reduce((previous, current) => {
-      return previous + (current.to - current.from);
-    }, 0);
-    let unitsPerPoint = totalSize / numberOfPoints;
-    let currentTotal = 0;
-
-    for (let i = 0; i < zones.length - 1; i++) {
-      let zone = zones[i];
-      zone.numberOfPoints = Math.min(Math.round((zone.to - zone.from) / unitsPerPoint), numberOfPoints - currentTotal);
-      currentTotal += zone.numberOfPoints;
-    }
-
-    zones[zones.length - 1].numberOfPoints = numberOfPoints - currentTotal;
-    return zones;
-  }
-
-  /**
-   * Function that calculates the integral of the line between two
-   * x-coordinates, given the slope and intercept of the line.
-   * @param {number} x0
-   * @param {number} x1
-   * @param {number} slope
-   * @param {number} intercept
-   * @return {number} integral value.
-   */
-  function integral(x0, x1, slope, intercept) {
-    return 0.5 * slope * x1 * x1 + intercept * x1 - (0.5 * slope * x0 * x0 + intercept * x0);
-  }
-
-  /**
-   * function that retrieves the getEquallySpacedData with the variant "smooth"
-   *
-   * @param {Array<number>} x
-   * @param {Array<number>} y
-   * @param {number} from - Initial point
-   * @param {number} to - Final point
-   * @param {number} numberOfPoints
-   * @return {Array} - Array of y's equally spaced with the variant "smooth"
-   */
-
-  function equallySpacedSmooth(x, y, from, to, numberOfPoints) {
-    let xLength = x.length;
-    let step = (to - from) / (numberOfPoints - 1);
-    let halfStep = step / 2;
-    let output = new Array(numberOfPoints);
-    let initialOriginalStep = x[1] - x[0];
-    let lastOriginalStep = x[xLength - 1] - x[xLength - 2]; // Init main variables
-
-    let min = from - halfStep;
-    let max = from + halfStep;
-    let previousX = Number.MIN_VALUE;
-    let previousY = 0;
-    let nextX = x[0] - initialOriginalStep;
-    let nextY = 0;
-    let currentValue = 0;
-    let slope = 0;
-    let intercept = 0;
-    let sumAtMin = 0;
-    let sumAtMax = 0;
-    let i = 0; // index of input
-
-    let j = 0; // index of output
-
-    function getSlope(x0, y0, x1, y1) {
-      return (y1 - y0) / (x1 - x0);
-    }
-
-    let add = 0;
-
-    main: while (true) {
-      if (previousX <= min && min <= nextX) {
-        add = integral(0, min - previousX, slope, previousY);
-        sumAtMin = currentValue + add;
-      }
-
-      while (nextX - max >= 0) {
-        // no overlap with original point, just consume current value
-        add = integral(0, max - previousX, slope, previousY);
-        sumAtMax = currentValue + add;
-        output[j++] = (sumAtMax - sumAtMin) / step;
-
-        if (j === numberOfPoints) {
-          break main;
-        }
-
-        min = max;
-        max += step;
-        sumAtMin = sumAtMax;
-      }
-
-      currentValue += integral(previousX, nextX, slope, intercept);
-      previousX = nextX;
-      previousY = nextY;
-
-      if (i < xLength) {
-        nextX = x[i];
-        nextY = y[i];
-        i++;
-      } else if (i === xLength) {
-        nextX += lastOriginalStep;
-        nextY = 0;
-      }
-
-      slope = getSlope(previousX, previousY, nextX, nextY);
-      intercept = -slope * previousX + previousY;
-    }
-
-    return output;
-  }
-
-  /**
-   * function that retrieves the getEquallySpacedData with the variant "slot"
-   *
-   * @param {Array<number>} x
-   * @param {Array<number>} y
-   * @param {number} from - Initial point
-   * @param {number} to - Final point
-   * @param {number} numberOfPoints
-   * @return {Array} - Array of y's equally spaced with the variant "slot"
-   */
-  function equallySpacedSlot(x, y, from, to, numberOfPoints) {
-    let xLength = x.length;
-    let step = (to - from) / (numberOfPoints - 1);
-    let halfStep = step / 2;
-    let lastStep = x[x.length - 1] - x[x.length - 2];
-    let start = from - halfStep;
-    let output = new Array(numberOfPoints); // Init main variables
-
-    let min = start;
-    let max = start + step;
-    let previousX = -Number.MAX_VALUE;
-    let previousY = 0;
-    let nextX = x[0];
-    let nextY = y[0];
-    let frontOutsideSpectra = 0;
-    let backOutsideSpectra = true;
-    let currentValue = 0; // for slot algorithm
-
-    let currentPoints = 0;
-    let i = 1; // index of input
-
-    let j = 0; // index of output
-
-    main: while (true) {
-      if (previousX >= nextX) throw new Error('x must be an increasing serie');
-
-      while (previousX - max > 0) {
-        // no overlap with original point, just consume current value
-        if (backOutsideSpectra) {
-          currentPoints++;
-          backOutsideSpectra = false;
-        }
-
-        output[j] = currentPoints <= 0 ? 0 : currentValue / currentPoints;
-        j++;
-
-        if (j === numberOfPoints) {
-          break main;
-        }
-
-        min = max;
-        max += step;
-        currentValue = 0;
-        currentPoints = 0;
-      }
-
-      if (previousX > min) {
-        currentValue += previousY;
-        currentPoints++;
-      }
-
-      if (previousX === -Number.MAX_VALUE || frontOutsideSpectra > 1) {
-        currentPoints--;
-      }
-
-      previousX = nextX;
-      previousY = nextY;
-
-      if (i < xLength) {
-        nextX = x[i];
-        nextY = y[i];
-        i++;
-      } else {
-        nextX += lastStep;
-        nextY = 0;
-        frontOutsideSpectra++;
-      }
-    }
-
-    return output;
-  }
-
-  /**
-   * Function that returns a Number array of equally spaced numberOfPoints
-   * containing a representation of intensities of the spectra arguments x
-   * and y.
-   *
-   * The options parameter contains an object in the following form:
-   * from: starting point
-   * to: last point
-   * numberOfPoints: number of points between from and to
-   * variant: "slot" or "smooth" - smooth is the default option
-   *
-   * The slot variant consist that each point in the new array is calculated
-   * averaging the existing points between the slot that belongs to the current
-   * value. The smooth variant is the same but takes the integral of the range
-   * of the slot and divide by the step size between two points in the new array.
-   *
-   * If exclusions zone are present, zones are ignored !
-   * @param {object} [arrayXY={}] - object containing 2 properties x and y (both an array)
-   * @param {object} [options={}]
-   * @param {number} [options.from=x[0]]
-   * @param {number} [options.to=x[x.length-1]]
-   * @param {string} [options.variant='smooth']
-   * @param {number} [options.numberOfPoints=100]
-   * @param {Array} [options.exclusions=[]] array of from / to that should be skipped for the generation of the points
-   * @param {Array} [options.zones=[]] array of from / to that should be kept
-   * @return {object<x: Array, y:Array>} new object with x / y array with the equally spaced data.
-   */
-
-  function equallySpaced(arrayXY = {}, options = {}) {
-    let {
-      x,
-      y
-    } = arrayXY;
-    let xLength = x.length;
-    let reverse = false;
-
-    if (x.length > 1 && x[0] > x[1]) {
-      x = x.slice().reverse();
-      y = y.slice().reverse();
-      reverse = true;
-    }
-
-    let {
-      from = x[0],
-      to = x[xLength - 1],
-      variant = 'smooth',
-      numberOfPoints = 100,
-      exclusions = [],
-      zones = []
-    } = options;
-
-    if (xLength !== y.length) {
-      throw new RangeError("the x and y vector doesn't have the same size.");
-    }
-
-    if (typeof from !== 'number' || isNaN(from)) {
-      throw new RangeError("'from' option must be a number");
-    }
-
-    if (typeof to !== 'number' || isNaN(to)) {
-      throw new RangeError("'to' option must be a number");
-    }
-
-    if (typeof numberOfPoints !== 'number' || isNaN(numberOfPoints)) {
-      throw new RangeError("'numberOfPoints' option must be a number");
-    }
-
-    if (numberOfPoints < 2) {
-      throw new RangeError("'numberOfPoints' option must be greater than 1");
-    }
-
-    if (zones.length === 0) {
-      zones = invert(exclusions, {
-        from,
-        to
-      });
-    }
-
-    zones = zonesWithPoints(zones, numberOfPoints, {
-      from,
-      to
-    });
-    let xResult = [];
-    let yResult = [];
-
-    for (let zone of zones) {
-      let zoneResult = processZone(x, y, zone.from, zone.to, zone.numberOfPoints, variant);
-      xResult = xResult.concat(zoneResult.x);
-      yResult = yResult.concat(zoneResult.y);
-    }
-
-    if (reverse) {
-      if (from < to) {
-        return {
-          x: xResult.reverse(),
-          y: yResult.reverse()
-        };
-      } else {
-        return {
-          x: xResult,
-          y: yResult
-        };
-      }
-    } else {
-      if (from < to) {
-        return {
-          x: xResult,
-          y: yResult
-        };
-      } else {
-        return {
-          x: xResult.reverse(),
-          y: yResult.reverse()
-        };
-      }
-    }
-  }
-
-  function processZone(x, y, from, to, numberOfPoints, variant) {
-    if (numberOfPoints < 1) {
-      throw new RangeError('the number of points must be at least 1');
-    }
-
-    let output = variant === 'slot' ? equallySpacedSlot(x, y, from, to, numberOfPoints) : equallySpacedSmooth(x, y, from, to, numberOfPoints);
-    return {
-      x: sequentialFill({
-        from,
-        to,
-        size: numberOfPoints
-      }),
-      y: output
-    };
-  }
-
-  function getZones(from, to, exclusions = []) {
-    if (from > to) {
-      [from, to] = [to, from];
-    } // in exclusions from and to have to be defined
-
-
-    exclusions = exclusions.filter(exclusion => exclusion.from !== undefined && exclusion.to !== undefined);
-    exclusions = JSON.parse(JSON.stringify(exclusions)); // we ensure that from before to
-
-    exclusions.forEach(exclusion => {
-      if (exclusion.from > exclusion.to) {
-        [exclusion.to, exclusion.from] = [exclusion.from, exclusion.to];
-      }
-    });
-    exclusions.sort((a, b) => a.from - b.from); // we will rework the exclusions in order to remove overlap and outside range (from / to)
-
-    exclusions.forEach(exclusion => {
-      if (exclusion.from < from) exclusion.from = from;
-      if (exclusion.to > to) exclusion.to = to;
-    });
-
-    for (let i = 0; i < exclusions.length - 1; i++) {
-      if (exclusions[i].to > exclusions[i + 1].from) {
-        exclusions[i].to = exclusions[i + 1].from;
-      }
-    }
-
-    exclusions = exclusions.filter(exclusion => exclusion.from < exclusion.to);
-
-    if (!exclusions || exclusions.length === 0) {
-      return [{
-        from,
-        to
-      }];
-    }
-
-    let zones = [];
-    let currentFrom = from;
-
-    for (let exclusion of exclusions) {
-      if (currentFrom < exclusion.from) {
-        zones.push({
-          from: currentFrom,
-          to: exclusion.from
-        });
-      }
-
-      currentFrom = exclusion.to;
-    }
-
-    if (currentFrom < to) {
-      zones.push({
-        from: currentFrom,
-        to: to
-      });
-    }
-
-    return zones;
-  }
-
-  /**
-   * Filter an array x/y based on various criteria
-   * x points are expected to be sorted
-   *
-   * @param {object} points
-   * @param {object} [options={}]
-   * @param {array} [options.from]
-   * @param {array} [options.to]
-   * @param {array} [options.exclusions=[]]
-   * @return {{x: Array<number>, y: Array<number>}}
-   */
-
-  function filterX(points, options = {}) {
-    const {
-      x,
-      y
-    } = points;
-    const {
-      from = x[0],
-      to = x[x.length - 1],
-      exclusions = []
-    } = options;
-    let zones = getZones(from, to, exclusions);
-    let currentZoneIndex = 0;
-    let newX = [];
-    let newY = [];
-    let position = 0;
-
-    while (position < x.length) {
-      if (x[position] <= zones[currentZoneIndex].to && x[position] >= zones[currentZoneIndex].from) {
-        newX.push(x[position]);
-        newY.push(y[position]);
-      } else {
-        if (x[position] > zones[currentZoneIndex].to) {
-          currentZoneIndex++;
-          if (!zones[currentZoneIndex]) break;
-        }
-      }
-
-      position++;
-    }
-
-    return {
-      x: newX,
-      y: newY
-    };
   }
 
   const indent = ' '.repeat(2);
@@ -2763,6 +1698,12 @@ ${indent}columns: ${matrix.columns}
     }
   }
 
+  function checkNonEmpty(matrix) {
+    if (matrix.isEmpty()) {
+      throw new Error('Empty matrix has no elements to index');
+    }
+  }
+
   function sumByRow(matrix) {
     let sum = newArray(matrix.rows);
 
@@ -3209,6 +2150,10 @@ ${indent}columns: ${matrix.columns}
       return this.rows === this.columns;
     }
 
+    isEmpty() {
+      return this.rows === 0 || this.columns === 0;
+    }
+
     isSymmetric() {
       if (this.isSquare()) {
         for (let i = 0; i < this.rows; i++) {
@@ -3613,6 +2558,10 @@ ${indent}columns: ${matrix.columns}
     }
 
     max() {
+      if (this.isEmpty()) {
+        return NaN;
+      }
+
       let v = this.get(0, 0);
 
       for (let i = 0; i < this.rows; i++) {
@@ -3627,6 +2576,7 @@ ${indent}columns: ${matrix.columns}
     }
 
     maxIndex() {
+      checkNonEmpty(this);
       let v = this.get(0, 0);
       let idx = [0, 0];
 
@@ -3644,6 +2594,10 @@ ${indent}columns: ${matrix.columns}
     }
 
     min() {
+      if (this.isEmpty()) {
+        return NaN;
+      }
+
       let v = this.get(0, 0);
 
       for (let i = 0; i < this.rows; i++) {
@@ -3658,6 +2612,7 @@ ${indent}columns: ${matrix.columns}
     }
 
     minIndex() {
+      checkNonEmpty(this);
       let v = this.get(0, 0);
       let idx = [0, 0];
 
@@ -3676,6 +2631,11 @@ ${indent}columns: ${matrix.columns}
 
     maxRow(row) {
       checkRowIndex(this, row);
+
+      if (this.isEmpty()) {
+        return NaN;
+      }
+
       let v = this.get(row, 0);
 
       for (let i = 1; i < this.columns; i++) {
@@ -3689,6 +2649,7 @@ ${indent}columns: ${matrix.columns}
 
     maxRowIndex(row) {
       checkRowIndex(this, row);
+      checkNonEmpty(this);
       let v = this.get(row, 0);
       let idx = [row, 0];
 
@@ -3704,6 +2665,11 @@ ${indent}columns: ${matrix.columns}
 
     minRow(row) {
       checkRowIndex(this, row);
+
+      if (this.isEmpty()) {
+        return NaN;
+      }
+
       let v = this.get(row, 0);
 
       for (let i = 1; i < this.columns; i++) {
@@ -3717,6 +2683,7 @@ ${indent}columns: ${matrix.columns}
 
     minRowIndex(row) {
       checkRowIndex(this, row);
+      checkNonEmpty(this);
       let v = this.get(row, 0);
       let idx = [row, 0];
 
@@ -3732,6 +2699,11 @@ ${indent}columns: ${matrix.columns}
 
     maxColumn(column) {
       checkColumnIndex(this, column);
+
+      if (this.isEmpty()) {
+        return NaN;
+      }
+
       let v = this.get(0, column);
 
       for (let i = 1; i < this.rows; i++) {
@@ -3745,6 +2717,7 @@ ${indent}columns: ${matrix.columns}
 
     maxColumnIndex(column) {
       checkColumnIndex(this, column);
+      checkNonEmpty(this);
       let v = this.get(0, column);
       let idx = [0, column];
 
@@ -3760,6 +2733,11 @@ ${indent}columns: ${matrix.columns}
 
     minColumn(column) {
       checkColumnIndex(this, column);
+
+      if (this.isEmpty()) {
+        return NaN;
+      }
+
       let v = this.get(0, column);
 
       for (let i = 1; i < this.rows; i++) {
@@ -3773,6 +2751,7 @@ ${indent}columns: ${matrix.columns}
 
     minColumnIndex(column) {
       checkColumnIndex(this, column);
+      checkNonEmpty(this);
       let v = this.get(0, column);
       let idx = [0, column];
 
@@ -4078,11 +3057,15 @@ ${indent}columns: ${matrix.columns}
 
       for (let i = 0; i < this.rows; i++) {
         const row = this.getRow(i);
-        rescale(row, {
-          min,
-          max,
-          output: row
-        });
+
+        if (row.length > 0) {
+          rescale(row, {
+            min,
+            max,
+            output: row
+          });
+        }
+
         newMatrix.setRow(i, row);
       }
 
@@ -4105,11 +3088,15 @@ ${indent}columns: ${matrix.columns}
 
       for (let i = 0; i < this.columns; i++) {
         const column = this.getColumn(i);
-        rescale(column, {
-          min: min,
-          max: max,
-          output: column
-        });
+
+        if (column.length) {
+          rescale(column, {
+            min: min,
+            max: max,
+            output: column
+          });
+        }
+
         newMatrix.setColumn(i, column);
       }
 
@@ -4165,6 +3152,20 @@ ${indent}columns: ${matrix.columns}
       }
 
       return result;
+    }
+
+    kroneckerSum(other) {
+      other = Matrix.checkMatrix(other);
+
+      if (!this.isSquare() || !other.isSquare()) {
+        throw new Error('Kronecker Sum needs two Square Matrices');
+      }
+
+      let m = this.rows;
+      let n = other.rows;
+      let AxI = this.kroneckerProduct(Matrix.eye(n, n));
+      let IxB = Matrix.eye(m, m).kroneckerProduct(other);
+      return AxI.add(IxB);
     }
 
     transpose() {
@@ -4256,6 +3257,11 @@ ${indent}columns: ${matrix.columns}
 
     setSubMatrix(matrix, startRow, startColumn) {
       matrix = Matrix.checkMatrix(matrix);
+
+      if (matrix.isEmpty()) {
+        return this;
+      }
+
       let endRow = startRow + matrix.rows - 1;
       let endColumn = startColumn + matrix.columns - 1;
       checkRange(this, startRow, endRow, startColumn, endColumn);
@@ -4573,12 +3579,13 @@ ${indent}columns: ${matrix.columns}
       super();
 
       if (Matrix.isMatrix(nRows)) {
+        // eslint-disable-next-line no-constructor-return
         return nRows.clone();
-      } else if (Number.isInteger(nRows) && nRows > 0) {
+      } else if (Number.isInteger(nRows) && nRows >= 0) {
         // Create an empty matrix
         this.data = [];
 
-        if (Number.isInteger(nColumns) && nColumns > 0) {
+        if (Number.isInteger(nColumns) && nColumns >= 0) {
           for (let i = 0; i < nRows; i++) {
             this.data.push(new Float64Array(nColumns));
           }
@@ -4589,9 +3596,9 @@ ${indent}columns: ${matrix.columns}
         // Copy the values from the 2D array
         const arrayData = nRows;
         nRows = arrayData.length;
-        nColumns = arrayData[0].length;
+        nColumns = nRows ? arrayData[0].length : 0;
 
-        if (typeof nColumns !== 'number' || nColumns === 0) {
+        if (typeof nColumns !== 'number') {
           throw new TypeError('Data must be a 2D array with at least one element');
         }
 
@@ -4610,7 +3617,6 @@ ${indent}columns: ${matrix.columns}
 
       this.rows = nRows;
       this.columns = nColumns;
-      return this;
     }
 
     set(rowIndex, columnIndex, value) {
@@ -4624,11 +3630,6 @@ ${indent}columns: ${matrix.columns}
 
     removeRow(index) {
       checkRowIndex(this, index);
-
-      if (this.rows === 1) {
-        throw new RangeError('A matrix cannot have less than one row');
-      }
-
       this.data.splice(index, 1);
       this.rows -= 1;
       return this;
@@ -4649,10 +3650,6 @@ ${indent}columns: ${matrix.columns}
 
     removeColumn(index) {
       checkColumnIndex(this, index);
-
-      if (this.columns === 1) {
-        throw new RangeError('A matrix cannot have less than one column');
-      }
 
       for (let i = 0; i < this.rows; i++) {
         const newRow = new Float64Array(this.columns - 1);
@@ -5120,6 +4117,11 @@ ${indent}columns: ${matrix.columns}
   class SingularValueDecomposition {
     constructor(value, options = {}) {
       value = WrapperMatrix2D.checkMatrix(value);
+
+      if (value.isEmpty()) {
+        throw new Error('Matrix must be non-empty');
+      }
+
       let m = value.rows;
       let n = value.columns;
       const {
@@ -5719,214 +4721,931 @@ ${indent}columns: ${matrix.columns}
     }
   }
 
-  var defaultOptions = {
-    size: 1,
-    value: 0
-  };
-  /**
-   * Case when the entry is an array
-   * @param data
-   * @param options
-   * @returns {Array}
-   */
-
-  function arrayCase(data, options) {
-    var len = data.length;
-
-    if (typeof options.size === 'number') {
-      options.size = [options.size, options.size];
+  function appendDistinctParameter(values, key, value) {
+    if (!values[key]) {
+      values[key] = {
+        key,
+        values: [],
+        count: 0
+      };
     }
 
-    var cond = len + options.size[0] + options.size[1];
-    var output;
-
-    if (options.output) {
-      if (options.output.length !== cond) {
-        throw new RangeError('Wrong output size');
-      }
-
-      output = options.output;
-    } else {
-      output = new Array(cond);
+    if (!values[key].values.includes(value)) {
+      values[key].values.push(value);
     }
 
-    var i;
-
-    if (options.value === 'circular') {
-      for (i = 0; i < cond; i++) {
-        if (i < options.size[0]) {
-          output[i] = data[(len - options.size[0] % len + i) % len];
-        } else if (i < options.size[0] + len) {
-          output[i] = data[i - options.size[0]];
-        } else {
-          output[i] = data[(i - options.size[0]) % len];
-        }
-      }
-    } else if (options.value === 'replicate') {
-      for (i = 0; i < cond; i++) {
-        if (i < options.size[0]) output[i] = data[0];else if (i < options.size[0] + len) output[i] = data[i - options.size[0]];else output[i] = data[len - 1];
-      }
-    } else if (options.value === 'symmetric') {
-      if (options.size[0] > len || options.size[1] > len) {
-        throw new RangeError('expanded value should not be bigger than the data length');
-      }
-
-      for (i = 0; i < cond; i++) {
-        if (i < options.size[0]) output[i] = data[options.size[0] - 1 - i];else if (i < options.size[0] + len) output[i] = data[i - options.size[0]];else output[i] = data[2 * len + options.size[0] - i - 1];
-      }
-    } else {
-      for (i = 0; i < cond; i++) {
-        if (i < options.size[0]) output[i] = options.value;else if (i < options.size[0] + len) output[i] = data[i - options.size[0]];else output[i] = options.value;
-      }
-    }
-
-    return output;
-  }
-  /**
-   * Case when the entry is a matrix
-   * @param data
-   * @param options
-   * @returns {Array}
-   */
-
-
-  function matrixCase(data, options) {
-    // var row = data.length;
-    // var col = data[0].length;
-    if (options.size[0] === undefined) {
-      options.size = [options.size, options.size, options.size, options.size];
-    }
-
-    throw new Error('matrix not supported yet, sorry');
-  }
-  /**
-   * Pads and array
-   * @param {Array <number>} data
-   * @param {object} options
-   */
-
-
-  function padArray(data, options) {
-    options = Object.assign({}, defaultOptions, options);
-
-    if (Array.isArray(data)) {
-      if (Array.isArray(data[0])) return matrixCase(data, options);else return arrayCase(data, options);
-    } else {
-      throw new TypeError('data should be an array');
-    }
+    values[key].count++;
   }
 
-  var src = padArray;
+  function appendDistinctValue(values, key) {
+    if (!values[key]) {
+      values[key] = {
+        key,
+        count: 0
+      };
+    }
 
-  /**
-   * Factorial of a number
-   * @ignore
-   * @param n
-   * @return {number}
-   */
-
-  function factorial(n) {
-    let r = 1;
-
-    while (n > 0) r *= n--;
-
-    return r;
+    values[key].count++;
   }
 
-  const defaultOptions$1 = {
-    windowSize: 5,
-    derivative: 1,
-    polynomial: 2,
-    pad: 'none',
-    padValue: 'replicate'
-  };
-  /**
-   * Savitzky-Golay filter
-   * @param {Array <number>} data
-   * @param {number} h
-   * @param {Object} options
-   * @returns {Array}
-   */
-
-  function savitzkyGolay(data, h, options) {
-    options = Object.assign({}, defaultOptions$1, options);
-
-    if (options.windowSize % 2 === 0 || options.windowSize < 5 || !Number.isInteger(options.windowSize)) {
-      throw new RangeError('Invalid window size (should be odd and at least 5 integer number)');
+  class AnalysesManager {
+    constructor() {
+      this.analyses = [];
     }
 
-    if (options.derivative < 0 || !Number.isInteger(options.derivative)) {
-      throw new RangeError('Derivative should be a positive integer');
-    }
+    addAnalysis(analysis) {
+      let index = this.getAnalysisIndex(analysis.id);
 
-    if (options.polynomial < 1 || !Number.isInteger(options.polynomial)) {
-      throw new RangeError('Polynomial should be a positive integer');
-    }
-
-    let C, norm;
-    let step = Math.floor(options.windowSize / 2);
-
-    if (options.pad === 'pre') {
-      data = src(data, {
-        size: step,
-        value: options.padValue
-      });
-    }
-
-    let ans = new Array(data.length - 2 * step);
-
-    if (options.windowSize === 5 && options.polynomial === 2 && (options.derivative === 1 || options.derivative === 2)) {
-      if (options.derivative === 1) {
-        C = [-2, -1, 0, 1, 2];
-        norm = 10;
+      if (index === undefined) {
+        this.analyses.push(analysis);
       } else {
-        C = [2, -1, -2, -1, 2];
-        norm = 7;
+        this.analyses[index] = analysis;
       }
-    } else {
-      let J = Matrix.ones(options.windowSize, options.polynomial + 1);
-      let inic = -(options.windowSize - 1) / 2;
+    }
 
-      for (let i = 0; i < J.rows; i++) {
-        for (let j = 0; j < J.columns; j++) {
-          if (inic + 1 !== 0 || j !== 0) J.set(i, j, Math.pow(inic + i, j));
+    getAnalyses(options = {}) {
+      const {
+        ids
+      } = options;
+      let analyses = [];
+
+      for (const analysis of this.analyses) {
+        if (!ids || ids.includes(analysis.id)) {
+          analyses.push(analysis);
         }
       }
 
-      let Jtranspose = new MatrixTransposeView(J);
-      let Jinv = inverse(Jtranspose.mmul(J));
-      C = Jinv.mmul(Jtranspose);
-      C = C.getRow(options.derivative);
-      norm = 1 / factorial(options.derivative);
+      return analyses;
     }
 
-    let det = norm * Math.pow(h, options.derivative);
+    getSpectra() {
+      const spectra = [];
 
-    for (let k = step; k < data.length - step; k++) {
-      let d = 0;
+      for (const analysis of this.analyses) {
+        spectra.push(...analysis.spectra);
+      }
 
-      for (let l = 0; l < C.length; l++) d += C[l] * data[l + k - step] / det;
+      return spectra;
+    }
+    /**
+     * Get an array of objects (key + count) of all the titles
+     */
 
-      ans[k - step] = d;
+
+    getDistinctTitles() {
+      let values = {};
+
+      for (let spectrum of this.getSpectra()) {
+        if (spectrum.title) {
+          appendDistinctValue(values, spectrum.title);
+        }
+      }
+
+      return Object.keys(values).map(key => values[key]);
+    }
+    /**
+     * Get an array of objects (key + count) of all the units
+     */
+
+
+    getDistinctUnits() {
+      var _a;
+
+      let values = {};
+
+      for (let spectrum of this.getSpectra()) {
+        if (spectrum.variables) {
+          for (let key in spectrum.variables) {
+            const units = (_a = spectrum.variables[key].units) === null || _a === void 0 ? void 0 : _a.replace(/\s+\[.*/, '');
+
+            if (units) {
+              appendDistinctValue(values, units);
+            }
+          }
+        }
+      }
+
+      return Object.keys(values).map(key => values[key]);
+    }
+    /**
+     * Get an array of objects (key + count) of all the labels
+     */
+
+
+    getDistinctLabels() {
+      let values = {};
+
+      for (let spectrum of this.getSpectra()) {
+        if (spectrum.variables) {
+          for (let key in spectrum.variables) {
+            appendDistinctValue(values, spectrum.variables[key].label.replace(/\s+\[.*/, ''));
+          }
+        }
+      }
+
+      return Object.keys(values).map(key => values[key]);
+    }
+    /**
+     * Get an array of objects (key + count) of all the dataTypes
+     */
+
+
+    getDistinctDataTypes() {
+      let values = {};
+
+      for (let spectrum of this.getSpectra()) {
+        if (spectrum.dataType) {
+          appendDistinctValue(values, spectrum.dataType);
+        }
+      }
+
+      return Object.keys(values).map(key => values[key]);
+    }
+    /**
+     * Get an array of objects (key + count) of all the meta
+     */
+
+
+    getDistinctMeta() {
+      let values = {};
+
+      for (let spectrum of this.getSpectra()) {
+        if (spectrum.meta) {
+          for (let key in spectrum.meta) {
+            appendDistinctParameter(values, key, spectrum.meta[key]);
+          }
+        }
+      }
+
+      return Object.keys(values).map(key => values[key]);
     }
 
-    if (options.pad === 'post') {
-      ans = src(ans, {
-        size: step,
-        value: options.padValue
+    removeAllAnalyses() {
+      this.analyses.splice(0);
+    }
+    /**
+     * Remove the analysis from the AnalysesManager for the specified id
+     */
+
+
+    removeAnalysis(id) {
+      let index = this.getAnalysisIndex(id);
+      if (index === undefined) return undefined;
+      return this.analyses.splice(index, 1);
+    }
+    /**
+     * Returns the index of the analysis in the analyses array
+     */
+
+
+    getAnalysisIndex(id) {
+      if (!id) return undefined;
+
+      for (let i = 0; i < this.analyses.length; i++) {
+        let analysis = this.analyses[i];
+        if (analysis.id === id) return i;
+      }
+
+      return undefined;
+    }
+    /**
+     * Checks if the ID of an analysis exists in the AnalysesManager
+     */
+
+
+    includes(id) {
+      const index = this.getAnalysisIndex(id);
+      return index === undefined ? false : !isNaN(index);
+    }
+
+  }
+
+  // Based on https://github.com/scijs/cholesky-solve
+
+  /*
+  The MIT License (MIT)
+
+  Copyright (c) 2013 Eric Arnebäck
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  THE SOFTWARE.
+  */
+  function ldlSymbolic(n
+  /* A and L are n-by-n, where n >= 0 */
+  , Ap
+  /* input of size n + 1, not modified */
+  , Ai
+  /* input of size nz=Ap[n], not modified */
+  , Lp
+  /* output of size n + 1, not defined on input */
+  , Parent
+  /* output of size n, not defined on input */
+  , Lnz
+  /* output of size n, not defined on input */
+  , Flag
+  /* workspace of size n, not defn. on input or output */
+  ) {
+    let i, k, p, kk, p2;
+
+    for (k = 0; k < n; k++) {
+      /* L(k,:) pattern: all nodes reachable in etree from nz in A(0:k-1,k) */
+      Parent[k] = -1;
+      /* parent of k is not yet known */
+
+      Flag[k] = k;
+      /* mark node k as visited */
+
+      Lnz[k] = 0;
+      /* count of nonzeros in column k of L */
+
+      kk = k;
+      /* kth original, or permuted, column */
+
+      p2 = Ap[kk + 1];
+
+      for (p = Ap[kk]; p < p2; p++) {
+        /* A (i,k) is nonzero (original or permuted A) */
+        i = Ai[p];
+
+        if (i < k) {
+          /* follow path from i to root of etree, stop at flagged node */
+          for (; Flag[i] !== k; i = Parent[i]) {
+            /* find parent of i if not yet determined */
+            if (Parent[i] === -1) Parent[i] = k;
+            Lnz[i]++;
+            /* L (k,i) is nonzero */
+
+            Flag[i] = k;
+            /* mark i as visited */
+          }
+        }
+      }
+    }
+    /* construct Lp index array from Lnz column counts */
+
+
+    Lp[0] = 0;
+
+    for (k = 0; k < n; k++) {
+      Lp[k + 1] = Lp[k] + Lnz[k];
+    }
+  }
+
+  function ldlNumeric(n
+  /* A and L are n-by-n, where n >= 0 */
+  , Ap
+  /* input of size n+1, not modified */
+  , Ai
+  /* input of size nz=Ap[n], not modified */
+  , Ax
+  /* input of size nz=Ap[n], not modified */
+  , Lp
+  /* input of size n+1, not modified */
+  , Parent
+  /* input of size n, not modified */
+  , Lnz
+  /* output of size n, not defn. on input */
+  , Li
+  /* output of size lnz=Lp[n], not defined on input */
+  , Lx
+  /* output of size lnz=Lp[n], not defined on input */
+  , D
+  /* output of size n, not defined on input */
+  , Y
+  /* workspace of size n, not defn. on input or output */
+  , Pattern
+  /* workspace of size n, not defn. on input or output */
+  , Flag
+  /* workspace of size n, not defn. on input or output */
+  ) {
+    let yi, lKi;
+    let i, k, p, kk, p2, len, top;
+
+    for (k = 0; k < n; k++) {
+      /* compute nonzero Pattern of kth row of L, in topological order */
+      Y[k] = 0.0;
+      /* Y(0:k) is now all zero */
+
+      top = n;
+      /* stack for pattern is empty */
+
+      Flag[k] = k;
+      /* mark node k as visited */
+
+      Lnz[k] = 0;
+      /* count of nonzeros in column k of L */
+
+      kk = k;
+      /* kth original, or permuted, column */
+
+      p2 = Ap[kk + 1];
+
+      for (p = Ap[kk]; p < p2; p++) {
+        i = Ai[p];
+        /* get A(i,k) */
+
+        if (i <= k) {
+          Y[i] += Ax[p];
+          /* scatter A(i,k) into Y (sum duplicates) */
+
+          for (len = 0; Flag[i] !== k; i = Parent[i]) {
+            Pattern[len++] = i;
+            /* L(k,i) is nonzero */
+
+            Flag[i] = k;
+            /* mark i as visited */
+          }
+
+          while (len > 0) Pattern[--top] = Pattern[--len];
+        }
+      }
+      /* compute numerical values kth row of L (a sparse triangular solve) */
+
+
+      D[k] = Y[k];
+      /* get D(k,k) and clear Y(k) */
+
+      Y[k] = 0.0;
+
+      for (; top < n; top++) {
+        i = Pattern[top];
+        /* Pattern[top:n-1] is pattern of L(:,k) */
+
+        yi = Y[i];
+        /* get and clear Y(i) */
+
+        Y[i] = 0.0;
+        p2 = Lp[i] + Lnz[i];
+
+        for (p = Lp[i]; p < p2; p++) {
+          Y[Li[p]] -= Lx[p] * yi;
+        }
+
+        lKi = yi / D[i];
+        /* the nonzero entry L(k,i) */
+
+        D[k] -= lKi * yi;
+        Li[p] = k;
+        /* store L(k,i) in column form of L */
+
+        Lx[p] = lKi;
+        Lnz[i]++;
+        /* increment count of nonzeros in col i */
+      }
+
+      if (D[k] === 0.0) return k;
+      /* failure, D(k,k) is zero */
+    }
+
+    return n;
+    /* success, diagonal of D is all nonzero */
+  }
+
+  function ldlLsolve(n
+  /* L is n-by-n, where n >= 0 */
+  , X
+  /* size n. right-hand-side on input, soln. on output */
+  , Lp
+  /* input of size n+1, not modified */
+  , Li
+  /* input of size lnz=Lp[n], not modified */
+  , Lx
+  /* input of size lnz=Lp[n], not modified */
+  ) {
+    let j, p, p2;
+
+    for (j = 0; j < n; j++) {
+      p2 = Lp[j + 1];
+
+      for (p = Lp[j]; p < p2; p++) {
+        X[Li[p]] -= Lx[p] * X[j];
+      }
+    }
+  }
+
+  function ldlDsolve(n
+  /* D is n-by-n, where n >= 0 */
+  , X
+  /* size n. right-hand-side on input, soln. on output */
+  , D
+  /* input of size n, not modified */
+  ) {
+    let j;
+
+    for (j = 0; j < n; j++) {
+      X[j] /= D[j];
+    }
+  }
+
+  function ldlLTsolve(n
+  /* L is n-by-n, where n >= 0 */
+  , X
+  /* size n. right-hand-side on input, soln. on output */
+  , Lp
+  /* input of size n+1, not modified */
+  , Li
+  /* input of size lnz=Lp[n], not modified */
+  , Lx
+  /* input of size lnz=Lp[n], not modified */
+  ) {
+    let j, p, p2;
+
+    for (j = n - 1; j >= 0; j--) {
+      p2 = Lp[j + 1];
+
+      for (p = Lp[j]; p < p2; p++) {
+        X[j] -= Lx[p] * X[Li[p]];
+      }
+    }
+  }
+
+  function ldlPerm(n
+  /* size of X, B, and P */
+  , X
+  /* output of size n. */
+  , B
+  /* input of size n. */
+  , P
+  /* input permutation array of size n. */
+  ) {
+    let j;
+
+    for (j = 0; j < n; j++) {
+      X[j] = B[P[j]];
+    }
+  }
+
+  function ldlPermt(n
+  /* size of X, B, and P */
+  , X
+  /* output of size n. */
+  , B
+  /* input of size n. */
+  , P
+  /* input permutation array of size n. */
+  ) {
+    let j;
+
+    for (j = 0; j < n; j++) {
+      X[P[j]] = B[j];
+    }
+  }
+
+  function prepare(M, n, P) {
+    // if a permutation was specified, apply it.
+    if (P) {
+      let Pinv = new Array(n);
+
+      for (let k = 0; k < n; k++) {
+        Pinv[P[k]] = k;
+      }
+
+      let Mt = []; // scratch memory
+      // Apply permutation. We make M into P*M*P^T
+
+      for (let a = 0; a < M.length; ++a) {
+        let ar = Pinv[M[a][0]];
+        let ac = Pinv[M[a][1]]; // we only store the upper-diagonal elements(since we assume matrix is symmetric, we only need to store these)
+        // if permuted element is below diagonal, we simply transpose it.
+
+        if (ac < ar) {
+          let t = ac;
+          ac = ar;
+          ar = t;
+        }
+
+        Mt[a] = [];
+        Mt[a][0] = ar;
+        Mt[a][1] = ac;
+        Mt[a][2] = M[a][2];
+      }
+
+      M = Mt; // copy scratch memory.
+    } else {
+      // if P argument is null, we just use an identity permutation.
+      P = [];
+
+      for (let i = 0; i < n; ++i) {
+        P[i] = i;
+      }
+    } // The sparse matrix we are decomposing is A.
+    // Now we shall create A from M.
+
+
+    let Ap = new Array(n + 1);
+    let Ai = new Array(M.length);
+    let Ax = new Array(M.length); // count number of non-zero elements in columns.
+
+    let LNZ = [];
+
+    for (let i = 0; i < n; ++i) {
+      LNZ[i] = 0;
+    }
+
+    for (let a = 0; a < M.length; ++a) {
+      LNZ[M[a][1]]++;
+    }
+
+    Ap[0] = 0;
+
+    for (let i = 0; i < n; ++i) {
+      Ap[i + 1] = Ap[i] + LNZ[i];
+    }
+
+    let coloffset = [];
+
+    for (let a = 0; a < n; ++a) {
+      coloffset[a] = 0;
+    } // go through all elements in M, and add them to sparse matrix A.
+
+
+    for (let i = 0; i < M.length; ++i) {
+      let e = M[i];
+      let col = e[1];
+      let adr = Ap[col] + coloffset[col];
+      Ai[adr] = e[0];
+      Ax[adr] = e[2];
+      coloffset[col]++;
+    }
+
+    let D = new Array(n);
+    let Y = new Array(n);
+    let Lp = new Array(n + 1);
+    let Parent = new Array(n);
+    let Lnz = new Array(n);
+    let Flag = new Array(n);
+    let Pattern = new Array(n);
+    let bp1 = new Array(n);
+    let x = new Array(n);
+    let d;
+    ldlSymbolic(n, Ap, Ai, Lp, Parent, Lnz, Flag);
+    let Lx = new Array(Lp[n]);
+    let Li = new Array(Lp[n]);
+    d = ldlNumeric(n, Ap, Ai, Ax, Lp, Parent, Lnz, Li, Lx, D, Y, Pattern, Flag);
+
+    if (d === n) {
+      return function (b) {
+        ldlPerm(n, bp1, b, P);
+        ldlLsolve(n, bp1, Lp, Li, Lx);
+        ldlDsolve(n, bp1, D);
+        ldlLTsolve(n, bp1, Lp, Li, Lx);
+        ldlPermt(n, x, bp1, P);
+        return x;
+      };
+    } else {
+      return null;
+    }
+  }
+
+  var cuthillMckee_1 = cuthillMckee;
+
+  function compareNum(a, b) {
+    return a - b;
+  }
+
+  function cuthillMckee(list, n) {
+    var adj = new Array(n);
+    var visited = new Array(n);
+
+    for (var i = 0; i < n; ++i) {
+      adj[i] = [];
+      visited[i] = false;
+    }
+
+    for (var i = 0; i < list.length; ++i) {
+      var l = list[i];
+      adj[l[0]].push(l[1]);
+    }
+
+    var toVisit = new Array(n);
+    var eol = 0;
+    var ptr = 0;
+
+    for (var i = 0; i < n; ++i) {
+      if (visited[i]) {
+        continue;
+      }
+
+      toVisit[eol++] = i;
+      visited[i] = true;
+
+      while (ptr < eol) {
+        var v = toVisit[ptr++];
+        var nbhd = adj[v];
+        nbhd.sort(compareNum);
+
+        for (var j = 0; j < nbhd.length; ++j) {
+          var u = nbhd[j];
+
+          if (visited[u]) {
+            continue;
+          }
+
+          visited[u] = true;
+          toVisit[eol++] = u;
+        }
+      }
+    }
+
+    var result = new Array(n);
+
+    for (var i = 0; i < n; ++i) {
+      result[toVisit[i]] = i;
+    }
+
+    return result;
+  }
+
+  const getClosestNumber = (array = [], goal = 0) => {
+    const closest = array.reduce((prev, curr) => {
+      return Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev;
+    });
+    return closest;
+  };
+
+  const getCloseIndex = (array = [], goal = 0) => {
+    const closest = getClosestNumber(array, goal);
+    return array.indexOf(closest);
+  };
+
+  const updateSystem = (matrix, y, weights) => {
+    let nbPoints = y.length;
+    let l = nbPoints - 1;
+    let newMatrix = new Array(matrix.length);
+    let newVector = new Float64Array(nbPoints);
+
+    for (let i = 0; i < l; i++) {
+      let w = weights[i];
+      let diag = i * 2;
+      let next = diag + 1;
+      newMatrix[diag] = matrix[diag].slice();
+      newMatrix[next] = matrix[next].slice();
+
+      if (w === 0) {
+        newVector[i] = 0;
+      } else {
+        newVector[i] = y[i] * w;
+        newMatrix[diag][2] += w;
+      }
+    }
+
+    newVector[l] = y[l] * weights[l];
+    newMatrix[l * 2] = matrix[l * 2].slice();
+    newMatrix[l * 2][2] += weights[l];
+    return [newMatrix, newVector];
+  };
+
+  const getDeltaMatrix = (nbPoints, lambda) => {
+    let matrix = [];
+    let last = nbPoints - 1;
+
+    for (let i = 0; i < last; i++) {
+      matrix.push([i, i, lambda * 2]);
+      matrix.push([i + 1, i, -1 * lambda]);
+    }
+
+    matrix[0][2] = lambda;
+    matrix.push([last, last, lambda]);
+    return {
+      lowerTriangularNonZeros: matrix,
+      permutationEncodedArray: cuthillMckee_1(matrix, nbPoints)
+    };
+  };
+
+  /**
+   * Fit the baseline drift by iteratively changing weights of sum square error between the fitted baseline and original signals,
+   * for further information about the parameters you can get the [paper of airPLS](https://github.com/zmzhang/airPLS/blob/master/airPLS_manuscript.pdf)
+   * @param {Array<number>} x - x axis data useful when control points or zones are submitted
+   * @param {Array<number>} y - Original data
+   * @param {object} [options={}] - Options object
+   * @param {number} [options.maxIterations = 100] - Maximal number of iterations if the method does not reach the stop criterion
+   * @param {number} [options.factorCriterion = 0.001] - Factor of the sum of absolute value of original data, to compute stop criterion
+   * @param {Array<number>} [options.weights = [1,1,...]] - Initial weights vector, default each point has the same weight
+   * @param {number} [options.lambda = 100] - Factor of weights matrix in -> [I + lambda D'D]z = x
+   * @param {Array<number>} [options.controlPoints = []] - Array of x axis values to force that baseline cross those points.
+   * @param {Array<number>} [options.baseLineZones = []] - Array of x axis values (as from - to), to force that baseline cross those zones.
+   * @returns {{corrected: Array<number>, error: number, iteration: number, baseline: Array<number>}}
+   */
+
+  function airPLS(x, y, options = {}) {
+    let {
+      maxIterations = 100,
+      lambda = 100,
+      factorCriterion = 0.001,
+      weights = new Array(y.length).fill(1),
+      controlPoints = [],
+      baseLineZones = []
+    } = options;
+
+    if (controlPoints.length > 0) {
+      controlPoints.forEach((e, i, arr) => arr[i] = getCloseIndex(x, e));
+    }
+
+    if (baseLineZones.length > 0) {
+      baseLineZones.forEach(range => {
+        let indexFrom = getCloseIndex(x, range.from);
+        let indexTo = getCloseIndex(x, range.to);
+        if (indexFrom > indexTo) [indexFrom, indexTo] = [indexTo, indexFrom];
+
+        for (let i = indexFrom; i < indexTo; i++) {
+          controlPoints.push(i);
+        }
       });
     }
 
-    return ans;
+    let baseline, iteration;
+    let nbPoints = y.length;
+    let l = nbPoints - 1;
+    let sumNegDifferences = Number.MAX_SAFE_INTEGER;
+    let stopCriterion = factorCriterion * y.reduce((sum, e) => Math.abs(e) + sum, 0);
+    let {
+      lowerTriangularNonZeros,
+      permutationEncodedArray
+    } = getDeltaMatrix(nbPoints, lambda);
+
+    for (iteration = 0; iteration < maxIterations && Math.abs(sumNegDifferences) > stopCriterion; iteration++) {
+      let [leftHandSide, rightHandSide] = updateSystem(lowerTriangularNonZeros, y, weights);
+      let cho = prepare(leftHandSide, nbPoints, permutationEncodedArray);
+      baseline = cho(rightHandSide);
+      sumNegDifferences = 0;
+      let difference = y.map(calculateError);
+      let maxNegativeDiff = -1 * Number.MAX_SAFE_INTEGER;
+
+      for (let i = 1; i < l; i++) {
+        let diff = difference[i];
+
+        if (diff >= 0) {
+          weights[i] = 0;
+        } else {
+          weights[i] = Math.exp(iteration * diff / sumNegDifferences);
+          if (maxNegativeDiff < diff) maxNegativeDiff = diff;
+        }
+      }
+
+      let value = Math.exp(iteration * maxNegativeDiff / sumNegDifferences);
+      weights[0] = value;
+      weights[l] = value;
+      controlPoints.forEach(i => weights[i] = value);
+    }
+
+    return {
+      corrected: y.map((e, i) => e - baseline[i]),
+      baseline,
+      iteration,
+      error: sumNegDifferences
+    };
+
+    function calculateError(e, i) {
+      let diff = e - baseline[i];
+      if (diff < 0) sumNegDifferences += diff;
+      return diff;
+    }
   }
 
-  const toString$1 = Object.prototype.toString;
+  function _typeof(obj) {
+    "@babel/helpers - typeof";
 
-  function isAnyArray$1(object) {
-    return toString$1.call(object).endsWith('Array]');
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+      _typeof = function (obj) {
+        return typeof obj;
+      };
+    } else {
+      _typeof = function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
+    }
+
+    return _typeof(obj);
+  }
+  /**
+   * Fill an array with sequential numbers
+   * @param {Array<number>} [input] - optional destination array (if not provided a new array will be created)
+   * @param {object} [options={}]
+   * @param {number} [options.from=0] - first value in the array
+   * @param {number} [options.to=10] - last value in the array
+   * @param {number} [options.size=input.length] - size of the array (if not provided calculated from step)
+   * @param {number} [options.step] - if not provided calculated from size
+   * @return {Array<number>}
+   */
+
+
+  function sequentialFill() {
+    var input = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    if (_typeof(input) === 'object' && !isAnyArray(input)) {
+      options = input;
+      input = [];
+    }
+
+    if (!isAnyArray(input)) {
+      throw new TypeError('input must be an array');
+    }
+
+    var _options = options,
+        _options$from = _options.from,
+        from = _options$from === void 0 ? 0 : _options$from,
+        _options$to = _options.to,
+        to = _options$to === void 0 ? 10 : _options$to,
+        _options$size = _options.size,
+        size = _options$size === void 0 ? input.length : _options$size,
+        step = _options.step;
+
+    if (size !== 0 && step) {
+      throw new Error('step is defined by the array size');
+    }
+
+    if (!size) {
+      if (step) {
+        size = Math.floor((to - from) / step) + 1;
+      } else {
+        size = to - from + 1;
+      }
+    }
+
+    if (!step && size) {
+      step = (to - from) / (size - 1);
+    }
+
+    if (Array.isArray(input)) {
+      // only works with normal array
+      input.length = 0;
+
+      for (var i = 0; i < size; i++) {
+        input.push(from);
+        from += step;
+      }
+    } else {
+      if (input.length !== size) {
+        throw new Error('sequentialFill typed array must have the correct length');
+      }
+
+      for (var _i = 0; _i < size; _i++) {
+        input[_i] = from;
+        from += step;
+      }
+    }
+
+    return input;
   }
 
-  var src$1 = isAnyArray$1;
+  /**
+   * Adaptive iteratively reweighted penalized least squares [1]
+   *
+   * This function calls ml-airpls
+   *
+   * References:
+   * [1] Zhang, Z.-M.; Chen, S.; Liang, Y.-Z.
+   * Baseline Correction Using Adaptive Iteratively Reweighted Penalized Least Squares.
+   * Analyst 2010, 135 (5), 1138–1146. https://doi.org/10.1039/B922045C.
+   * @export
+   * @param {Array<number>} ys
+   * @param {object} [options] - Options object
+   * @param {Array<number>} [options.x] Optional, Independent axis variable. If not specified, we use a linear grid
+   * @param {object} [options.regression] - Options for the regression
+   * @param {number} [options.regression.maxIterations = 100] - Maximum number of allowed iterations
+   * @param {function} [options.regression.§Regression = PolynomialRegression] - Regression class with a predict method
+   * @param {*} [options.regression.regressionOptions] - Options for regressionFunction
+   * @param {number} [options.regression.tolerance = 0.001] - Convergence error tolerance
+   * @returns {BaselineOutput}
+   */
+
+  function airPLSBaseline(ys, options = {}) {
+    const numberPoints = ys.length;
+    let {
+      x,
+      regressionOptions
+    } = options;
+
+    if (!x) {
+      x = sequentialFill({
+        from: 0,
+        to: numberPoints - 1,
+        size: numberPoints
+      });
+    }
+
+    let output = airPLS(x, ys, regressionOptions);
+    return {
+      baseline: output.baseline,
+      correctedSpectrum: output.corrected
+    };
+  }
 
   function maybeToPrecision(value, digits) {
     if (value < 0) {
@@ -5947,7 +5666,7 @@ ${indent}columns: ${matrix.columns}
   }
 
   function checkArraySize(x, y) {
-    if (!src$1(x) || !src$1(y)) {
+    if (!isAnyArray(x) || !isAnyArray(y)) {
       throw new TypeError('x and y must be arrays');
     }
 
@@ -5966,7 +5685,7 @@ ${indent}columns: ${matrix.columns}
     predict(x) {
       if (typeof x === 'number') {
         return this._predict(x);
-      } else if (src$1(x)) {
+      } else if (isAnyArray(x)) {
         const y = [];
 
         for (let i = 0; i < x.length; i++) {
@@ -6002,7 +5721,7 @@ ${indent}columns: ${matrix.columns}
 
 
     score(x, y) {
-      if (!src$1(x) || !src$1(y) || x.length !== y.length) {
+      if (!isAnyArray(x) || !isAnyArray(y) || x.length !== y.length) {
         throw new Error('x and y must be arrays of the same length');
       }
 
@@ -6248,6 +5967,1066 @@ ${indent}columns: ${matrix.columns}
       baseline,
       regression: regression
     };
+  }
+
+  /**
+   * Iterative polynomial fitting [1]
+   *
+   * Implementation based on ml-baseline-correction-regression
+   *
+   * References:
+   * [1] Gan, F.; Ruan, G.; Mo, J.
+   * Baseline Correction by Improved Iterative Polynomial Fitting with Automatic Threshold.
+   *  Chemometrics and Intelligent Laboratory Systems 2006, 82 (1), 59–65.
+   * https://doi.org/10.1016/j.chemolab.2005.08.009.
+   * @export
+   * @param {Array<number>} ys
+   * @param {object} [options] - Options object
+   * @param {Array<number>} [options.x] Optional, Independent axis variable. If not specified, we use a linear grid
+   * @param {Object} [options.regression]
+   * @param {number} [options.regression.maxIterations = 100] - Maximum number of allowed iterations
+   * @param {Object} [options.regression]
+   * @param {function} [options.regression.Regression = PolynomialRegression] - Regression class with a predict method
+   * @param {Object} [options.regression.regressionOptions] - Options for regressionFunction
+   * @param {number} [options.regression.tolerance = 0.001] - Convergence error tolerance
+   * @returns {BaselineOutput}
+   */
+
+  function iterativePolynomialBaseline(ys, options = {}) {
+    const numberPoints = ys.length;
+    let {
+      x,
+      regressionOptions
+    } = options;
+
+    if (!x) {
+      x = sequentialFill({
+        from: 0,
+        to: numberPoints - 1,
+        size: numberPoints
+      });
+    }
+
+    let output = baselineCorrectionRegression(x, ys, regressionOptions);
+    return {
+      baseline: output.baseline,
+      correctedSpectrum: output.corrected
+    };
+  }
+
+  /**
+
+   *
+   * @export
+   * @param {Array<number>} ys
+   * @param {Object} [options={}]
+   * @param {number} [options.window] rolling window size, defaults to 10% of the length of the spectrum
+   * @param {string} [options.padding.size=window-1] none, value, circular, duplicate
+   * @param {string} [options.padding.algorithm='duplicate'] none, value, circular, duplicate
+   * @param {number} [options.padding.value=0] value to use for padding (if algorithm='value')
+   * @returns {BaselineOutput}
+   */
+
+  function rollingAverageBaseline(ys, options = {}) {
+    let window = Math.max(Math.round(ys.length * 0.1), 2);
+    let defaults = {
+      window: window,
+      padding: {
+        size: window - 1,
+        algorithm: 'duplicate',
+        value: 0
+      }
+    };
+    let actualOptions = Object.assign({}, defaults, options);
+    let baseline = xRollingAverage(ys, actualOptions);
+    let corrected = new Float64Array(ys.length);
+
+    for (let i = 0; i < corrected.length; i++) {
+      corrected[i] = ys[i] - baseline[i];
+    }
+
+    return {
+      baseline: baseline,
+      correctedSpectrum: corrected
+    };
+  }
+
+  /**
+   * Rolling ball baseline correction algorithm.
+   * From the abstract of (1):
+   * "This algorithm behaves equivalently to traditional polynomial backgrounds in simple spectra,
+   * [...] and is considerably more robust for multiple overlapping peaks, rapidly varying background [...]
+   *
+   * The baseline is the trace one gets by rolling a ball below a spectrum. Algorithm has three steps:
+   * Finding the minima in each window, find maxima among minima and then smooth over them by averaging.
+   *
+   * Reference:
+   * (1) Kneen, M. A.; Annegarn, H. J.
+   *     Algorithm for Fitting XRF, SEM and PIXE X-Ray Spectra Backgrounds.
+   *     Nuclear Instruments and Methods in Physics Research Section B: Beam Interactions with Materials and Atoms 1996, 109–110, 209–213.
+   *     https://doi.org/10.1016/0168-583X(95)00908-6.
+   * (2) Kristian Hovde Liland, Bjørn-Helge Mevik, Roberto Canteri: baseline.
+   *     https://cran.r-project.org/web/packages/baseline/index.html
+   * @export
+   * @param {Array} spectrum
+   * @param {Object} [options={}]
+   * @param {Number} [options.windowM] - width of local window for minimization/maximization, defaults to 4% of the spectrum length
+   * @param {Number} [options.windowS] - width of local window for smoothing, defaults to 8% of the specturm length
+   */
+
+  function rollingBall(spectrum, options = {}) {
+    if (!isAnyArray(spectrum)) {
+      throw new Error('Spectrum must be an array');
+    }
+
+    if (spectrum.length === 0) {
+      throw new TypeError('Spectrum must not be empty');
+    }
+
+    const numberPoints = spectrum.length;
+    const maxima = new Float64Array(numberPoints);
+    const minima = new Float64Array(numberPoints);
+    const baseline = new Float64Array(numberPoints); // windowM 4 percent of spectrum length
+    // windowS 8 percent of spectrum length
+
+    const {
+      windowM = Math.round(numberPoints * 0.04),
+      windowS = Math.round(numberPoints * 0.08)
+    } = options; // fi(1) in original paper
+
+    for (let i = 0; i < spectrum.length; i++) {
+      let windowLeft = max([0, i - windowM]);
+      let windowRight = min([i + windowM + 1, spectrum.length]);
+      minima[i] = min(spectrum.slice(windowLeft, windowRight));
+    } // fi in original paper
+
+
+    for (let i = 0; i < minima.length; i++) {
+      let windowLeft = max([0, i - windowM]);
+      let windowRight = min([i + windowM + 1, minima.length]);
+      maxima[i] = max(minima.slice(windowLeft, windowRight));
+    }
+
+    for (let i = 0; i < minima.length; i++) {
+      let windowLeft = max([0, i - windowS]);
+      let windowRight = min([i + windowS + 1, maxima.length]);
+      baseline[i] = mean(maxima.slice(windowLeft, windowRight));
+    }
+
+    return baseline;
+  }
+
+  /**
+   * Rolling ball baseline correction algorithm.
+   * From the abstract of (1):
+   * "This algorithm behaves equivalently to traditional polynomial backgrounds in simple spectra,
+   * [...] and is considerably more robust for multiple overlapping peaks, rapidly varying background [...]
+   *
+   * The baseline is the trace one gets by rolling a ball below a spectrum. Algorithm has three steps:
+   * Finding the minima in each window, find maxima among minima and then smooth over them by averaging.
+   *
+   * Algorithm described in (1), but in the implementation here the window width does not change.
+   *
+   * Reference:
+   * (1) Kneen, M. A.; Annegarn, H. J.
+   *     Algorithm for Fitting XRF, SEM and PIXE X-Ray Spectra Backgrounds.
+   *     Nuclear Instruments and Methods in Physics Research Section B: Beam Interactions with Materials and Atoms 1996, 109–110, 209–213.
+   *     https://doi.org/10.1016/0168-583X(95)00908-6.
+   * (2) Kristian Hovde Liland, Bjørn-Helge Mevik, Roberto Canteri: baseline.
+   *     https://cran.r-project.org/web/packages/baseline/index.html
+   *
+   * @export
+   * @param {Array<number>} ys
+   * @param {Object} [options={}]
+   * @param {Number} [options.windowM] - width of local window for minimization/maximization, defaults to 4% of the spectrum length
+   * @param {Number} [options.windowS] - width of local window for smoothing, defaults to 8% of the specturm length
+   * @returns {BaselineOutput}
+   */
+
+  function rollingBallBaseline(ys, options = {}) {
+    const baseline = rollingBall(ys, options);
+    let corrected = new Float64Array(ys.length);
+
+    for (let i = 0; i < corrected.length; i++) {
+      corrected[i] = ys[i] - baseline[i];
+    }
+
+    return {
+      baseline: baseline,
+      correctedSpectrum: corrected
+    };
+  }
+
+  /**
+
+   *
+   * @export
+   * @param {Array<number>} ys
+   * @param {Object} [options={}]
+   * @param {number} [options.window] rolling window size, defaults to 10% of the length of the spectrum
+   * @param {string} [options.padding.size=window-1] none, value, circular, duplicate
+   * @param {string} [options.padding.algorithm='duplicate'] none, value, circular, duplicate
+   * @param {number} [options.padding.value=0] value to use for padding (if algorithm='value')
+   * @returns {BaselineOutput}
+   */
+
+  function rollingMedianBaseline(ys, options = {}) {
+    let window = Math.max(Math.round(ys.length * 0.1), 2);
+    let defaults = {
+      window: window,
+      padding: {
+        size: window - 1,
+        algorithm: 'duplicate',
+        value: 0
+      }
+    };
+    let actualOptions = Object.assign({}, defaults, options);
+    let baseline = xRollingMedian(ys, actualOptions);
+    let corrected = new Float64Array(ys.length);
+
+    for (let i = 0; i < corrected.length; i++) {
+      corrected[i] = ys[i] - baseline[i];
+    }
+
+    return {
+      baseline: baseline,
+      correctedSpectrum: corrected
+    };
+  }
+
+  function norm(input) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var _options$algorithm = options.algorithm,
+        algorithm = _options$algorithm === void 0 ? 'absolute' : _options$algorithm,
+        _options$sumValue = options.sumValue,
+        sumValue = _options$sumValue === void 0 ? 1 : _options$sumValue,
+        _options$maxValue = options.maxValue,
+        maxValue = _options$maxValue === void 0 ? 1 : _options$maxValue;
+
+    if (!isAnyArray(input)) {
+      throw new Error('input must be an array');
+    }
+
+    var output;
+
+    if (options.output !== undefined) {
+      if (!isAnyArray(options.output)) {
+        throw new TypeError('output option must be an array if specified');
+      }
+
+      output = options.output;
+    } else {
+      output = new Array(input.length);
+    }
+
+    if (input.length === 0) {
+      throw new Error('input must not be empty');
+    }
+
+    switch (algorithm.toLowerCase()) {
+      case 'absolute':
+        {
+          var absoluteSumValue = absoluteSum(input) / sumValue;
+          if (absoluteSumValue === 0) return input.slice(0);
+
+          for (var i = 0; i < input.length; i++) {
+            output[i] = input[i] / absoluteSumValue;
+          }
+
+          return output;
+        }
+
+      case 'max':
+        {
+          var currentMaxValue = max(input);
+          if (currentMaxValue === 0) return input.slice(0);
+          var factor = maxValue / currentMaxValue;
+
+          for (var _i = 0; _i < input.length; _i++) {
+            output[_i] = input[_i] * factor;
+          }
+
+          return output;
+        }
+
+      case 'sum':
+        {
+          var sumFactor = sum(input) / sumValue;
+          if (sumFactor === 0) return input.slice(0);
+
+          for (var _i2 = 0; _i2 < input.length; _i2++) {
+            output[_i2] = input[_i2] / sumFactor;
+          }
+
+          return output;
+        }
+
+      default:
+        throw new Error("norm: unknown algorithm: ".concat(algorithm));
+    }
+  }
+
+  function absoluteSum(input) {
+    var sumValue = 0;
+
+    for (var i = 0; i < input.length; i++) {
+      sumValue += Math.abs(input[i]);
+    }
+
+    return sumValue;
+  }
+
+  /**
+   * Normalize an array of zones:
+   * - ensure than from < to
+   * - merge overlapping zones
+   *
+   * The method will always check if from if lower than to and will swap if required.
+   * @param {Array} [zones=[]]
+   * @param {object} [options={}]
+   * @param {number} [options.from=Number.NEGATIVE_INFINITY] Specify min value of a zone
+   * @param {number} [options.to=Number.POSITIVE_INFINITY] Specify max value of a zone
+   */
+  function normalize$1(zones = [], options = {}) {
+    if (zones.length === 0) return [];
+    let {
+      from = Number.NEGATIVE_INFINITY,
+      to = Number.POSITIVE_INFINITY
+    } = options;
+    if (from > to) [from, to] = [to, from];
+    zones = JSON.parse(JSON.stringify(zones)).map(zone => zone.from > zone.to ? {
+      from: zone.to,
+      to: zone.from
+    } : zone);
+    zones = zones.sort((a, b) => {
+      if (a.from !== b.from) return a.from - b.from;
+      return a.to - b.to;
+    });
+    zones.forEach(zone => {
+      if (from > zone.from) zone.from = from;
+      if (to < zone.to) zone.to = to;
+    });
+    zones = zones.filter(zone => zone.from <= zone.to);
+    if (zones.length === 0) return [];
+    let currentZone = zones[0];
+    let result = [currentZone];
+
+    for (let i = 1; i < zones.length; i++) {
+      let zone = zones[i];
+
+      if (zone.from <= currentZone.to) {
+        currentZone.to = zone.to;
+      } else {
+        currentZone = zone;
+        result.push(currentZone);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Convert an array of exclusions and keep only from / to
+   *
+   * The method will always check if from if lower than to and will swap if required.
+   * @param {Array} [exclusions=[]]
+   * @param {object} [options={}]
+   * @param {number} [options.from=Number.NEGATIVE_INFINITY] Specify min value of zones (after inversion)
+   * @param {number} [options.to=Number.POSITIVE_INFINITY] Specify max value of zones (after inversion)
+   */
+
+  function invert(exclusions = [], options = {}) {
+    let {
+      from = Number.NEGATIVE_INFINITY,
+      to = Number.POSITIVE_INFINITY
+    } = options;
+    if (from > to) [from, to] = [to, from];
+    exclusions = normalize$1(exclusions, {
+      from,
+      to
+    });
+    if (exclusions.length === 0) return [{
+      from,
+      to
+    }];
+    let zones = [];
+
+    for (let i = 0; i < exclusions.length; i++) {
+      let exclusion = exclusions[i];
+      let nextExclusion = exclusions[i + 1];
+
+      if (i === 0) {
+        if (exclusion.from > from) {
+          zones.push({
+            from,
+            to: exclusion.from
+          });
+        }
+      }
+
+      if (i === exclusions.length - 1) {
+        if (exclusion.to < to) {
+          zones.push({
+            from: exclusion.to,
+            to
+          });
+        }
+      } else {
+        zones.push({
+          from: exclusion.to,
+          to: nextExclusion.from
+        });
+      }
+    }
+
+    return zones;
+  }
+
+  /**
+   * Add the number of points per zone to reach a specified total
+   * @param {Array} [zones=[]]
+   * @param {number} [numberOfPoints] Total number of points to distribute between zones
+   * @param {object} [options={}]
+   * @param {number} [options.from=Number.NEGATIVE_INFINITY] Specify min value of a zone
+   * @param {number} [options.to=Number.POSITIVE_INFINITY] Specify max value of a zone
+   */
+
+  function zonesWithPoints(zones, numberOfPoints, options = {}) {
+    if (zones.length === 0) return zones;
+    zones = normalize$1(zones, options);
+    const totalSize = zones.reduce((previous, current) => {
+      return previous + (current.to - current.from);
+    }, 0);
+    let unitsPerPoint = totalSize / numberOfPoints;
+    let currentTotal = 0;
+
+    for (let i = 0; i < zones.length - 1; i++) {
+      let zone = zones[i];
+      zone.numberOfPoints = Math.min(Math.round((zone.to - zone.from) / unitsPerPoint), numberOfPoints - currentTotal);
+      currentTotal += zone.numberOfPoints;
+    }
+
+    zones[zones.length - 1].numberOfPoints = numberOfPoints - currentTotal;
+    return zones;
+  }
+
+  /**
+   * function that retrieves the getEquallySpacedData with the variant "slot"
+   *
+   * @param {Array<number>} x
+   * @param {Array<number>} y
+   * @param {number} from - Initial point
+   * @param {number} to - Final point
+   * @param {number} numberOfPoints
+   * @return {Array} - Array of y's equally spaced with the variant "slot"
+   */
+  function equallySpacedSlot(x, y, from, to, numberOfPoints) {
+    let xLength = x.length;
+    let step = (to - from) / (numberOfPoints > 1 ? numberOfPoints - 1 : 1);
+    let halfStep = step / 2;
+    let lastStep = x[x.length - 1] - x[x.length - 2];
+    let start = from - halfStep;
+    let output = new Array(numberOfPoints); // Init main variables
+
+    let min = start;
+    let max = start + step;
+    let previousX = -Number.MAX_VALUE;
+    let previousY = 0;
+    let nextX = x[0];
+    let nextY = y[0];
+    let frontOutsideSpectra = 0;
+    let backOutsideSpectra = true;
+    let currentValue = 0; // for slot algorithm
+
+    let currentPoints = 0;
+    let i = 1; // index of input
+
+    let j = 0; // index of output
+
+    main: while (true) {
+      if (previousX >= nextX) throw new Error('x must be an increasing serie');
+
+      while (previousX - max > 0) {
+        // no overlap with original point, just consume current value
+        if (backOutsideSpectra) {
+          currentPoints++;
+          backOutsideSpectra = false;
+        }
+
+        output[j] = currentPoints <= 0 ? 0 : currentValue / currentPoints;
+        j++;
+
+        if (j === numberOfPoints) {
+          break main;
+        }
+
+        min = max;
+        max += step;
+        currentValue = 0;
+        currentPoints = 0;
+      }
+
+      if (previousX > min) {
+        currentValue += previousY;
+        currentPoints++;
+      }
+
+      if (previousX === -Number.MAX_VALUE || frontOutsideSpectra > 1) {
+        currentPoints--;
+      }
+
+      previousX = nextX;
+      previousY = nextY;
+
+      if (i < xLength) {
+        nextX = x[i];
+        nextY = y[i];
+        i++;
+      } else {
+        nextX += lastStep;
+        nextY = 0;
+        frontOutsideSpectra++;
+      }
+    }
+
+    return output;
+  }
+
+  /**
+   * Function that calculates the integral of the line between two
+   * x-coordinates, given the slope and intercept of the line.
+   * @param {number} x0
+   * @param {number} x1
+   * @param {number} slope
+   * @param {number} intercept
+   * @return {number} integral value.
+   */
+  function integral(x0, x1, slope, intercept) {
+    return 0.5 * slope * x1 * x1 + intercept * x1 - (0.5 * slope * x0 * x0 + intercept * x0);
+  }
+
+  /**
+   * function that retrieves the getEquallySpacedData with the variant "smooth"
+   *
+   * @param {Array<number>} x
+   * @param {Array<number>} y
+   * @param {number} from - Initial point
+   * @param {number} to - Final point
+   * @param {number} numberOfPoints
+   * @return {Array} - Array of y's equally spaced with the variant "smooth"
+   */
+
+  function equallySpacedSmooth(x, y, from, to, numberOfPoints) {
+    let xLength = x.length;
+    let step = (to - from) / (numberOfPoints > 1 ? numberOfPoints - 1 : 1);
+    let halfStep = step / 2;
+    let output = new Array(numberOfPoints);
+    let initialOriginalStep = x[1] - x[0];
+    let lastOriginalStep = x[xLength - 1] - x[xLength - 2]; // Init main variables
+
+    let min = from - halfStep;
+    let max = from + halfStep;
+    let previousX = Number.MIN_VALUE;
+    let previousY = 0;
+    let nextX = x[0] - initialOriginalStep;
+    let nextY = 0;
+    let currentValue = 0;
+    let slope = 0;
+    let intercept = 0;
+    let sumAtMin = 0;
+    let sumAtMax = 0;
+    let i = 0; // index of input
+
+    let j = 0; // index of output
+
+    function getSlope(x0, y0, x1, y1) {
+      return (y1 - y0) / (x1 - x0);
+    }
+
+    let add = 0;
+
+    main: while (true) {
+      if (previousX <= min && min <= nextX) {
+        add = integral(0, min - previousX, slope, previousY);
+        sumAtMin = currentValue + add;
+      }
+
+      while (nextX - max >= 0) {
+        // no overlap with original point, just consume current value
+        add = integral(0, max - previousX, slope, previousY);
+        sumAtMax = currentValue + add;
+        output[j++] = (sumAtMax - sumAtMin) / step;
+
+        if (j === numberOfPoints) {
+          break main;
+        }
+
+        min = max;
+        max += step;
+        sumAtMin = sumAtMax;
+      }
+
+      currentValue += integral(previousX, nextX, slope, intercept);
+      previousX = nextX;
+      previousY = nextY;
+
+      if (i < xLength) {
+        nextX = x[i];
+        nextY = y[i];
+        i++;
+      } else if (i === xLength) {
+        nextX += lastOriginalStep;
+        nextY = 0;
+      }
+
+      slope = getSlope(previousX, previousY, nextX, nextY);
+      intercept = -slope * previousX + previousY;
+    }
+
+    return output;
+  }
+
+  /**
+   * Function that returns a Number array of equally spaced numberOfPoints
+   * containing a representation of intensities of the spectra arguments x
+   * and y.
+   *
+   * The options parameter contains an object in the following form:
+   * from: starting point
+   * to: last point
+   * numberOfPoints: number of points between from and to
+   * variant: "slot" or "smooth" - smooth is the default option
+   *
+   * The slot variant consist that each point in the new array is calculated
+   * averaging the existing points between the slot that belongs to the current
+   * value. The smooth variant is the same but takes the integral of the range
+   * of the slot and divide by the step size between two points in the new array.
+   *
+   * If exclusions zone are present, zones are ignored !
+   * @param {object} [arrayXY={}] - object containing 2 properties x and y (both an array)
+   * @param {object} [options={}]
+   * @param {number} [options.from=x[0]]
+   * @param {number} [options.to=x[x.length-1]]
+   * @param {string} [options.variant='smooth']
+   * @param {number} [options.numberOfPoints=100]
+   * @param {Array} [options.exclusions=[]] array of from / to that should be skipped for the generation of the points
+   * @param {Array} [options.zones=[]] array of from / to that should be kept
+   * @return {object<x: Array, y:Array>} new object with x / y array with the equally spaced data.
+   */
+
+  function equallySpaced(arrayXY = {}, options = {}) {
+    let {
+      x,
+      y
+    } = arrayXY;
+    let xLength = x.length;
+    let reverse = false;
+
+    if (x.length > 1 && x[0] > x[1]) {
+      x = x.slice().reverse();
+      y = y.slice().reverse();
+      reverse = true;
+    }
+
+    let {
+      from = x[0],
+      to = x[xLength - 1],
+      variant = 'smooth',
+      numberOfPoints = 100,
+      exclusions = [],
+      zones = []
+    } = options;
+
+    if (xLength !== y.length) {
+      throw new RangeError("the x and y vector doesn't have the same size.");
+    }
+
+    if (typeof from !== 'number' || isNaN(from)) {
+      throw new RangeError("'from' option must be a number");
+    }
+
+    if (typeof to !== 'number' || isNaN(to)) {
+      throw new RangeError("'to' option must be a number");
+    }
+
+    if (typeof numberOfPoints !== 'number' || isNaN(numberOfPoints)) {
+      throw new RangeError("'numberOfPoints' option must be a number");
+    }
+
+    if (numberOfPoints < 2) {
+      throw new RangeError("'numberOfPoints' option must be greater than 1");
+    }
+
+    if (zones.length === 0) {
+      zones = invert(exclusions, {
+        from,
+        to
+      });
+    }
+
+    zones = zonesWithPoints(zones, numberOfPoints, {
+      from,
+      to
+    });
+    let xResult = [];
+    let yResult = [];
+
+    for (let zone of zones) {
+      let zoneResult = processZone(x, y, zone.from, zone.to, zone.numberOfPoints, variant);
+      xResult = xResult.concat(zoneResult.x);
+      yResult = yResult.concat(zoneResult.y);
+    }
+
+    if (reverse) {
+      if (from < to) {
+        return {
+          x: xResult.reverse(),
+          y: yResult.reverse()
+        };
+      } else {
+        return {
+          x: xResult,
+          y: yResult
+        };
+      }
+    } else {
+      if (from < to) {
+        return {
+          x: xResult,
+          y: yResult
+        };
+      } else {
+        return {
+          x: xResult.reverse(),
+          y: yResult.reverse()
+        };
+      }
+    }
+  }
+
+  function processZone(x, y, from, to, numberOfPoints, variant) {
+    if (numberOfPoints < 1) {
+      throw new RangeError('the number of points must be at least 1');
+    }
+
+    let output = variant === 'slot' ? equallySpacedSlot(x, y, from, to, numberOfPoints) : equallySpacedSmooth(x, y, from, to, numberOfPoints);
+    return {
+      x: sequentialFill({
+        from,
+        to,
+        size: numberOfPoints
+      }),
+      y: output
+    };
+  }
+
+  function getZones(from, to, exclusions = []) {
+    if (from > to) {
+      [from, to] = [to, from];
+    } // in exclusions from and to have to be defined
+
+
+    exclusions = exclusions.filter(exclusion => exclusion.from !== undefined && exclusion.to !== undefined);
+    exclusions = JSON.parse(JSON.stringify(exclusions)); // we ensure that from before to
+
+    exclusions.forEach(exclusion => {
+      if (exclusion.from > exclusion.to) {
+        [exclusion.to, exclusion.from] = [exclusion.from, exclusion.to];
+      }
+    });
+    exclusions.sort((a, b) => a.from - b.from); // we will rework the exclusions in order to remove overlap and outside range (from / to)
+
+    exclusions.forEach(exclusion => {
+      if (exclusion.from < from) exclusion.from = from;
+      if (exclusion.to > to) exclusion.to = to;
+    });
+
+    for (let i = 0; i < exclusions.length - 1; i++) {
+      if (exclusions[i].to > exclusions[i + 1].from) {
+        exclusions[i].to = exclusions[i + 1].from;
+      }
+    }
+
+    exclusions = exclusions.filter(exclusion => exclusion.from < exclusion.to);
+
+    if (!exclusions || exclusions.length === 0) {
+      return [{
+        from,
+        to
+      }];
+    }
+
+    let zones = [];
+    let currentFrom = from;
+
+    for (let exclusion of exclusions) {
+      if (currentFrom < exclusion.from) {
+        zones.push({
+          from: currentFrom,
+          to: exclusion.from
+        });
+      }
+
+      currentFrom = exclusion.to;
+    }
+
+    if (currentFrom < to) {
+      zones.push({
+        from: currentFrom,
+        to: to
+      });
+    }
+
+    return zones;
+  }
+
+  /**
+   * Filter an array x/y based on various criteria
+   * x points are expected to be sorted
+   *
+   * @param {object} points
+   * @param {object} [options={}]
+   * @param {array} [options.from]
+   * @param {array} [options.to]
+   * @param {array} [options.exclusions=[]]
+   * @return {{x: Array<number>, y: Array<number>}}
+   */
+
+  function filterX(points, options = {}) {
+    const {
+      x,
+      y
+    } = points;
+    const {
+      from = x[0],
+      to = x[x.length - 1],
+      exclusions = []
+    } = options;
+    let zones = getZones(from, to, exclusions);
+    let currentZoneIndex = 0;
+    let newX = [];
+    let newY = [];
+    let position = 0;
+
+    while (position < x.length) {
+      if (x[position] <= zones[currentZoneIndex].to && x[position] >= zones[currentZoneIndex].from) {
+        newX.push(x[position]);
+        newY.push(y[position]);
+      } else {
+        if (x[position] > zones[currentZoneIndex].to) {
+          currentZoneIndex++;
+          if (!zones[currentZoneIndex]) break;
+        }
+      }
+
+      position++;
+    }
+
+    return {
+      x: newX,
+      y: newY
+    };
+  }
+
+  var defaultOptions$2 = {
+    size: 1,
+    value: 0
+  };
+  /**
+   * Case when the entry is an array
+   * @param data
+   * @param options
+   * @returns {Array}
+   */
+
+  function arrayCase(data, options) {
+    var len = data.length;
+
+    if (typeof options.size === 'number') {
+      options.size = [options.size, options.size];
+    }
+
+    var cond = len + options.size[0] + options.size[1];
+    var output;
+
+    if (options.output) {
+      if (options.output.length !== cond) {
+        throw new RangeError('Wrong output size');
+      }
+
+      output = options.output;
+    } else {
+      output = new Array(cond);
+    }
+
+    var i;
+
+    if (options.value === 'circular') {
+      for (i = 0; i < cond; i++) {
+        if (i < options.size[0]) {
+          output[i] = data[(len - options.size[0] % len + i) % len];
+        } else if (i < options.size[0] + len) {
+          output[i] = data[i - options.size[0]];
+        } else {
+          output[i] = data[(i - options.size[0]) % len];
+        }
+      }
+    } else if (options.value === 'replicate') {
+      for (i = 0; i < cond; i++) {
+        if (i < options.size[0]) output[i] = data[0];else if (i < options.size[0] + len) output[i] = data[i - options.size[0]];else output[i] = data[len - 1];
+      }
+    } else if (options.value === 'symmetric') {
+      if (options.size[0] > len || options.size[1] > len) {
+        throw new RangeError('expanded value should not be bigger than the data length');
+      }
+
+      for (i = 0; i < cond; i++) {
+        if (i < options.size[0]) output[i] = data[options.size[0] - 1 - i];else if (i < options.size[0] + len) output[i] = data[i - options.size[0]];else output[i] = data[2 * len + options.size[0] - i - 1];
+      }
+    } else {
+      for (i = 0; i < cond; i++) {
+        if (i < options.size[0]) output[i] = options.value;else if (i < options.size[0] + len) output[i] = data[i - options.size[0]];else output[i] = options.value;
+      }
+    }
+
+    return output;
+  }
+  /**
+   * Case when the entry is a matrix
+   * @param data
+   * @param options
+   * @returns {Array}
+   */
+
+
+  function matrixCase(data, options) {
+    // var row = data.length;
+    // var col = data[0].length;
+    if (options.size[0] === undefined) {
+      options.size = [options.size, options.size, options.size, options.size];
+    }
+
+    throw new Error('matrix not supported yet, sorry');
+  }
+  /**
+   * Pads and array
+   * @param {Array <number>} data
+   * @param {object} options
+   */
+
+
+  function padArray(data, options) {
+    options = Object.assign({}, defaultOptions$2, options);
+
+    if (Array.isArray(data)) {
+      if (Array.isArray(data[0])) return matrixCase(data, options);else return arrayCase(data, options);
+    } else {
+      throw new TypeError('data should be an array');
+    }
+  }
+
+  var src = padArray;
+
+  /**
+   * Factorial of a number
+   * @ignore
+   * @param n
+   * @return {number}
+   */
+
+  function factorial(n) {
+    let r = 1;
+
+    while (n > 0) r *= n--;
+
+    return r;
+  }
+
+  const defaultOptions$1 = {
+    windowSize: 5,
+    derivative: 1,
+    polynomial: 2,
+    pad: 'none',
+    padValue: 'replicate'
+  };
+  /**
+   * Savitzky-Golay filter
+   * @param {Array <number>} data
+   * @param {number} h
+   * @param {Object} options
+   * @returns {Array}
+   */
+
+  function savitzkyGolay(data, h, options) {
+    options = Object.assign({}, defaultOptions$1, options);
+
+    if (options.windowSize % 2 === 0 || options.windowSize < 5 || !Number.isInteger(options.windowSize)) {
+      throw new RangeError('Invalid window size (should be odd and at least 5 integer number)');
+    }
+
+    if (options.derivative < 0 || !Number.isInteger(options.derivative)) {
+      throw new RangeError('Derivative should be a positive integer');
+    }
+
+    if (options.polynomial < 1 || !Number.isInteger(options.polynomial)) {
+      throw new RangeError('Polynomial should be a positive integer');
+    }
+
+    let C, norm;
+    let step = Math.floor(options.windowSize / 2);
+
+    if (options.pad === 'pre') {
+      data = src(data, {
+        size: step,
+        value: options.padValue
+      });
+    }
+
+    let ans = new Array(data.length - 2 * step);
+
+    if (options.windowSize === 5 && options.polynomial === 2 && (options.derivative === 1 || options.derivative === 2)) {
+      if (options.derivative === 1) {
+        C = [-2, -1, 0, 1, 2];
+        norm = 10;
+      } else {
+        C = [2, -1, -2, -1, 2];
+        norm = 7;
+      }
+    } else {
+      let J = Matrix.ones(options.windowSize, options.polynomial + 1);
+      let inic = -(options.windowSize - 1) / 2;
+
+      for (let i = 0; i < J.rows; i++) {
+        for (let j = 0; j < J.columns; j++) {
+          if (inic + 1 !== 0 || j !== 0) J.set(i, j, Math.pow(inic + i, j));
+        }
+      }
+
+      let Jtranspose = new MatrixTransposeView(J);
+      let Jinv = inverse(Jtranspose.mmul(J));
+      C = Jinv.mmul(Jtranspose);
+      C = C.getRow(options.derivative);
+      norm = 1 / factorial(options.derivative);
+    }
+
+    let det = norm * Math.pow(h, options.derivative);
+
+    for (let k = step; k < data.length - step; k++) {
+      let d = 0;
+
+      for (let l = 0; l < C.length; l++) d += C[l] * data[l + k - step] / det;
+
+      ans[k - step] = d;
+    }
+
+    if (options.pad === 'post') {
+      ans = src(ans, {
+        size: step,
+        value: options.padValue
+      });
+    }
+
+    return ans;
   }
 
   var array = createCommonjsModule(function (module, exports) {
@@ -6791,21 +7570,9 @@ ${indent}columns: ${matrix.columns}
     };
   });
 
-  /**
-   *
-   * @private
-   * @param {object} spectrum
-   * @param {object} [options={}]
-   * @param {number} [options.from=x.min]
-   * @param {number} [options.to=x.max]
-   * @param {number} [options.numberOfPoints]
-   * @param {String} [options.processing] Allows to calculate derivatives
-   * @param {Array} [options.filters=[]] Array of object containing 'name' (centerMean, divideSD, normalize, rescale) and 'options'
-   * @param {Array} [options.exclusions=[]]
-   * @returns {DataXY}
-   */
-
   function getNormalizedSpectrum(spectrum, options = {}) {
+    var _a;
+
     let data = {
       x: spectrum.variables.x.data,
       y: spectrum.variables.y.data
@@ -6833,7 +7600,8 @@ ${indent}columns: ${matrix.columns}
       numberOfPoints,
       filters = [],
       exclusions = [],
-      processing = ''
+      processing = '',
+      keepYUnits = false
     } = options;
     let {
       x,
@@ -6847,7 +7615,7 @@ ${indent}columns: ${matrix.columns}
       case 'firstDerivative':
         if (options.processing) {
           newSpectrum.variables.y.units = '';
-          newSpectrum.variables.y.label = newSpectrum.variables.y.label && `1° derivative of ${newSpectrum.variables.y.label.replace(/\s*\[.*\]/, '')}`;
+          newSpectrum.variables.y.label = newSpectrum.variables.y.label && `1st derivative of ${newSpectrum.variables.y.label.replace(/\s*\[.*\]/, '')}`;
           y = savitzkyGolay(y, 1, {
             derivative: 1,
             polynomial: 2,
@@ -6861,7 +7629,7 @@ ${indent}columns: ${matrix.columns}
       case 'secondDerivative':
         if (options.processing) {
           newSpectrum.variables.y.units = '';
-          newSpectrum.variables.y.label = newSpectrum.variables.y.label && `2° derivative of ${newSpectrum.variables.y.label.replace(/\s*\[.*\]/, '')}`;
+          newSpectrum.variables.y.label = newSpectrum.variables.y.label && `2nd derivative of ${newSpectrum.variables.y.label.replace(/\s*\[.*\]/, '')}`;
           y = savitzkyGolay(y, 1, {
             derivative: 2,
             polynomial: 2,
@@ -6871,12 +7639,26 @@ ${indent}columns: ${matrix.columns}
         }
 
         break;
+
+      case 'thirdDerivative':
+        if (options.processing) {
+          newSpectrum.variables.y.units = '';
+          newSpectrum.variables.y.label = newSpectrum.variables.y.label && `3rd derivative of ${newSpectrum.variables.y.label.replace(/\s*\[.*\]/, '')}`;
+          y = savitzkyGolay(y, 1, {
+            derivative: 3,
+            polynomial: 2,
+            windowSize: 5
+          });
+          x = x.slice(2, x.length - 2);
+        }
+
+        break;
     }
 
-    if (filters.length) {
+    if (!keepYUnits && filters.length) {
       // filters change the y axis, we get rid of the units
       newSpectrum.variables.y.units = '';
-      newSpectrum.variables.y.label = newSpectrum.variables.y.label && newSpectrum.variables.y.label.replace(/\s*\[.*\]/, '');
+      newSpectrum.variables.y.label = (_a = newSpectrum.variables.y.label) === null || _a === void 0 ? void 0 : _a.replace(/\s*\[.*\]/, '');
     }
 
     for (let filter of filters) {
@@ -6934,10 +7716,44 @@ ${indent}columns: ${matrix.columns}
             break;
           }
 
-        case 'baselinecorreciton':
+        case 'airplsbaseline':
           {
-            let result = baselineCorrectionRegression(x, y, filterOptions);
-            y = result.corrected;
+            y = airPLSBaseline(y, filterOptions).correctedSpectrum;
+            break;
+          }
+
+        case 'rollingaveragebaseline':
+          {
+            y = rollingAverageBaseline(y, filterOptions).correctedSpectrum;
+            break;
+          }
+
+        case 'iterativepolynomialbaseline':
+          {
+            y = iterativePolynomialBaseline(y, undefined).correctedSpectrum;
+            break;
+          }
+
+        case 'rollingballbaseline':
+          {
+            y = rollingBallBaseline(y, filterOptions).correctedSpectrum;
+            break;
+          }
+
+        case 'rollingmedianbaseline':
+          {
+            y = rollingMedianBaseline(y, filterOptions).correctedSpectrum;
+            break;
+          }
+
+        case 'ensuregrowing':
+          {
+            const ans = xyEnsureGrowingX({
+              x,
+              y
+            });
+            x = ans.x;
+            y = ans.y;
             break;
           }
 
@@ -6946,7 +7762,7 @@ ${indent}columns: ${matrix.columns}
           break;
 
         default:
-          throw new Error(`Unknown process kind: ${process.kind}`);
+          throw new Error(`Unknown process kind: ${filter.name}`);
       }
     }
 
@@ -6982,32 +7798,32 @@ ${indent}columns: ${matrix.columns}
     return newSpectrum;
   }
 
+  /*
+  The MIT License (MIT)
+  Copyright © 2006-2007 Kevin C. Olbrich
+  Copyright © 2010-2016 LIM SAS (http://lim.eu) - Julien Sanchez
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of
+  this software and associated documentation files (the "Software"), to deal in
+  the Software without restriction, including without limitation the rights to
+  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+  of the Software, and to permit persons to whom the Software is furnished to do
+  so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+  */
   var quantities = createCommonjsModule(function (module, exports) {
-    /*
-    The MIT License (MIT)
-    Copyright © 2006-2007 Kevin C. Olbrich
-    Copyright © 2010-2016 LIM SAS (http://lim.eu) - Julien Sanchez
-    
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
-    
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-    
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-    */
     (function (global, factory) {
-       module.exports = factory() ;
+      module.exports = factory() ;
     })(commonjsGlobal, function () {
       /**
        * Tests if a value is a string
@@ -7293,9 +8109,9 @@ ${indent}columns: ${matrix.columns}
         "<tablespoon>": [["tb", "tbsp", "tbs", "tablespoon", "tablespoons"], 1.47867648e-5, "volume", ["<meter>", "<meter>", "<meter>"]],
         "<teaspoon>": [["tsp", "teaspoon", "teaspoons"], 4.92892161e-6, "volume", ["<meter>", "<meter>", "<meter>"]],
         "<bushel>": [["bu", "bsh", "bushel", "bushels"], 0.035239072, "volume", ["<meter>", "<meter>", "<meter>"]],
-        "<oilbarrel>": [["bbl", "oil-barrel", "oil-barrels"], 0.158987294928, "volume", ["<meter>", "<meter>", "<meter>"]],
-        "<beerbarrel>": [["bl", "bl-us", "beer-barrel", "beer-barrels"], 0.1173477658, "volume", ["<meter>", "<meter>", "<meter>"]],
-        "<beerbarrel-imp>": [["blimp", "bl-imp", "beer-barrel-imp", "beer-barrels-imp"], 0.16365924, "volume", ["<meter>", "<meter>", "<meter>"]],
+        "<oilbarrel>": [["bbl", "oilbarrel", "oilbarrels", "oil-barrel", "oil-barrels"], 0.158987294928, "volume", ["<meter>", "<meter>", "<meter>"]],
+        "<beerbarrel>": [["bl", "bl-us", "beerbarrel", "beerbarrels", "beer-barrel", "beer-barrels"], 0.1173477658, "volume", ["<meter>", "<meter>", "<meter>"]],
+        "<beerbarrel-imp>": [["blimp", "bl-imp", "beerbarrel-imp", "beerbarrels-imp", "beer-barrel-imp", "beer-barrels-imp"], 0.16365924, "volume", ["<meter>", "<meter>", "<meter>"]],
 
         /* speed */
         "<kph>": [["kph"], 0.277777778, "speed", ["<meter>"], ["<second>"]],
@@ -7305,6 +8121,7 @@ ${indent}columns: ${matrix.columns}
 
         /* acceleration */
         "<gee>": [["gee"], 9.80665, "acceleration", ["<meter>"], ["<second>", "<second>"]],
+        "<Gal>": [["Gal"], 1e-2, "acceleration", ["<meter>"], ["<second>", "<second>"]],
 
         /* temperature_difference */
         "<kelvin>": [["degK", "kelvin"], 1.0, "temperature", ["<kelvin>"]],
@@ -9030,14 +9847,14 @@ ${indent}columns: ${matrix.columns}
         });
       }
 
-      Qty.version = "1.7.5";
+      Qty.version = "1.7.6";
       return Qty;
     });
   });
 
   function convertUnit(array, fromUnit, toUnit) {
-    fromUnit = normalize$1(fromUnit);
-    toUnit = normalize$1(toUnit);
+    fromUnit = normalize(fromUnit);
+    toUnit = normalize(toUnit);
     if (fromUnit === toUnit) return array;
 
     try {
@@ -9049,77 +9866,113 @@ ${indent}columns: ${matrix.columns}
     }
   }
 
-  function normalize$1(unit) {
+  function normalize(unit) {
     unit = unit.replace(/°C/g, 'tempC');
     unit = unit.replace(/°F/g, 'tempF');
     unit = unit.replace(/(^|\W)K(\W|$)/g, '$1tempK$2');
     return unit;
   }
 
+  const testRegExp = /^\/((?:\\\/|[^/])+)\/([migyu]{0,5})?$/;
+  function ensureRegexp(string) {
+    const parts = testRegExp.exec(string);
+
+    if (parts) {
+      try {
+        return new RegExp(parts[1], parts[2]);
+      } catch (err) {
+        return stringToRegexp(string);
+      }
+    } else {
+      return stringToRegexp(string);
+    }
+  }
+
+  function stringToRegexp(string, flags = 'i') {
+    return new RegExp(string.replace(/[[\]\\{}()+*?.$^|]/g, function (match) {
+      return `\\${match}`;
+    }), flags);
+  }
+
   function getConvertedVariable(variable, newUnits) {
-    const data = variable.units !== newUnits // would be nice if convertUnit would allow typedArray
+    const data = variable.units !== undefined && variable.units !== newUnits // would be nice if convertUnit would allow typedArray
     ? convertUnit(Array.from(variable.data), variable.units, newUnits) : variable.data;
     return {
       units: newUnits,
-      label: variable.label.replace(`[${variable.units}]`, `[${newUnits}]`),
-      data,
-      min: min(data),
-      max: max(data),
+      label: variable.label.replace(`[${variable.units || ''}]`, `[${newUnits}]`),
+      data: data || [],
+      min: data ? min(data) : undefined,
+      max: data ? max(data) : undefined,
       isMonotone: xIsMonotone(data)
     };
   }
 
   /**
-   * Retrieve a spectrum with only X/Y data based on xUnits / yUnits and convert units
-   * if necessary
-   * @param {Array} [spectra] Array of spectra
-   * @param {object} [selector={}]
-   * @param {string} [selector.units] Units separated by vs like for example "g vs °C"
-   * @param {string} [selector.xUnits]
-   * @param {string} [selector.yUnits]
-   * @returns {Spectrum}
+   * Retrieve the spectrum with only X/Y data that match all the selectors
+   * If more than one variable match the selector the 'x' or 'y' variable will be
+   * taken
    */
 
   function getXYSpectrum(spectra = [], selector = {}) {
     if (spectra.length < 1) return;
 
     for (let spectrum of spectra) {
+      let variableNames = Object.keys(spectrum.variables);
+      if (!(variableNames.length > 1)) continue;
       let {
+        dataType,
+        title,
         xUnits,
         yUnits,
-        units
-      } = selector;
-      if (units && !xUnits && !yUnits) [yUnits, xUnits] = units.split(/\s+vs\s+/);
-      let x;
-      let y;
-      let variableNames = Object.keys(spectrum.variables);
-      if (!variableNames.length > 1) continue;
+        variables,
+        xVariable = 'x',
+        yVariable = 'y',
+        units,
+        labels,
+        xLabel,
+        yLabel,
+        meta
+      } = selector; // we filter on general spectrum information
 
-      if (xUnits === undefined) {
-        x = spectrum.variables[variableNames[0]];
-      } else {
-        for (let key in spectrum.variables) {
-          let converted = convertUnit(1, spectrum.variables[key].units, xUnits);
+      if (dataType) {
+        dataType = ensureRegexp(dataType);
+        if (!spectrum.dataType || !spectrum.dataType.match(dataType)) continue;
+      }
 
-          if (converted) {
-            x = getConvertedVariable(spectrum.variables[key], xUnits);
-            break;
-          }
+      if (title) {
+        title = ensureRegexp(title);
+        if (!spectrum.title || !spectrum.title.match(title)) continue;
+      }
+
+      if (meta && typeof meta === 'object') {
+        if (!spectrum.meta) continue;
+
+        for (let key in spectrum.meta) {
+          if (!spectrum.meta[key]) continue;
+          let value = ensureRegexp(spectrum.meta[key]);
+          if (!spectrum.meta[key].match(value)) continue;
         }
       }
 
-      if (yUnits === undefined) {
-        y = spectrum.variables[variableNames[1]];
-      } else {
-        for (let key in spectrum.variables) {
-          let converted = convertUnit(1, spectrum.variables[key].units, yUnits);
+      if (units && !xUnits && !yUnits) [yUnits, xUnits] = units.split(/\s*vs\s*/);
 
-          if (converted) {
-            y = getConvertedVariable(spectrum.variables[key], yUnits);
-            break;
-          }
-        }
+      if (labels && !xLabel && !yLabel) {
+        [yLabel, xLabel] = labels.split(/\s*vs\s*/);
       }
+
+      if (variables) [yVariable, xVariable] = variables.split(/\s*vs\s*/);
+      if (xLabel) xLabel = ensureRegexp(xLabel);
+      if (yLabel) yLabel = ensureRegexp(yLabel);
+      let x = getPossibleVariable(spectrum.variables, {
+        units: xUnits,
+        label: xLabel,
+        variableName: xVariable
+      });
+      let y = getPossibleVariable(spectrum.variables, {
+        units: yUnits,
+        label: yLabel,
+        variableName: yVariable
+      });
 
       if (x && y) {
         return {
@@ -9137,52 +9990,84 @@ ${indent}columns: ${matrix.columns}
     return;
   }
 
+  function getPossibleVariable(variables, selector = {}) {
+    const {
+      units,
+      label,
+      variableName
+    } = selector;
+    let possible = { ...variables
+    };
+
+    if (units !== undefined) {
+      for (let key in possible) {
+        let converted = convertUnit(1, variables[key].units || '', units);
+
+        if (converted) {
+          possible[key] = getConvertedVariable(variables[key], units);
+        } else {
+          possible[key] = undefined;
+        }
+      }
+    }
+
+    if (label !== undefined) {
+      for (let key in possible) {
+        if (!variables[key].label.match(label)) {
+          possible[key] = undefined;
+        }
+      }
+    }
+
+    if (variableName !== undefined) {
+      if (possible[variableName]) return possible[variableName];
+
+      if (possible[variableName.toUpperCase()]) {
+        return possible[variableName.toUpperCase()];
+      }
+
+      if (possible[variableName.toLowerCase()]) {
+        return possible[variableName.toLowerCase()];
+      }
+    }
+
+    const possibleFiltered = Object.values(possible).filter(val => val !== undefined);
+
+    if (possibleFiltered.length > 0) {
+      return possibleFiltered[0];
+    }
+  }
+
   /**
    * Class allowing to store and manipulate an analysis.
    * An analysis may contain one or more spectra that can be selected
    * based on their units
-   * @class Analysis
-   * @param {object} [options={}]
-   * @param {string} [options.id=randomString] unique identifier
-   * @param {string} [options.label=options.id] human redeable label
    */
 
   class Analysis {
     constructor(options = {}) {
       this.id = options.id || Math.random().toString(36).substring(2, 10);
       this.label = options.label || this.id;
+      this.spectrumCallback = options.spectrumCallback;
       this.spectra = [];
       this.cache = {};
     }
     /**
      * Add a spectrum in the internal spectra variable
-     * @param {object} [variables]
-     * @param {object} [variables.x]
-     * @param {array} [variables.x.data]
-     * @param {array} [variables.x.units='x']
-     * @param {array} [variables.x.label='x']
-     * @param {object} [variables.y]
-     * @param {array} [variables.y.data]
-     * @param {array} [variables.y.units='y']
-     * @param {array} [variables.y.label='y']
-     * @param {object} [options={}]
-     * @param {string} [options.dataType='']
-     * @param {string} [options.title='']
-     *
      */
 
 
     pushSpectrum(variables, options = {}) {
-      this.spectra.push(standardizeData(variables, options));
+      this.spectra.push(standardizeData(variables, options, {
+        spectrumCallback: this.spectrumCallback
+      }));
       this.cache = {};
     }
     /**
      * Retrieve a Spectrum based on x/y units
-     * @param {object} [selector={}]
-     * @param {string} [selector.units] Units separated by vs like for example "g vs °C"
-     * @param {string} [selector.xUnits] if undefined takes the first variable
-     * @param {string} [selector.yUnits] if undefined takes the second variable
-     * @returns {Spectrum}
+     * @param selector.units Units separated by vs like for example "g vs °C"
+     * @param selector.xUnits if undefined takes the first variable
+     * @param selector.yUnits if undefined takes the second variable
      */
 
 
@@ -9196,14 +10081,26 @@ ${indent}columns: ${matrix.columns}
       return this.cache[id];
     }
     /**
+     * Retrieve a xy object
+     * @param selector.units Units separated by vs like for example "g vs °C"
+     * @param selector.xUnits if undefined takes the first variable
+     * @param selector.yUnits if undefined takes the second variable
+     */
+
+
+    getXY(selector = {}) {
+      let spectrum = this.getXYSpectrum(selector);
+      if (!spectrum) return undefined;
+      return {
+        x: spectrum.variables.x.data,
+        y: spectrum.variables.y.data
+      };
+    }
+    /**
      * Return the data object for specific x/y units with possibly some
      * normalization options
-     * @param {object} [options={}]
-     * @param {object} [options.selector]
-     * @param {string} [options.selector.xUnits] // if undefined takes the first variable
-     * @param {string} [options.selector.yUnits] // if undefined takes the second variable
-     * @param {object} [options.normalization]
-     *
+     * @param options.selector.xUnits // if undefined takes the first variable
+     * @param options.selector.yUnits // if undefined takes the second variable
      */
 
 
@@ -9217,44 +10114,59 @@ ${indent}columns: ${matrix.columns}
       return getNormalizedSpectrum(spectrum, normalization);
     }
     /**
+     * Returns the first spectrum. This method could be improved in the future
+     * @returns
+     */
+
+
+    getSpectrum() {
+      return this.spectra[0];
+    }
+    /**
      * Returns the xLabel
-     * @param {object} [selector]
-     * @param {string} [selector.xUnits] // if undefined takes the first variable
-     * @param {string} [selector.yUnits] // if undefined takes the second variable
-     * @returns {string}
+     * @param selector.xUnits // if undefined takes the first variable
+     * @param selector.yUnits // if undefined takes the second variable
      */
 
 
     getXLabel(selector) {
-      return this.getXYSpectrum(selector).variables.x.label;
+      var _a;
+
+      return (_a = this.getXYSpectrum(selector)) === null || _a === void 0 ? void 0 : _a.variables.x.label;
     }
     /**
      * Returns the yLabel
-     * @param {object} [selector]
-     * @param {string} [selector.xUnits] // if undefined takes the first variable
-     * @param {string} [selector.yUnits] // if undefined takes the second variable
-     * @returns {string}
+     * @param selector.xUnits // if undefined takes the first variable
+     * @param selector.yUnits // if undefined takes the second variable
      */
 
 
     getYLabel(selector) {
-      return this.getXYSpectrum(selector).variables.y.label;
+      var _a;
+
+      return (_a = this.getXYSpectrum(selector)) === null || _a === void 0 ? void 0 : _a.variables.y.label;
     }
 
   }
   /**
    * Internal function that ensure the order of x / y array
-   * @param {DataXY} [variables]
-   * @param {object} [options={}]
-   * @return {Spectrum}
    */
 
-  function standardizeData(variables, options = {}) {
+  function standardizeData(variables, options, analysisOptions) {
     let {
       meta = {},
+      tmp = {},
       dataType = '',
       title = ''
     } = options;
+    const {
+      spectrumCallback
+    } = analysisOptions;
+
+    if (spectrumCallback) {
+      spectrumCallback(variables);
+    }
+
     let xVariable = variables.x;
     let yVariable = variables.y;
 
@@ -9273,7 +10185,7 @@ ${indent}columns: ${matrix.columns}
       let variable = variables[key];
       if (reverse) variable.data = variable.data.reverse();
       variable.label = variable.label || key;
-      variable.units = variable.units || variable.label.replace(/^.*[([](.*)[)\]].*$/, '$1');
+      variable.units = variable.units || variable.label.replace(/^.*[([](?<units>.*)[)\]].*$/, '$<units>');
       variable.min = min(variable.data);
       variable.max = max(variable.data);
       variable.isMonotone = xIsMonotone(variable.data);
@@ -9283,7 +10195,8 @@ ${indent}columns: ${matrix.columns}
       variables,
       title,
       dataType,
-      meta
+      meta,
+      tmp
     };
   }
 
@@ -9645,6 +10558,19 @@ ${indent}columns: ${matrix.columns}
       z.reverse();
     }
 
+    const medians = [];
+
+    for (let i = 0; i < z.length; i++) {
+      const row = Float64Array.from(z[i]);
+
+      for (let i = 0; i < row.length; i++) {
+        if (row[i] < 0) row[i] = -row[i];
+      }
+
+      medians.push(median(row));
+    }
+
+    const median$1 = median(medians);
     return {
       z: z,
       minX: Math.min(firstX, lastX),
@@ -9653,7 +10579,7 @@ ${indent}columns: ${matrix.columns}
       maxY: Math.max(firstY, lastY),
       minZ: minZ,
       maxZ: maxZ,
-      noise: median(z[0].map(Math.abs))
+      noise: median$1
     };
   }
 
@@ -9809,281 +10735,9 @@ ${indent}columns: ${matrix.columns}
     result.minMax = zData;
   }
 
-  var fftlib = createCommonjsModule(function (module, exports) {
-    /**
-     * Fast Fourier Transform module
-     * 1D-FFT/IFFT, 2D-FFT/IFFT (radix-2)
-     */
-    var FFT = function () {
-      var FFT;
-
-      {
-        FFT = exports; // for CommonJS
-      }
-
-      var version = {
-        release: '0.3.0',
-        date: '2013-03'
-      };
-
-      FFT.toString = function () {
-        return "version " + version.release + ", released " + version.date;
-      }; // core operations
-
-
-      var _n = 0,
-          // order
-      _bitrev = null,
-          // bit reversal table
-      _cstb = null; // sin/cos table
-
-      var core = {
-        init: function (n) {
-          if (n !== 0 && (n & n - 1) === 0) {
-            _n = n;
-
-            core._initArray();
-
-            core._makeBitReversalTable();
-
-            core._makeCosSinTable();
-          } else {
-            throw new Error("init: radix-2 required");
-          }
-        },
-        // 1D-FFT
-        fft1d: function (re, im) {
-          core.fft(re, im, 1);
-        },
-        // 1D-IFFT
-        ifft1d: function (re, im) {
-          var n = 1 / _n;
-          core.fft(re, im, -1);
-
-          for (var i = 0; i < _n; i++) {
-            re[i] *= n;
-            im[i] *= n;
-          }
-        },
-        // 1D-IFFT
-        bt1d: function (re, im) {
-          core.fft(re, im, -1);
-        },
-        // 2D-FFT Not very useful if the number of rows have to be equal to cols
-        fft2d: function (re, im) {
-          var tre = [],
-              tim = [],
-              i = 0; // x-axis
-
-          for (var y = 0; y < _n; y++) {
-            i = y * _n;
-
-            for (var x1 = 0; x1 < _n; x1++) {
-              tre[x1] = re[x1 + i];
-              tim[x1] = im[x1 + i];
-            }
-
-            core.fft1d(tre, tim);
-
-            for (var x2 = 0; x2 < _n; x2++) {
-              re[x2 + i] = tre[x2];
-              im[x2 + i] = tim[x2];
-            }
-          } // y-axis
-
-
-          for (var x = 0; x < _n; x++) {
-            for (var y1 = 0; y1 < _n; y1++) {
-              i = x + y1 * _n;
-              tre[y1] = re[i];
-              tim[y1] = im[i];
-            }
-
-            core.fft1d(tre, tim);
-
-            for (var y2 = 0; y2 < _n; y2++) {
-              i = x + y2 * _n;
-              re[i] = tre[y2];
-              im[i] = tim[y2];
-            }
-          }
-        },
-        // 2D-IFFT
-        ifft2d: function (re, im) {
-          var tre = [],
-              tim = [],
-              i = 0; // x-axis
-
-          for (var y = 0; y < _n; y++) {
-            i = y * _n;
-
-            for (var x1 = 0; x1 < _n; x1++) {
-              tre[x1] = re[x1 + i];
-              tim[x1] = im[x1 + i];
-            }
-
-            core.ifft1d(tre, tim);
-
-            for (var x2 = 0; x2 < _n; x2++) {
-              re[x2 + i] = tre[x2];
-              im[x2 + i] = tim[x2];
-            }
-          } // y-axis
-
-
-          for (var x = 0; x < _n; x++) {
-            for (var y1 = 0; y1 < _n; y1++) {
-              i = x + y1 * _n;
-              tre[y1] = re[i];
-              tim[y1] = im[i];
-            }
-
-            core.ifft1d(tre, tim);
-
-            for (var y2 = 0; y2 < _n; y2++) {
-              i = x + y2 * _n;
-              re[i] = tre[y2];
-              im[i] = tim[y2];
-            }
-          }
-        },
-        // core operation of FFT
-        fft: function (re, im, inv) {
-          var d,
-              h,
-              ik,
-              m,
-              tmp,
-              wr,
-              wi,
-              xr,
-              xi,
-              n4 = _n >> 2; // bit reversal
-
-          for (var l = 0; l < _n; l++) {
-            m = _bitrev[l];
-
-            if (l < m) {
-              tmp = re[l];
-              re[l] = re[m];
-              re[m] = tmp;
-              tmp = im[l];
-              im[l] = im[m];
-              im[m] = tmp;
-            }
-          } // butterfly operation
-
-
-          for (var k = 1; k < _n; k <<= 1) {
-            h = 0;
-            d = _n / (k << 1);
-
-            for (var j = 0; j < k; j++) {
-              wr = _cstb[h + n4];
-              wi = inv * _cstb[h];
-
-              for (var i = j; i < _n; i += k << 1) {
-                ik = i + k;
-                xr = wr * re[ik] + wi * im[ik];
-                xi = wr * im[ik] - wi * re[ik];
-                re[ik] = re[i] - xr;
-                re[i] += xr;
-                im[ik] = im[i] - xi;
-                im[i] += xi;
-              }
-
-              h += d;
-            }
-          }
-        },
-        // initialize the array (supports TypedArray)
-        _initArray: function () {
-          if (typeof Uint32Array !== 'undefined') {
-            _bitrev = new Uint32Array(_n);
-          } else {
-            _bitrev = [];
-          }
-
-          if (typeof Float64Array !== 'undefined') {
-            _cstb = new Float64Array(_n * 1.25);
-          } else {
-            _cstb = [];
-          }
-        },
-        // zero padding
-        _paddingZero: function () {// TODO
-        },
-        // makes bit reversal table
-        _makeBitReversalTable: function () {
-          var i = 0,
-              j = 0,
-              k = 0;
-          _bitrev[0] = 0;
-
-          while (++i < _n) {
-            k = _n >> 1;
-
-            while (k <= j) {
-              j -= k;
-              k >>= 1;
-            }
-
-            j += k;
-            _bitrev[i] = j;
-          }
-        },
-        // makes trigonometiric function table
-        _makeCosSinTable: function () {
-          var n2 = _n >> 1,
-              n4 = _n >> 2,
-              n8 = _n >> 3,
-              n2p4 = n2 + n4,
-              t = Math.sin(Math.PI / _n),
-              dc = 2 * t * t,
-              ds = Math.sqrt(dc * (2 - dc)),
-              c = _cstb[n4] = 1,
-              s = _cstb[0] = 0;
-          t = 2 * dc;
-
-          for (var i = 1; i < n8; i++) {
-            c -= dc;
-            dc += t * c;
-            s += ds;
-            ds -= t * s;
-            _cstb[i] = s;
-            _cstb[n4 - i] = c;
-          }
-
-          if (n8 !== 0) {
-            _cstb[n8] = Math.sqrt(0.5);
-          }
-
-          for (var j = 0; j < n4; j++) {
-            _cstb[n2 - j] = _cstb[j];
-          }
-
-          for (var k = 0; k < n2p4; k++) {
-            _cstb[k + n2] = -_cstb[k];
-          }
-        }
-      }; // aliases (public APIs)
-
-      var apis = ['init', 'fft1d', 'ifft1d', 'fft2d', 'ifft2d'];
-
-      for (var i = 0; i < apis.length; i++) {
-        FFT[apis[i]] = core[apis[i]];
-      }
-
-      FFT.bt = core.bt1d;
-      FFT.fft = core.fft1d;
-      FFT.ifft = core.ifft1d;
-      return FFT;
-    }.call(commonjsGlobal);
-  });
-
   // sources:
   // https://en.wikipedia.org/wiki/Gyromagnetic_ratio
-  // TODO: can we have a better source and more digits ? @jwist
+  // TODO: #13 can we have a better source and more digits ? @jwist
   const gyromagneticRatio = {
     '1H': 267.52218744e6,
     '2H': 41.065e6,
@@ -10146,6 +10800,23 @@ ${indent}columns: ${matrix.columns}
 
           for (let i = 0; i < spectrum.data.x.length; i++) {
             spectrum.data.x[i] -= shift;
+          }
+        } // we will check if some nucleus are missing ...
+
+
+        if (entry.ntuples && entry.ntuples.nucleus && entry.ntuples.symbol) {
+          for (let i = 0; i < entry.ntuples.nucleus.length; i++) {
+            let symbol = entry.ntuples.symbol[i];
+            let nucleus = entry.ntuples.nucleus[i];
+
+            if (symbol.startsWith('F') && !nucleus) {
+              if (symbol === 'F1') entry.ntuples.nucleus[i] = entry.tmp.$NUC2;
+              if (symbol === 'F2') entry.ntuples.nucleus[i] = entry.tmp.$NUC1;
+            }
+
+            if (symbol === 'F2') {
+              entry.yType = entry.ntuples.nucleus[0];
+            }
           }
         }
 
@@ -10240,6 +10911,8 @@ ${indent}columns: ${matrix.columns}
 
         profiling(result, 'Finished chromatogram calculation', options);
       }
+
+      delete entry.tmp;
     }
   }
 
@@ -10335,11 +11008,12 @@ ${indent}columns: ${matrix.columns}
     if (!spectrum.yFactor) spectrum.yFactor = 1;
   }
 
-  const ntuplesSeparator = /[ \t]*,[ \t]*/;
+  const ntuplesSeparatorRegExp = /[ \t]*,[ \t]*/;
+  const numberRegExp = /^[-+]?[0-9]*\.?[0-9]+(e[-+]?[0-9]+)?$/;
 
   class Spectrum {}
 
-  const defaultOptions$2 = {
+  const defaultOptions = {
     keepRecordsRegExp: /^$/,
     canonicDataLabels: true,
     canonicMetadataLabels: false,
@@ -10370,7 +11044,7 @@ ${indent}columns: ${matrix.columns}
    */
 
   function convert(jcamp, options = {}) {
-    options = Object.assign({}, defaultOptions$2, options);
+    options = Object.assign({}, defaultOptions, options);
     options.wantXY = !options.withoutXY;
     options.start = Date.now();
     let entriesFlat = [];
@@ -10428,10 +11102,7 @@ ${indent}columns: ${matrix.columns}
 
           if (dataValue.match(/.*\+\+.*/)) {
             // ex: (X++(Y..Y))
-            if (!spectrum.deltaX) {
-              spectrum.deltaX = (spectrum.lastX - spectrum.firstX) / (spectrum.nbPoints - 1);
-            }
-
+            spectrum.deltaX = (spectrum.lastX - spectrum.firstX) / (spectrum.nbPoints - 1);
             fastParseXYData(spectrum, dataValue);
           } else {
             parsePeakTable(spectrum, dataValue, result);
@@ -10478,7 +11149,9 @@ ${indent}columns: ${matrix.columns}
           spectra: [],
           ntuples: {},
           info: {},
-          meta: {}
+          meta: {},
+          tmp: {} // tmp information we need to keep for postprocessing
+
         };
         parentEntry.children.push(currentEntry);
         parentsStack.push(parentEntry);
@@ -10540,34 +11213,30 @@ ${indent}columns: ${matrix.columns}
           spectrum.shiftOffsetVal = parseFloat(dataValue);
         }
       } else if (canonicDataLabel === '$REFERENCEPOINT') ; else if (canonicDataLabel === 'VARNAME') {
-        currentEntry.ntuples.varname = dataValue.split(ntuplesSeparator);
+        currentEntry.ntuples.varname = dataValue.split(ntuplesSeparatorRegExp);
       } else if (canonicDataLabel === 'SYMBOL') {
-        currentEntry.ntuples.symbol = dataValue.split(ntuplesSeparator);
+        currentEntry.ntuples.symbol = dataValue.split(ntuplesSeparatorRegExp);
       } else if (canonicDataLabel === 'VARTYPE') {
-        currentEntry.ntuples.vartype = dataValue.split(ntuplesSeparator);
+        currentEntry.ntuples.vartype = dataValue.split(ntuplesSeparatorRegExp);
       } else if (canonicDataLabel === 'VARFORM') {
-        currentEntry.ntuples.varform = dataValue.split(ntuplesSeparator);
+        currentEntry.ntuples.varform = dataValue.split(ntuplesSeparatorRegExp);
       } else if (canonicDataLabel === 'VARDIM') {
-        currentEntry.ntuples.vardim = convertToFloatArray(dataValue.split(ntuplesSeparator));
+        currentEntry.ntuples.vardim = convertToFloatArray(dataValue.split(ntuplesSeparatorRegExp));
       } else if (canonicDataLabel === 'UNITS') {
-        currentEntry.ntuples.units = dataValue.split(ntuplesSeparator);
+        currentEntry.ntuples.units = dataValue.split(ntuplesSeparatorRegExp);
       } else if (canonicDataLabel === 'FACTOR') {
-        currentEntry.ntuples.factor = convertToFloatArray(dataValue.split(ntuplesSeparator));
+        currentEntry.ntuples.factor = convertToFloatArray(dataValue.split(ntuplesSeparatorRegExp));
       } else if (canonicDataLabel === 'FIRST') {
-        currentEntry.ntuples.first = convertToFloatArray(dataValue.split(ntuplesSeparator));
+        currentEntry.ntuples.first = convertToFloatArray(dataValue.split(ntuplesSeparatorRegExp));
       } else if (canonicDataLabel === 'LAST') {
-        currentEntry.ntuples.last = convertToFloatArray(dataValue.split(ntuplesSeparator));
+        currentEntry.ntuples.last = convertToFloatArray(dataValue.split(ntuplesSeparatorRegExp));
       } else if (canonicDataLabel === 'MIN') {
-        currentEntry.ntuples.min = convertToFloatArray(dataValue.split(ntuplesSeparator));
+        currentEntry.ntuples.min = convertToFloatArray(dataValue.split(ntuplesSeparatorRegExp));
       } else if (canonicDataLabel === 'MAX') {
-        currentEntry.ntuples.max = convertToFloatArray(dataValue.split(ntuplesSeparator));
+        currentEntry.ntuples.max = convertToFloatArray(dataValue.split(ntuplesSeparatorRegExp));
       } else if (canonicDataLabel === '.NUCLEUS') {
         if (currentEntry.ntuples) {
-          currentEntry.ntuples.nucleus = dataValue.split(ntuplesSeparator);
-        }
-
-        if (currentEntry.twoD) {
-          currentEntry.yType = dataValue.split(ntuplesSeparator)[0];
+          currentEntry.ntuples.nucleus = dataValue.split(ntuplesSeparatorRegExp);
         }
       } else if (canonicDataLabel === 'PAGE') {
         spectrum.page = dataValue.trim();
@@ -10579,6 +11248,10 @@ ${indent}columns: ${matrix.columns}
         spectrum[convertMSFieldToLabel(canonicDataLabel)] = dataValue;
       } else if (canonicDataLabel === 'SAMPLEDESCRIPTION') {
         spectrum.sampleDescription = dataValue;
+      } else if (canonicDataLabel.startsWith('$NUC')) {
+        if (!currentEntry.tmp[canonicDataLabel] && !dataValue.includes('off')) {
+          currentEntry.tmp[canonicDataLabel] = dataValue.replace(/[<>]/g, '');
+        }
       } else if (canonicDataLabel === 'END') {
         currentEntry = parentsStack.pop();
       }
@@ -10596,8 +11269,9 @@ ${indent}columns: ${matrix.columns}
         }
 
         if (options.dynamicTyping) {
-          let parsedValue = Number.parseFloat(value);
-          if (!Number.isNaN(parsedValue)) value = parsedValue;
+          if (value.match(numberRegExp)) {
+            value = Number.parseFloat(value);
+          }
         }
 
         if (target[label]) {
@@ -10632,6 +11306,7 @@ ${indent}columns: ${matrix.columns}
    * @param {object} [options={}]
    * @param {object} [options.id=Math.random()]
    * @param {string} [options.label=options.id] human redeable label
+   * @param {string} [options.spectrumCallback] a callback to apply on variables when creating spectrum
    * @return {Analysis} - New class element with the given data
    */
 
@@ -10680,167 +11355,6 @@ ${indent}columns: ${matrix.columns}
         meta: entry.meta
       });
     }
-  }
-
-  function addStyle(serie, spectrum, options = {}) {
-    let {
-      color = '#A9A9A9',
-      opacity = 1,
-      lineWidth = 1
-    } = options;
-
-    if (color.match(/#[0-9A-F]{6}$/i)) {
-      color = (color + (opacity * 255 >> 0).toString(16)).toUpperCase();
-    } else {
-      color = color.replace(/rgb ?\((.*)\)/, `rgba($1,${opacity})`);
-    }
-
-    serie.style = [{
-      name: 'unselected',
-      style: {
-        line: {
-          color,
-          width: lineWidth,
-          dash: 1
-        }
-      }
-    }, {
-      name: 'selected',
-      style: {
-        line: {
-          color,
-          width: lineWidth + 2,
-          dash: 1
-        }
-      }
-    }];
-    serie.name = spectrum.label || spectrum.id;
-  }
-
-  const COLORS = ['#FFB300', '#803E75', '#FF6800', '#A6BDD7', '#C10020', '#CEA262', '#817066', '#007D34', '#F6768E', '#00538A', '#FF7A5C', '#53377A', '#FF8E00', '#B32851', '#F4C800', '#7F180D', '#93AA00', '#593315', '#F13A13', '#232C16'];
-
-  /**
-   * Generate a jsgraph chart format from an array of Analysis
-   * @param {Array<Analysis>} analyses
-   * @param {object} [options={}]
-   * @param {Array} [options.ids] List of spectra ids, by all
-   * @param {Array} [options.colors] List of colors
-   * @param {Array} [options.opacities=[1]] List of opacities
-   * @param {Array} [options.linesWidth=[1]] List of linesWidth
-   * @param {object} [options.selector={}]
-   * @param {object} [options.normalization]
-   */
-
-  function getJSGraph(analyses, options = {}) {
-    const {
-      colors = COLORS,
-      opacities = [1],
-      linesWidth = [1],
-      selector,
-      normalization
-    } = options;
-    let series = [];
-    let xLabel = '';
-    let yLabel = '';
-
-    for (let i = 0; i < analyses.length; i++) {
-      const analysis = analyses[i];
-      let serie = {};
-      let currentData = analysis.getNormalizedSpectrum({
-        selector,
-        normalization
-      });
-      if (!currentData) continue;
-      if (!xLabel) xLabel = currentData.variables.x.label;
-      if (!yLabel) yLabel = currentData.variables.y.label;
-      addStyle(serie, analysis, {
-        color: colors[i % colors.length],
-        opacity: opacities[i % opacities.length],
-        lineWidth: linesWidth[i % linesWidth.length]
-      });
-      serie.data = {
-        x: currentData.variables.x.data,
-        y: currentData.variables.y.data
-      };
-      series.push(serie);
-    }
-
-    return {
-      axes: {
-        x: {
-          label: xLabel,
-          unit: '',
-          unitWrapperBefore: '',
-          unitWrapperAfter: '',
-          flipped: false,
-          display: true
-        },
-        y: {
-          label: yLabel,
-          unit: '',
-          unitWrapperBefore: '',
-          unitWrapperAfter: '',
-          flipped: false,
-          display: true
-        }
-      },
-      series
-    };
-  }
-
-  function getNormalizationAnnotations(filter = {}, boundary) {
-    let {
-      exclusions = []
-    } = filter;
-    let annotations = [];
-    exclusions = exclusions.filter(exclusion => !exclusion.ignore);
-    annotations = exclusions.map(exclusion => {
-      let annotation = {
-        type: 'rect',
-        position: [{
-          x: exclusion.from,
-          y: boundary.y.min
-        }, {
-          x: exclusion.to,
-          y: boundary.y.max
-        }],
-        strokeWidth: 0,
-        fillColor: 'rgba(255,255,224,1)'
-      };
-      return annotation;
-    });
-
-    if (filter.from !== undefined) {
-      annotations.push({
-        type: 'rect',
-        position: [{
-          x: Number.MIN_SAFE_INTEGER,
-          y: boundary.y.min
-        }, {
-          x: filter.from,
-          y: boundary.y.max
-        }],
-        strokeWidth: 0,
-        fillColor: 'rgba(255,255,224,1)'
-      });
-    }
-
-    if (filter.to !== undefined) {
-      annotations.push({
-        type: 'rect',
-        position: [{
-          x: filter.to,
-          y: boundary.y.min
-        }, {
-          x: Number.MAX_SAFE_INTEGER,
-          y: boundary.y.max
-        }],
-        strokeWidth: 0,
-        fillColor: 'rgba(255,255,224,1)'
-      });
-    }
-
-    return annotations;
   }
 
   /**
@@ -11074,16 +11588,19 @@ ${points.join('\n')}
     return toJcamps(analysis, options).join('\n');
   }
 
-  function mean(input) {
-    return sum(input) / input.length;
-  }
-
   function lineSplitTrim(line) {
     return lineSplit(line)[1].trim();
   }
   function lineSplit(line) {
     return line.split(/\s{4,}/);
   }
+
+  /**
+   * Parses and standardizes the metadata
+   *
+   * @param {array<string>} lines
+   * @returns {object}
+   */
 
   function parseIGAMeasurmentHeader(lines) {
     let metaData = {}; // Let's use some cleaner names
@@ -11151,6 +11668,13 @@ ${points.join('\n')}
     metaData.scanStart = lineSplitTrim(lines[65]);
     return metaData;
   }
+  /**
+   * Find the start and end line numbers of the measurement
+   *
+   * @param {Array<string>} lines
+   * @returns {Array<number>} Array of length 2 [startIndex, endIndex]
+   */
+
 
   function getLineNumbersOfMeasurement(lines) {
     let starts = [];
@@ -11208,7 +11732,8 @@ ${points.join('\n')}
     };
   }
   /**
-   * Creates a new Analysis element
+   * Orchestrates the parsing of a IGA file. Creates a new Analysis element
+   *
    * @param {string} text - String containing the IGA analysis data, maybe contain multiple measurements
    * @return {Analysis} - New class element with the given data
    */
@@ -11225,12 +11750,6 @@ ${points.join('\n')}
       meas.meta.adsorptionTunits = '°C';
       analysis.pushSpectrum({
         x: {
-          data: meas.data.pp0,
-          label: 'relative pressure',
-          type: 'independent',
-          units: ''
-        },
-        p: {
           data: meas.data.pressure,
           label: 'Pressure',
           type: 'independent',
@@ -11241,6 +11760,12 @@ ${points.join('\n')}
           label: 'Excess Adsorption [mmol/g]',
           type: 'dependent',
           units: 'mmol/g'
+        },
+        p: {
+          data: meas.data.pp0,
+          label: 'relative pressure',
+          type: 'independent',
+          units: ''
         },
         r: {
           data: meas.data.excessAdsorptionPercentage,
@@ -11263,6 +11788,16 @@ ${points.join('\n')}
 
     return analysis;
   }
+
+  /**
+   * Parses some relevant fields in the meta data
+   * Tries to use naming that is consistent with the other
+   * isotherm parsers
+   *
+   * @param {array<string>} lines
+   * @param {number} dataStartIndex
+   * @returns {object}
+   */
 
   function parseMetaBlock(lines, dataStartIndex) {
     let meta = {};
@@ -11331,6 +11866,14 @@ ${points.join('\n')}
 
     return meta;
   }
+  /**
+   * Find the line numbers of start and end of the
+   * isotherm data
+   *
+   * @param {array<string>} lines
+   * @returns {Array<number>} array of length two [startIndex, endIndex]
+   */
+
 
   function findDataBlocks(lines) {
     let isothermTableStarts = [];
@@ -11351,6 +11894,14 @@ ${points.join('\n')}
 
     return [isothermTableStarts, isothermTableEnds];
   }
+  /**
+   * Parses the relevant fields from the isotherm table,
+   * converts the pressure to kPa and creates floats
+   *
+   * @param {Array<string>} lines
+   * @returns {Object}
+   */
+
 
   function parseIsothermTable(lines) {
     let pSat = parseFloat(lines[5].trim() * 0.13332); // convert mmHg to kPa
@@ -11372,6 +11923,16 @@ ${points.join('\n')}
 
     return data;
   }
+  /**
+   * Orchestrates the parsing of a micrometrics TXT file.
+   * Takes the text and returns an Analysis object.
+   * Also parses relevant metadata and converts some units
+   *
+   * @export
+   * @param {string} parsed text
+   * @returns {Analysis}
+   */
+
 
   function fromMicrometricsTXT(text) {
     const lines = text.split(/\r?\n/).filter(line => !line.match(/^\s*$/));
@@ -11418,15 +11979,15 @@ ${points.join('\n')}
     return analysis;
   }
 
+  /* @license
+  Papa Parse
+  v5.3.0
+  https://github.com/mholt/PapaParse
+  License: MIT
+  */
   var papaparse_min = createCommonjsModule(function (module, exports) {
-    /* @license
-    Papa Parse
-    v5.3.0
-    https://github.com/mholt/PapaParse
-    License: MIT
-    */
     !function (e, t) {
-        module.exports = t() ;
+      module.exports = t() ;
     }(commonjsGlobal, function s() {
 
       var f = "undefined" != typeof self ? self : "undefined" != typeof window ? window : void 0 !== f ? f : {};
@@ -12199,6 +12760,14 @@ ${points.join('\n')}
 
   const idealGasConstant = 22.413969545014; // mol / cm3 at STP
 
+  /**
+   * Create an Analysis object from a micrometrics CSV file
+   *
+   * @export
+   * @param {string} text
+   * @returns {Analysis}
+   */
+
   function fromMicrometricsCSV(text) {
     text = text.replace(/,/g, '.');
     let parsed = papaparse_min.parse(text, {
@@ -12211,66 +12780,72 @@ ${points.join('\n')}
 
     const headerRow = parsed.shift();
     let analysis = new Analysis();
-    analysis.pushSpectrum({
-      x: {
-        data: arrayColumn(parsed, 0).filter(function (value) {
-          return value !== '';
-        }).map(function (x) {
-          return parseFloat(x);
-        }),
-        label: 'relative pressure p/p0',
-        type: 'independent',
-        units: ''
-      },
-      y: {
-        data: arrayColumn(parsed, 1).filter(function (value) {
-          return value !== '';
-        }).map(function (x) {
-          return parseFloat(x) / idealGasConstant * 1000;
-        }),
-        label: 'Excess adsorption',
-        type: 'dependent',
-        units: 'mmol/g'
-      }
-    }, {
-      dataType: 'Adsorption Isotherm',
-      title: 'Adsorption',
-      meta: {
-        header: headerRow
-      }
-    });
-    analysis.pushSpectrum({
-      x: {
-        data: arrayColumn(parsed, 2).filter(function (value) {
-          return value !== '';
-        }).map(function (x) {
-          return parseFloat(x);
-        }),
-        label: 'relative pressure p/p0',
-        type: 'independent',
-        units: ''
-      },
-      y: {
-        data: arrayColumn(parsed, 3).filter(function (value) {
-          return value !== '';
-        }).map(function (x) {
-          return parseFloat(x) / idealGasConstant * 1000;
-        }),
-        label: 'Excess adsorption',
-        type: 'dependent',
-        units: 'mmol/g'
-      }
-    }, {
-      dataType: 'Desorption Isotherm',
-      title: 'Desorption',
-      meta: {}
-    });
+
+    try {
+      analysis.pushSpectrum({
+        //FixMe: this should be p
+        x: {
+          data: arrayColumn(parsed, 0).filter(function (value) {
+            return value !== '';
+          }).map(function (x) {
+            return parseFloat(x);
+          }),
+          label: 'relative pressure p/p0',
+          type: 'independent',
+          units: ''
+        },
+        y: {
+          data: arrayColumn(parsed, 1).filter(function (value) {
+            return value !== '';
+          }).map(function (x) {
+            return parseFloat(x) / idealGasConstant * 1000;
+          }),
+          label: 'Excess adsorption',
+          type: 'dependent',
+          units: 'mmol/g'
+        }
+      }, {
+        dataType: 'Adsorption Isotherm',
+        title: 'Adsorption',
+        meta: {
+          header: headerRow
+        }
+      });
+      analysis.pushSpectrum({
+        x: {
+          data: arrayColumn(parsed, 2).filter(function (value) {
+            return value !== '';
+          }).map(function (x) {
+            return parseFloat(x);
+          }),
+          label: 'relative pressure p/p0',
+          type: 'independent',
+          units: ''
+        },
+        y: {
+          data: arrayColumn(parsed, 3).filter(function (value) {
+            return value !== '';
+          }).map(function (x) {
+            return parseFloat(x) / idealGasConstant * 1000;
+          }),
+          label: 'Excess adsorption',
+          type: 'dependent',
+          units: 'mmol/g'
+        }
+      }, {
+        dataType: 'Desorption Isotherm',
+        title: 'Desorption',
+        meta: {}
+      });
+    } catch (err) {
+      throw Error(`Could not parse desorption section due to ${err}. Please report an issue with an example file!`);
+    }
+
     return analysis;
   }
 
+  /* cpexcel.js (C) 2013-present SheetJS -- http://sheetjs.com */
   var cpexcel = createCommonjsModule(function (module) {
-    /* cpexcel.js (C) 2013-present SheetJS -- http://sheetjs.com */
-
     /*jshint -W100 */
     var cptable = {
       version: "1.14.0"
@@ -16024,7 +16599,7 @@ ${points.join('\n')}
     }(); // eslint-disable-next-line no-undef
 
 
-    if ( module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') module.exports = cptable;
+    if (module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') module.exports = cptable;
     /* cputils.js (C) 2013-present SheetJS -- http://sheetjs.com */
 
     /* vim: set ft=javascript: */
@@ -16036,7 +16611,7 @@ ${points.join('\n')}
       if (typeof cptable === "undefined") {
         if (typeof commonjsRequire !== "undefined") {
           var cpt = cptable;
-          if ( module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') module.exports = factory(cpt);else root.cptable = factory(cpt);
+          if (module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') module.exports = factory(cpt);else root.cptable = factory(cpt);
         } else throw new Error("cptable not found");
       } else cptable = factory(cptable);
       /*eslint-enable */
@@ -16879,23 +17454,23 @@ ${points.join('\n')}
     'default': _nodeResolve_empty
   });
 
+  /*
+
+  JSZip - A Javascript class for generating and reading zip files
+  <http://stuartk.com/jszip>
+
+  (c) 2009-2014 Stuart Knightley <stuart [at] stuartk.com>
+  Dual licenced under the MIT license or GPLv3. See https://raw.github.com/Stuk/jszip/master/LICENSE.markdown.
+
+  JSZip uses the library pako released under the MIT license :
+  https://github.com/nodeca/pako/blob/master/LICENSE
+
+  Note: since JSZip 3 removed critical functionality, this version assigns to the
+  `JSZipSync` variable.  Another JSZip version can be loaded in parallel.
+  */
   var jszip = createCommonjsModule(function (module, exports) {
-    /*
-    
-    JSZip - A Javascript class for generating and reading zip files
-    <http://stuartk.com/jszip>
-    
-    (c) 2009-2014 Stuart Knightley <stuart [at] stuartk.com>
-    Dual licenced under the MIT license or GPLv3. See https://raw.github.com/Stuk/jszip/master/LICENSE.markdown.
-    
-    JSZip uses the library pako released under the MIT license :
-    https://github.com/nodeca/pako/blob/master/LICENSE
-    
-    Note: since JSZip 3 removed critical functionality, this version assigns to the
-    `JSZipSync` variable.  Another JSZip version can be loaded in parallel.
-    */
     (function (e) {
-      if ( "undefined" == typeof DO_NOT_EXPORT_JSZIP) module.exports = e();else {
+      if ("undefined" == typeof DO_NOT_EXPORT_JSZIP) module.exports = e();else {
         var f;
         "undefined" != typeof globalThis ? f = globalThis : "undefined" != typeof window ? f = window : "undefined" != typeof commonjsGlobal ? f = commonjsGlobal : "undefined" != typeof $ && $.global ? f = $.global : "undefined" != typeof self && (f = self), f.JSZipSync = e();
       }
@@ -17932,8 +18507,8 @@ ${points.join('\n')}
 
 
           var generateZipParts = function (name, file, compressedObject, offset) {
-            var data = compressedObject.compressedContent,
-                utfEncodedFileName = utils.transformTo("string", utf8.utf8encode(file.name)),
+            compressedObject.compressedContent;
+                var utfEncodedFileName = utils.transformTo("string", utf8.utf8encode(file.name)),
                 comment = file.comment || "",
                 utfEncodedComment = utils.transformTo("string", utf8.utf8encode(comment)),
                 useUTF8ForFileName = utfEncodedFileName.length !== file.name.length,
@@ -27440,7 +28015,7 @@ ${points.join('\n')}
 
   var require$$4 = /*@__PURE__*/getAugmentedNamespace(_nodeResolve_empty$1);
 
-  var xlsx=createCommonjsModule(function(module,exports){function make_xlsx_lib(XLSX){XLSX.version='0.16.8';var current_codepage=1200,current_ansi=1252;/*global cptable:true, window */if(typeof commonjsRequire!=='undefined'){if(typeof cptable==='undefined'){if(typeof commonjsGlobal!=='undefined')commonjsGlobal.cptable=cpexcel;else if(typeof window!=='undefined')window.cptable=cpexcel;}}var VALID_ANSI=[874,932,936,949,950];for(var i=0;i<=8;++i)VALID_ANSI.push(1250+i);/* ECMA-376 Part I 18.4.1 charset to codepage mapping */var CS2CP={0:1252,/* ANSI */1:65001,/* DEFAULT */2:65001,/* SYMBOL */77:10000,/* MAC */128:932,/* SHIFTJIS */129:949,/* HANGUL */130:1361,/* JOHAB */134:936,/* GB2312 */136:950,/* CHINESEBIG5 */161:1253,/* GREEK */162:1254,/* TURKISH */163:1258,/* VIETNAMESE */177:1255,/* HEBREW */178:1256,/* ARABIC */186:1257,/* BALTIC */204:1251,/* RUSSIAN */222:874,/* THAI */238:1250,/* EASTEUROPE */255:1252,/* OEM */69:6969/* MISC */};var set_ansi=function(cp){if(VALID_ANSI.indexOf(cp)==-1)return;current_ansi=CS2CP[0]=cp;};function reset_ansi(){set_ansi(1252);}var set_cp=function(cp){current_codepage=cp;set_ansi(cp);};function reset_cp(){set_cp(1200);reset_ansi();}function char_codes(data){var o=[];for(var i=0,len=data.length;i<len;++i)o[i]=data.charCodeAt(i);return o;}function utf16leread(data){var o=[];for(var i=0;i<data.length>>1;++i)o[i]=String.fromCharCode(data.charCodeAt(2*i)+(data.charCodeAt(2*i+1)<<8));return o.join("");}function utf16beread(data){var o=[];for(var i=0;i<data.length>>1;++i)o[i]=String.fromCharCode(data.charCodeAt(2*i+1)+(data.charCodeAt(2*i)<<8));return o.join("");}var debom=function(data){var c1=data.charCodeAt(0),c2=data.charCodeAt(1);if(c1==0xFF&&c2==0xFE)return utf16leread(data.slice(2));if(c1==0xFE&&c2==0xFF)return utf16beread(data.slice(2));if(c1==0xFEFF)return data.slice(1);return data;};var _getchar=function _gc1(x){return String.fromCharCode(x);};var _getansi=function _ga1(x){return String.fromCharCode(x);};if(typeof cptable!=='undefined'){set_cp=function(cp){current_codepage=cp;set_ansi(cp);};debom=function(data){if(data.charCodeAt(0)===0xFF&&data.charCodeAt(1)===0xFE){return cptable.utils.decode(1200,char_codes(data.slice(2)));}return data;};_getchar=function _gc2(x){if(current_codepage===1200)return String.fromCharCode(x);return cptable.utils.decode(current_codepage,[x&255,x>>8])[0];};_getansi=function _ga2(x){return cptable.utils.decode(current_ansi,[x])[0];};}var Base64=function make_b64(){var map="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";return {encode:function(input){var o="";var c1=0,c2=0,c3=0,e1=0,e2=0,e3=0,e4=0;for(var i=0;i<input.length;){c1=input.charCodeAt(i++);e1=c1>>2;c2=input.charCodeAt(i++);e2=(c1&3)<<4|c2>>4;c3=input.charCodeAt(i++);e3=(c2&15)<<2|c3>>6;e4=c3&63;if(isNaN(c2)){e3=e4=64;}else if(isNaN(c3)){e4=64;}o+=map.charAt(e1)+map.charAt(e2)+map.charAt(e3)+map.charAt(e4);}return o;},decode:function b64_decode(input){var o="";var c1=0,c2=0,c3=0,e1=0,e2=0,e3=0,e4=0;input=input.replace(/[^\w\+\/\=]/g,"");for(var i=0;i<input.length;){e1=map.indexOf(input.charAt(i++));e2=map.indexOf(input.charAt(i++));c1=e1<<2|e2>>4;o+=String.fromCharCode(c1);e3=map.indexOf(input.charAt(i++));c2=(e2&15)<<4|e3>>2;if(e3!==64){o+=String.fromCharCode(c2);}e4=map.indexOf(input.charAt(i++));c3=(e3&3)<<6|e4;if(e4!==64){o+=String.fromCharCode(c3);}}return o;}};}();var has_buf=typeof Buffer!=='undefined'&&typeof process!=='undefined'&&typeof process.versions!=='undefined'&&!!process.versions.node;var Buffer_from=function(){};if(typeof Buffer!=='undefined'){var nbfs=!Buffer.from;if(!nbfs)try{Buffer.from("foo","utf8");}catch(e){nbfs=true;}Buffer_from=nbfs?function(buf,enc){return enc?new Buffer(buf,enc):new Buffer(buf);}:Buffer.from.bind(Buffer);// $FlowIgnore
+  var xlsx=createCommonjsModule(function(module,exports){function make_xlsx_lib(XLSX){XLSX.version='0.16.9';var current_codepage=1200,current_ansi=1252;/*global cptable:true, window */if(typeof commonjsRequire!=='undefined'){if(typeof cptable==='undefined'){if(typeof commonjsGlobal!=='undefined')commonjsGlobal.cptable=cpexcel;else if(typeof window!=='undefined')window.cptable=cpexcel;}}var VALID_ANSI=[874,932,936,949,950];for(var i=0;i<=8;++i)VALID_ANSI.push(1250+i);/* ECMA-376 Part I 18.4.1 charset to codepage mapping */var CS2CP={0:1252,/* ANSI */1:65001,/* DEFAULT */2:65001,/* SYMBOL */77:10000,/* MAC */128:932,/* SHIFTJIS */129:949,/* HANGUL */130:1361,/* JOHAB */134:936,/* GB2312 */136:950,/* CHINESEBIG5 */161:1253,/* GREEK */162:1254,/* TURKISH */163:1258,/* VIETNAMESE */177:1255,/* HEBREW */178:1256,/* ARABIC */186:1257,/* BALTIC */204:1251,/* RUSSIAN */222:874,/* THAI */238:1250,/* EASTEUROPE */255:1252,/* OEM */69:6969/* MISC */};var set_ansi=function(cp){if(VALID_ANSI.indexOf(cp)==-1)return;current_ansi=CS2CP[0]=cp;};function reset_ansi(){set_ansi(1252);}var set_cp=function(cp){current_codepage=cp;set_ansi(cp);};function reset_cp(){set_cp(1200);reset_ansi();}function char_codes(data){var o=[];for(var i=0,len=data.length;i<len;++i)o[i]=data.charCodeAt(i);return o;}function utf16leread(data){var o=[];for(var i=0;i<data.length>>1;++i)o[i]=String.fromCharCode(data.charCodeAt(2*i)+(data.charCodeAt(2*i+1)<<8));return o.join("");}function utf16beread(data){var o=[];for(var i=0;i<data.length>>1;++i)o[i]=String.fromCharCode(data.charCodeAt(2*i+1)+(data.charCodeAt(2*i)<<8));return o.join("");}var debom=function(data){var c1=data.charCodeAt(0),c2=data.charCodeAt(1);if(c1==0xFF&&c2==0xFE)return utf16leread(data.slice(2));if(c1==0xFE&&c2==0xFF)return utf16beread(data.slice(2));if(c1==0xFEFF)return data.slice(1);return data;};var _getchar=function _gc1(x){return String.fromCharCode(x);};var _getansi=function _ga1(x){return String.fromCharCode(x);};if(typeof cptable!=='undefined'){set_cp=function(cp){current_codepage=cp;set_ansi(cp);};debom=function(data){if(data.charCodeAt(0)===0xFF&&data.charCodeAt(1)===0xFE){return cptable.utils.decode(1200,char_codes(data.slice(2)));}return data;};_getchar=function _gc2(x){if(current_codepage===1200)return String.fromCharCode(x);return cptable.utils.decode(current_codepage,[x&255,x>>8])[0];};_getansi=function _ga2(x){return cptable.utils.decode(current_ansi,[x])[0];};}var Base64=function make_b64(){var map="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";return {encode:function(input){var o="";var c1=0,c2=0,c3=0,e1=0,e2=0,e3=0,e4=0;for(var i=0;i<input.length;){c1=input.charCodeAt(i++);e1=c1>>2;c2=input.charCodeAt(i++);e2=(c1&3)<<4|c2>>4;c3=input.charCodeAt(i++);e3=(c2&15)<<2|c3>>6;e4=c3&63;if(isNaN(c2)){e3=e4=64;}else if(isNaN(c3)){e4=64;}o+=map.charAt(e1)+map.charAt(e2)+map.charAt(e3)+map.charAt(e4);}return o;},decode:function b64_decode(input){var o="";var c1=0,c2=0,c3=0,e1=0,e2=0,e3=0,e4=0;input=input.replace(/[^\w\+\/\=]/g,"");for(var i=0;i<input.length;){e1=map.indexOf(input.charAt(i++));e2=map.indexOf(input.charAt(i++));c1=e1<<2|e2>>4;o+=String.fromCharCode(c1);e3=map.indexOf(input.charAt(i++));c2=(e2&15)<<4|e3>>2;if(e3!==64){o+=String.fromCharCode(c2);}e4=map.indexOf(input.charAt(i++));c3=(e3&3)<<6|e4;if(e4!==64){o+=String.fromCharCode(c3);}}return o;}};}();var has_buf=typeof Buffer!=='undefined'&&typeof process!=='undefined'&&typeof process.versions!=='undefined'&&!!process.versions.node;var Buffer_from=function(){};if(typeof Buffer!=='undefined'){var nbfs=!Buffer.from;if(!nbfs)try{Buffer.from("foo","utf8");}catch(e){nbfs=true;}Buffer_from=nbfs?function(buf,enc){return enc?new Buffer(buf,enc):new Buffer(buf);}:Buffer.from.bind(Buffer);// $FlowIgnore
   if(!Buffer.alloc)Buffer.alloc=function(n){return new Buffer(n);};// $FlowIgnore
   if(!Buffer.allocUnsafe)Buffer.allocUnsafe=function(n){return new Buffer(n);};}function new_raw_buf(len){/* jshint -W056 */return has_buf?Buffer.alloc(len):new Array(len);/* jshint +W056 */}function new_unsafe_buf(len){/* jshint -W056 */return has_buf?Buffer.allocUnsafe(len):new Array(len);/* jshint +W056 */}var s2a=function s2a(s){if(has_buf)return Buffer_from(s,"binary");return s.split("").map(function(x){return x.charCodeAt(0)&0xff;});};function s2ab(s){if(typeof ArrayBuffer==='undefined')return s2a(s);var buf=new ArrayBuffer(s.length),view=new Uint8Array(buf);for(var i=0;i!=s.length;++i)view[i]=s.charCodeAt(i)&0xFF;return buf;}function a2s(data){if(Array.isArray(data))return data.map(function(c){return String.fromCharCode(c);}).join("");var o=[];for(var i=0;i<data.length;++i)o[i]=String.fromCharCode(data[i]);return o.join("");}function a2u(data){if(typeof Uint8Array==='undefined')throw new Error("Unsupported");return new Uint8Array(data);}function ab2a(data){if(typeof ArrayBuffer=='undefined')throw new Error("Unsupported");if(data instanceof ArrayBuffer)return ab2a(new Uint8Array(data));var o=new Array(data.length);for(var i=0;i<data.length;++i)o[i]=data[i];return o;}var bconcat=function(bufs){return [].concat.apply([],bufs);};var chr0=/\u0000/g,chr1=/[\u0001-\u0006]/g;/* ssf.js (C) 2013-present SheetJS -- http://sheetjs.com */ /*jshint -W041 */var SSF={};var make_ssf=function make_ssf(SSF){SSF.version='0.11.2';function _strrev(x){var o="",i=x.length-1;while(i>=0)o+=x.charAt(i--);return o;}function fill(c,l){var o="";while(o.length<l)o+=c;return o;}function pad0(v,d){var t=""+v;return t.length>=d?t:fill('0',d-t.length)+t;}function pad_(v,d){var t=""+v;return t.length>=d?t:fill(' ',d-t.length)+t;}function rpad_(v,d){var t=""+v;return t.length>=d?t:t+fill(' ',d-t.length);}function pad0r1(v,d){var t=""+Math.round(v);return t.length>=d?t:fill('0',d-t.length)+t;}function pad0r2(v,d){var t=""+v;return t.length>=d?t:fill('0',d-t.length)+t;}var p2_32=Math.pow(2,32);function pad0r(v,d){if(v>p2_32||v<-p2_32)return pad0r1(v,d);var i=Math.round(v);return pad0r2(i,d);}function isgeneral(s,i){i=i||0;return s.length>=7+i&&(s.charCodeAt(i)|32)===103&&(s.charCodeAt(i+1)|32)===101&&(s.charCodeAt(i+2)|32)===110&&(s.charCodeAt(i+3)|32)===101&&(s.charCodeAt(i+4)|32)===114&&(s.charCodeAt(i+5)|32)===97&&(s.charCodeAt(i+6)|32)===108;}var days=[['Sun','Sunday'],['Mon','Monday'],['Tue','Tuesday'],['Wed','Wednesday'],['Thu','Thursday'],['Fri','Friday'],['Sat','Saturday']];var months=[['J','Jan','January'],['F','Feb','February'],['M','Mar','March'],['A','Apr','April'],['M','May','May'],['J','Jun','June'],['J','Jul','July'],['A','Aug','August'],['S','Sep','September'],['O','Oct','October'],['N','Nov','November'],['D','Dec','December']];function init_table(t){t[0]='General';t[1]='0';t[2]='0.00';t[3]='#,##0';t[4]='#,##0.00';t[9]='0%';t[10]='0.00%';t[11]='0.00E+00';t[12]='# ?/?';t[13]='# ??/??';t[14]='m/d/yy';t[15]='d-mmm-yy';t[16]='d-mmm';t[17]='mmm-yy';t[18]='h:mm AM/PM';t[19]='h:mm:ss AM/PM';t[20]='h:mm';t[21]='h:mm:ss';t[22]='m/d/yy h:mm';t[37]='#,##0 ;(#,##0)';t[38]='#,##0 ;[Red](#,##0)';t[39]='#,##0.00;(#,##0.00)';t[40]='#,##0.00;[Red](#,##0.00)';t[45]='mm:ss';t[46]='[h]:mm:ss';t[47]='mmss.0';t[48]='##0.0E+0';t[49]='@';t[56]='"上午/下午 "hh"時"mm"分"ss"秒 "';}var table_fmt={};init_table(table_fmt);/* Defaults determined by systematically testing in Excel 2019 */ /* These formats appear to default to other formats in the table */var default_map=[];var defi=0;//  5 -> 37 ...  8 -> 40
   for(defi=5;defi<=8;++defi)default_map[defi]=32+defi;// 23 ->  0 ... 26 ->  0
@@ -27803,11 +28378,11 @@ ${points.join('\n')}
   /* [MS-XLSB] 2.5.97.12 NameParsedFormula */var parse_XLSBNameParsedFormula=parse_XLSBParsedFormula;/* [MS-XLSB] 2.5.97.98 SharedParsedFormula */var parse_XLSBSharedParsedFormula=parse_XLSBParsedFormula;/* [MS-XLS] 2.5.198.4 */var Cetab={0x0000:'BEEP',0x0001:'OPEN',0x0002:'OPEN.LINKS',0x0003:'CLOSE.ALL',0x0004:'SAVE',0x0005:'SAVE.AS',0x0006:'FILE.DELETE',0x0007:'PAGE.SETUP',0x0008:'PRINT',0x0009:'PRINTER.SETUP',0x000A:'QUIT',0x000B:'NEW.WINDOW',0x000C:'ARRANGE.ALL',0x000D:'WINDOW.SIZE',0x000E:'WINDOW.MOVE',0x000F:'FULL',0x0010:'CLOSE',0x0011:'RUN',0x0016:'SET.PRINT.AREA',0x0017:'SET.PRINT.TITLES',0x0018:'SET.PAGE.BREAK',0x0019:'REMOVE.PAGE.BREAK',0x001A:'FONT',0x001B:'DISPLAY',0x001C:'PROTECT.DOCUMENT',0x001D:'PRECISION',0x001E:'A1.R1C1',0x001F:'CALCULATE.NOW',0x0020:'CALCULATION',0x0022:'DATA.FIND',0x0023:'EXTRACT',0x0024:'DATA.DELETE',0x0025:'SET.DATABASE',0x0026:'SET.CRITERIA',0x0027:'SORT',0x0028:'DATA.SERIES',0x0029:'TABLE',0x002A:'FORMAT.NUMBER',0x002B:'ALIGNMENT',0x002C:'STYLE',0x002D:'BORDER',0x002E:'CELL.PROTECTION',0x002F:'COLUMN.WIDTH',0x0030:'UNDO',0x0031:'CUT',0x0032:'COPY',0x0033:'PASTE',0x0034:'CLEAR',0x0035:'PASTE.SPECIAL',0x0036:'EDIT.DELETE',0x0037:'INSERT',0x0038:'FILL.RIGHT',0x0039:'FILL.DOWN',0x003D:'DEFINE.NAME',0x003E:'CREATE.NAMES',0x003F:'FORMULA.GOTO',0x0040:'FORMULA.FIND',0x0041:'SELECT.LAST.CELL',0x0042:'SHOW.ACTIVE.CELL',0x0043:'GALLERY.AREA',0x0044:'GALLERY.BAR',0x0045:'GALLERY.COLUMN',0x0046:'GALLERY.LINE',0x0047:'GALLERY.PIE',0x0048:'GALLERY.SCATTER',0x0049:'COMBINATION',0x004A:'PREFERRED',0x004B:'ADD.OVERLAY',0x004C:'GRIDLINES',0x004D:'SET.PREFERRED',0x004E:'AXES',0x004F:'LEGEND',0x0050:'ATTACH.TEXT',0x0051:'ADD.ARROW',0x0052:'SELECT.CHART',0x0053:'SELECT.PLOT.AREA',0x0054:'PATTERNS',0x0055:'MAIN.CHART',0x0056:'OVERLAY',0x0057:'SCALE',0x0058:'FORMAT.LEGEND',0x0059:'FORMAT.TEXT',0x005A:'EDIT.REPEAT',0x005B:'PARSE',0x005C:'JUSTIFY',0x005D:'HIDE',0x005E:'UNHIDE',0x005F:'WORKSPACE',0x0060:'FORMULA',0x0061:'FORMULA.FILL',0x0062:'FORMULA.ARRAY',0x0063:'DATA.FIND.NEXT',0x0064:'DATA.FIND.PREV',0x0065:'FORMULA.FIND.NEXT',0x0066:'FORMULA.FIND.PREV',0x0067:'ACTIVATE',0x0068:'ACTIVATE.NEXT',0x0069:'ACTIVATE.PREV',0x006A:'UNLOCKED.NEXT',0x006B:'UNLOCKED.PREV',0x006C:'COPY.PICTURE',0x006D:'SELECT',0x006E:'DELETE.NAME',0x006F:'DELETE.FORMAT',0x0070:'VLINE',0x0071:'HLINE',0x0072:'VPAGE',0x0073:'HPAGE',0x0074:'VSCROLL',0x0075:'HSCROLL',0x0076:'ALERT',0x0077:'NEW',0x0078:'CANCEL.COPY',0x0079:'SHOW.CLIPBOARD',0x007A:'MESSAGE',0x007C:'PASTE.LINK',0x007D:'APP.ACTIVATE',0x007E:'DELETE.ARROW',0x007F:'ROW.HEIGHT',0x0080:'FORMAT.MOVE',0x0081:'FORMAT.SIZE',0x0082:'FORMULA.REPLACE',0x0083:'SEND.KEYS',0x0084:'SELECT.SPECIAL',0x0085:'APPLY.NAMES',0x0086:'REPLACE.FONT',0x0087:'FREEZE.PANES',0x0088:'SHOW.INFO',0x0089:'SPLIT',0x008A:'ON.WINDOW',0x008B:'ON.DATA',0x008C:'DISABLE.INPUT',0x008E:'OUTLINE',0x008F:'LIST.NAMES',0x0090:'FILE.CLOSE',0x0091:'SAVE.WORKBOOK',0x0092:'DATA.FORM',0x0093:'COPY.CHART',0x0094:'ON.TIME',0x0095:'WAIT',0x0096:'FORMAT.FONT',0x0097:'FILL.UP',0x0098:'FILL.LEFT',0x0099:'DELETE.OVERLAY',0x009B:'SHORT.MENUS',0x009F:'SET.UPDATE.STATUS',0x00A1:'COLOR.PALETTE',0x00A2:'DELETE.STYLE',0x00A3:'WINDOW.RESTORE',0x00A4:'WINDOW.MAXIMIZE',0x00A6:'CHANGE.LINK',0x00A7:'CALCULATE.DOCUMENT',0x00A8:'ON.KEY',0x00A9:'APP.RESTORE',0x00AA:'APP.MOVE',0x00AB:'APP.SIZE',0x00AC:'APP.MINIMIZE',0x00AD:'APP.MAXIMIZE',0x00AE:'BRING.TO.FRONT',0x00AF:'SEND.TO.BACK',0x00B9:'MAIN.CHART.TYPE',0x00BA:'OVERLAY.CHART.TYPE',0x00BB:'SELECT.END',0x00BC:'OPEN.MAIL',0x00BD:'SEND.MAIL',0x00BE:'STANDARD.FONT',0x00BF:'CONSOLIDATE',0x00C0:'SORT.SPECIAL',0x00C1:'GALLERY.3D.AREA',0x00C2:'GALLERY.3D.COLUMN',0x00C3:'GALLERY.3D.LINE',0x00C4:'GALLERY.3D.PIE',0x00C5:'VIEW.3D',0x00C6:'GOAL.SEEK',0x00C7:'WORKGROUP',0x00C8:'FILL.GROUP',0x00C9:'UPDATE.LINK',0x00CA:'PROMOTE',0x00CB:'DEMOTE',0x00CC:'SHOW.DETAIL',0x00CE:'UNGROUP',0x00CF:'OBJECT.PROPERTIES',0x00D0:'SAVE.NEW.OBJECT',0x00D1:'SHARE',0x00D2:'SHARE.NAME',0x00D3:'DUPLICATE',0x00D4:'APPLY.STYLE',0x00D5:'ASSIGN.TO.OBJECT',0x00D6:'OBJECT.PROTECTION',0x00D7:'HIDE.OBJECT',0x00D8:'SET.EXTRACT',0x00D9:'CREATE.PUBLISHER',0x00DA:'SUBSCRIBE.TO',0x00DB:'ATTRIBUTES',0x00DC:'SHOW.TOOLBAR',0x00DE:'PRINT.PREVIEW',0x00DF:'EDIT.COLOR',0x00E0:'SHOW.LEVELS',0x00E1:'FORMAT.MAIN',0x00E2:'FORMAT.OVERLAY',0x00E3:'ON.RECALC',0x00E4:'EDIT.SERIES',0x00E5:'DEFINE.STYLE',0x00F0:'LINE.PRINT',0x00F3:'ENTER.DATA',0x00F9:'GALLERY.RADAR',0x00FA:'MERGE.STYLES',0x00FB:'EDITION.OPTIONS',0x00FC:'PASTE.PICTURE',0x00FD:'PASTE.PICTURE.LINK',0x00FE:'SPELLING',0x0100:'ZOOM',0x0103:'INSERT.OBJECT',0x0104:'WINDOW.MINIMIZE',0x0109:'SOUND.NOTE',0x010A:'SOUND.PLAY',0x010B:'FORMAT.SHAPE',0x010C:'EXTEND.POLYGON',0x010D:'FORMAT.AUTO',0x0110:'GALLERY.3D.BAR',0x0111:'GALLERY.3D.SURFACE',0x0112:'FILL.AUTO',0x0114:'CUSTOMIZE.TOOLBAR',0x0115:'ADD.TOOL',0x0116:'EDIT.OBJECT',0x0117:'ON.DOUBLECLICK',0x0118:'ON.ENTRY',0x0119:'WORKBOOK.ADD',0x011A:'WORKBOOK.MOVE',0x011B:'WORKBOOK.COPY',0x011C:'WORKBOOK.OPTIONS',0x011D:'SAVE.WORKSPACE',0x0120:'CHART.WIZARD',0x0121:'DELETE.TOOL',0x0122:'MOVE.TOOL',0x0123:'WORKBOOK.SELECT',0x0124:'WORKBOOK.ACTIVATE',0x0125:'ASSIGN.TO.TOOL',0x0127:'COPY.TOOL',0x0128:'RESET.TOOL',0x0129:'CONSTRAIN.NUMERIC',0x012A:'PASTE.TOOL',0x012E:'WORKBOOK.NEW',0x0131:'SCENARIO.CELLS',0x0132:'SCENARIO.DELETE',0x0133:'SCENARIO.ADD',0x0134:'SCENARIO.EDIT',0x0135:'SCENARIO.SHOW',0x0136:'SCENARIO.SHOW.NEXT',0x0137:'SCENARIO.SUMMARY',0x0138:'PIVOT.TABLE.WIZARD',0x0139:'PIVOT.FIELD.PROPERTIES',0x013A:'PIVOT.FIELD',0x013B:'PIVOT.ITEM',0x013C:'PIVOT.ADD.FIELDS',0x013E:'OPTIONS.CALCULATION',0x013F:'OPTIONS.EDIT',0x0140:'OPTIONS.VIEW',0x0141:'ADDIN.MANAGER',0x0142:'MENU.EDITOR',0x0143:'ATTACH.TOOLBARS',0x0144:'VBAActivate',0x0145:'OPTIONS.CHART',0x0148:'VBA.INSERT.FILE',0x014A:'VBA.PROCEDURE.DEFINITION',0x0150:'ROUTING.SLIP',0x0152:'ROUTE.DOCUMENT',0x0153:'MAIL.LOGON',0x0156:'INSERT.PICTURE',0x0157:'EDIT.TOOL',0x0158:'GALLERY.DOUGHNUT',0x015E:'CHART.TREND',0x0160:'PIVOT.ITEM.PROPERTIES',0x0162:'WORKBOOK.INSERT',0x0163:'OPTIONS.TRANSITION',0x0164:'OPTIONS.GENERAL',0x0172:'FILTER.ADVANCED',0x0175:'MAIL.ADD.MAILER',0x0176:'MAIL.DELETE.MAILER',0x0177:'MAIL.REPLY',0x0178:'MAIL.REPLY.ALL',0x0179:'MAIL.FORWARD',0x017A:'MAIL.NEXT.LETTER',0x017B:'DATA.LABEL',0x017C:'INSERT.TITLE',0x017D:'FONT.PROPERTIES',0x017E:'MACRO.OPTIONS',0x017F:'WORKBOOK.HIDE',0x0180:'WORKBOOK.UNHIDE',0x0181:'WORKBOOK.DELETE',0x0182:'WORKBOOK.NAME',0x0184:'GALLERY.CUSTOM',0x0186:'ADD.CHART.AUTOFORMAT',0x0187:'DELETE.CHART.AUTOFORMAT',0x0188:'CHART.ADD.DATA',0x0189:'AUTO.OUTLINE',0x018A:'TAB.ORDER',0x018B:'SHOW.DIALOG',0x018C:'SELECT.ALL',0x018D:'UNGROUP.SHEETS',0x018E:'SUBTOTAL.CREATE',0x018F:'SUBTOTAL.REMOVE',0x0190:'RENAME.OBJECT',0x019C:'WORKBOOK.SCROLL',0x019D:'WORKBOOK.NEXT',0x019E:'WORKBOOK.PREV',0x019F:'WORKBOOK.TAB.SPLIT',0x01A0:'FULL.SCREEN',0x01A1:'WORKBOOK.PROTECT',0x01A4:'SCROLLBAR.PROPERTIES',0x01A5:'PIVOT.SHOW.PAGES',0x01A6:'TEXT.TO.COLUMNS',0x01A7:'FORMAT.CHARTTYPE',0x01A8:'LINK.FORMAT',0x01A9:'TRACER.DISPLAY',0x01AE:'TRACER.NAVIGATE',0x01AF:'TRACER.CLEAR',0x01B0:'TRACER.ERROR',0x01B1:'PIVOT.FIELD.GROUP',0x01B2:'PIVOT.FIELD.UNGROUP',0x01B3:'CHECKBOX.PROPERTIES',0x01B4:'LABEL.PROPERTIES',0x01B5:'LISTBOX.PROPERTIES',0x01B6:'EDITBOX.PROPERTIES',0x01B7:'PIVOT.REFRESH',0x01B8:'LINK.COMBO',0x01B9:'OPEN.TEXT',0x01BA:'HIDE.DIALOG',0x01BB:'SET.DIALOG.FOCUS',0x01BC:'ENABLE.OBJECT',0x01BD:'PUSHBUTTON.PROPERTIES',0x01BE:'SET.DIALOG.DEFAULT',0x01BF:'FILTER',0x01C0:'FILTER.SHOW.ALL',0x01C1:'CLEAR.OUTLINE',0x01C2:'FUNCTION.WIZARD',0x01C3:'ADD.LIST.ITEM',0x01C4:'SET.LIST.ITEM',0x01C5:'REMOVE.LIST.ITEM',0x01C6:'SELECT.LIST.ITEM',0x01C7:'SET.CONTROL.VALUE',0x01C8:'SAVE.COPY.AS',0x01CA:'OPTIONS.LISTS.ADD',0x01CB:'OPTIONS.LISTS.DELETE',0x01CC:'SERIES.AXES',0x01CD:'SERIES.X',0x01CE:'SERIES.Y',0x01CF:'ERRORBAR.X',0x01D0:'ERRORBAR.Y',0x01D1:'FORMAT.CHART',0x01D2:'SERIES.ORDER',0x01D3:'MAIL.LOGOFF',0x01D4:'CLEAR.ROUTING.SLIP',0x01D5:'APP.ACTIVATE.MICROSOFT',0x01D6:'MAIL.EDIT.MAILER',0x01D7:'ON.SHEET',0x01D8:'STANDARD.WIDTH',0x01D9:'SCENARIO.MERGE',0x01DA:'SUMMARY.INFO',0x01DB:'FIND.FILE',0x01DC:'ACTIVE.CELL.FONT',0x01DD:'ENABLE.TIPWIZARD',0x01DE:'VBA.MAKE.ADDIN',0x01E0:'INSERTDATATABLE',0x01E1:'WORKGROUP.OPTIONS',0x01E2:'MAIL.SEND.MAILER',0x01E5:'AUTOCORRECT',0x01E9:'POST.DOCUMENT',0x01EB:'PICKLIST',0x01ED:'VIEW.SHOW',0x01EE:'VIEW.DEFINE',0x01EF:'VIEW.DELETE',0x01FD:'SHEET.BACKGROUND',0x01FE:'INSERT.MAP.OBJECT',0x01FF:'OPTIONS.MENONO',0x0205:'MSOCHECKS',0x0206:'NORMAL',0x0207:'LAYOUT',0x0208:'RM.PRINT.AREA',0x0209:'CLEAR.PRINT.AREA',0x020A:'ADD.PRINT.AREA',0x020B:'MOVE.BRK',0x0221:'HIDECURR.NOTE',0x0222:'HIDEALL.NOTES',0x0223:'DELETE.NOTE',0x0224:'TRAVERSE.NOTES',0x0225:'ACTIVATE.NOTES',0x026C:'PROTECT.REVISIONS',0x026D:'UNPROTECT.REVISIONS',0x0287:'OPTIONS.ME',0x028D:'WEB.PUBLISH',0x029B:'NEWWEBQUERY',0x02A1:'PIVOT.TABLE.CHART',0x02F1:'OPTIONS.SAVE',0x02F3:'OPTIONS.SPELL',0x0328:'HIDEALL.INKANNOTS'};/* [MS-XLS] 2.5.198.17 */ /* [MS-XLSB] 2.5.97.10 */var Ftab={0x0000:'COUNT',0x0001:'IF',0x0002:'ISNA',0x0003:'ISERROR',0x0004:'SUM',0x0005:'AVERAGE',0x0006:'MIN',0x0007:'MAX',0x0008:'ROW',0x0009:'COLUMN',0x000A:'NA',0x000B:'NPV',0x000C:'STDEV',0x000D:'DOLLAR',0x000E:'FIXED',0x000F:'SIN',0x0010:'COS',0x0011:'TAN',0x0012:'ATAN',0x0013:'PI',0x0014:'SQRT',0x0015:'EXP',0x0016:'LN',0x0017:'LOG10',0x0018:'ABS',0x0019:'INT',0x001A:'SIGN',0x001B:'ROUND',0x001C:'LOOKUP',0x001D:'INDEX',0x001E:'REPT',0x001F:'MID',0x0020:'LEN',0x0021:'VALUE',0x0022:'TRUE',0x0023:'FALSE',0x0024:'AND',0x0025:'OR',0x0026:'NOT',0x0027:'MOD',0x0028:'DCOUNT',0x0029:'DSUM',0x002A:'DAVERAGE',0x002B:'DMIN',0x002C:'DMAX',0x002D:'DSTDEV',0x002E:'VAR',0x002F:'DVAR',0x0030:'TEXT',0x0031:'LINEST',0x0032:'TREND',0x0033:'LOGEST',0x0034:'GROWTH',0x0035:'GOTO',0x0036:'HALT',0x0037:'RETURN',0x0038:'PV',0x0039:'FV',0x003A:'NPER',0x003B:'PMT',0x003C:'RATE',0x003D:'MIRR',0x003E:'IRR',0x003F:'RAND',0x0040:'MATCH',0x0041:'DATE',0x0042:'TIME',0x0043:'DAY',0x0044:'MONTH',0x0045:'YEAR',0x0046:'WEEKDAY',0x0047:'HOUR',0x0048:'MINUTE',0x0049:'SECOND',0x004A:'NOW',0x004B:'AREAS',0x004C:'ROWS',0x004D:'COLUMNS',0x004E:'OFFSET',0x004F:'ABSREF',0x0050:'RELREF',0x0051:'ARGUMENT',0x0052:'SEARCH',0x0053:'TRANSPOSE',0x0054:'ERROR',0x0055:'STEP',0x0056:'TYPE',0x0057:'ECHO',0x0058:'SET.NAME',0x0059:'CALLER',0x005A:'DEREF',0x005B:'WINDOWS',0x005C:'SERIES',0x005D:'DOCUMENTS',0x005E:'ACTIVE.CELL',0x005F:'SELECTION',0x0060:'RESULT',0x0061:'ATAN2',0x0062:'ASIN',0x0063:'ACOS',0x0064:'CHOOSE',0x0065:'HLOOKUP',0x0066:'VLOOKUP',0x0067:'LINKS',0x0068:'INPUT',0x0069:'ISREF',0x006A:'GET.FORMULA',0x006B:'GET.NAME',0x006C:'SET.VALUE',0x006D:'LOG',0x006E:'EXEC',0x006F:'CHAR',0x0070:'LOWER',0x0071:'UPPER',0x0072:'PROPER',0x0073:'LEFT',0x0074:'RIGHT',0x0075:'EXACT',0x0076:'TRIM',0x0077:'REPLACE',0x0078:'SUBSTITUTE',0x0079:'CODE',0x007A:'NAMES',0x007B:'DIRECTORY',0x007C:'FIND',0x007D:'CELL',0x007E:'ISERR',0x007F:'ISTEXT',0x0080:'ISNUMBER',0x0081:'ISBLANK',0x0082:'T',0x0083:'N',0x0084:'FOPEN',0x0085:'FCLOSE',0x0086:'FSIZE',0x0087:'FREADLN',0x0088:'FREAD',0x0089:'FWRITELN',0x008A:'FWRITE',0x008B:'FPOS',0x008C:'DATEVALUE',0x008D:'TIMEVALUE',0x008E:'SLN',0x008F:'SYD',0x0090:'DDB',0x0091:'GET.DEF',0x0092:'REFTEXT',0x0093:'TEXTREF',0x0094:'INDIRECT',0x0095:'REGISTER',0x0096:'CALL',0x0097:'ADD.BAR',0x0098:'ADD.MENU',0x0099:'ADD.COMMAND',0x009A:'ENABLE.COMMAND',0x009B:'CHECK.COMMAND',0x009C:'RENAME.COMMAND',0x009D:'SHOW.BAR',0x009E:'DELETE.MENU',0x009F:'DELETE.COMMAND',0x00A0:'GET.CHART.ITEM',0x00A1:'DIALOG.BOX',0x00A2:'CLEAN',0x00A3:'MDETERM',0x00A4:'MINVERSE',0x00A5:'MMULT',0x00A6:'FILES',0x00A7:'IPMT',0x00A8:'PPMT',0x00A9:'COUNTA',0x00AA:'CANCEL.KEY',0x00AB:'FOR',0x00AC:'WHILE',0x00AD:'BREAK',0x00AE:'NEXT',0x00AF:'INITIATE',0x00B0:'REQUEST',0x00B1:'POKE',0x00B2:'EXECUTE',0x00B3:'TERMINATE',0x00B4:'RESTART',0x00B5:'HELP',0x00B6:'GET.BAR',0x00B7:'PRODUCT',0x00B8:'FACT',0x00B9:'GET.CELL',0x00BA:'GET.WORKSPACE',0x00BB:'GET.WINDOW',0x00BC:'GET.DOCUMENT',0x00BD:'DPRODUCT',0x00BE:'ISNONTEXT',0x00BF:'GET.NOTE',0x00C0:'NOTE',0x00C1:'STDEVP',0x00C2:'VARP',0x00C3:'DSTDEVP',0x00C4:'DVARP',0x00C5:'TRUNC',0x00C6:'ISLOGICAL',0x00C7:'DCOUNTA',0x00C8:'DELETE.BAR',0x00C9:'UNREGISTER',0x00CC:'USDOLLAR',0x00CD:'FINDB',0x00CE:'SEARCHB',0x00CF:'REPLACEB',0x00D0:'LEFTB',0x00D1:'RIGHTB',0x00D2:'MIDB',0x00D3:'LENB',0x00D4:'ROUNDUP',0x00D5:'ROUNDDOWN',0x00D6:'ASC',0x00D7:'DBCS',0x00D8:'RANK',0x00DB:'ADDRESS',0x00DC:'DAYS360',0x00DD:'TODAY',0x00DE:'VDB',0x00DF:'ELSE',0x00E0:'ELSE.IF',0x00E1:'END.IF',0x00E2:'FOR.CELL',0x00E3:'MEDIAN',0x00E4:'SUMPRODUCT',0x00E5:'SINH',0x00E6:'COSH',0x00E7:'TANH',0x00E8:'ASINH',0x00E9:'ACOSH',0x00EA:'ATANH',0x00EB:'DGET',0x00EC:'CREATE.OBJECT',0x00ED:'VOLATILE',0x00EE:'LAST.ERROR',0x00EF:'CUSTOM.UNDO',0x00F0:'CUSTOM.REPEAT',0x00F1:'FORMULA.CONVERT',0x00F2:'GET.LINK.INFO',0x00F3:'TEXT.BOX',0x00F4:'INFO',0x00F5:'GROUP',0x00F6:'GET.OBJECT',0x00F7:'DB',0x00F8:'PAUSE',0x00FB:'RESUME',0x00FC:'FREQUENCY',0x00FD:'ADD.TOOLBAR',0x00FE:'DELETE.TOOLBAR',0x00FF:'User',0x0100:'RESET.TOOLBAR',0x0101:'EVALUATE',0x0102:'GET.TOOLBAR',0x0103:'GET.TOOL',0x0104:'SPELLING.CHECK',0x0105:'ERROR.TYPE',0x0106:'APP.TITLE',0x0107:'WINDOW.TITLE',0x0108:'SAVE.TOOLBAR',0x0109:'ENABLE.TOOL',0x010A:'PRESS.TOOL',0x010B:'REGISTER.ID',0x010C:'GET.WORKBOOK',0x010D:'AVEDEV',0x010E:'BETADIST',0x010F:'GAMMALN',0x0110:'BETAINV',0x0111:'BINOMDIST',0x0112:'CHIDIST',0x0113:'CHIINV',0x0114:'COMBIN',0x0115:'CONFIDENCE',0x0116:'CRITBINOM',0x0117:'EVEN',0x0118:'EXPONDIST',0x0119:'FDIST',0x011A:'FINV',0x011B:'FISHER',0x011C:'FISHERINV',0x011D:'FLOOR',0x011E:'GAMMADIST',0x011F:'GAMMAINV',0x0120:'CEILING',0x0121:'HYPGEOMDIST',0x0122:'LOGNORMDIST',0x0123:'LOGINV',0x0124:'NEGBINOMDIST',0x0125:'NORMDIST',0x0126:'NORMSDIST',0x0127:'NORMINV',0x0128:'NORMSINV',0x0129:'STANDARDIZE',0x012A:'ODD',0x012B:'PERMUT',0x012C:'POISSON',0x012D:'TDIST',0x012E:'WEIBULL',0x012F:'SUMXMY2',0x0130:'SUMX2MY2',0x0131:'SUMX2PY2',0x0132:'CHITEST',0x0133:'CORREL',0x0134:'COVAR',0x0135:'FORECAST',0x0136:'FTEST',0x0137:'INTERCEPT',0x0138:'PEARSON',0x0139:'RSQ',0x013A:'STEYX',0x013B:'SLOPE',0x013C:'TTEST',0x013D:'PROB',0x013E:'DEVSQ',0x013F:'GEOMEAN',0x0140:'HARMEAN',0x0141:'SUMSQ',0x0142:'KURT',0x0143:'SKEW',0x0144:'ZTEST',0x0145:'LARGE',0x0146:'SMALL',0x0147:'QUARTILE',0x0148:'PERCENTILE',0x0149:'PERCENTRANK',0x014A:'MODE',0x014B:'TRIMMEAN',0x014C:'TINV',0x014E:'MOVIE.COMMAND',0x014F:'GET.MOVIE',0x0150:'CONCATENATE',0x0151:'POWER',0x0152:'PIVOT.ADD.DATA',0x0153:'GET.PIVOT.TABLE',0x0154:'GET.PIVOT.FIELD',0x0155:'GET.PIVOT.ITEM',0x0156:'RADIANS',0x0157:'DEGREES',0x0158:'SUBTOTAL',0x0159:'SUMIF',0x015A:'COUNTIF',0x015B:'COUNTBLANK',0x015C:'SCENARIO.GET',0x015D:'OPTIONS.LISTS.GET',0x015E:'ISPMT',0x015F:'DATEDIF',0x0160:'DATESTRING',0x0161:'NUMBERSTRING',0x0162:'ROMAN',0x0163:'OPEN.DIALOG',0x0164:'SAVE.DIALOG',0x0165:'VIEW.GET',0x0166:'GETPIVOTDATA',0x0167:'HYPERLINK',0x0168:'PHONETIC',0x0169:'AVERAGEA',0x016A:'MAXA',0x016B:'MINA',0x016C:'STDEVPA',0x016D:'VARPA',0x016E:'STDEVA',0x016F:'VARA',0x0170:'BAHTTEXT',0x0171:'THAIDAYOFWEEK',0x0172:'THAIDIGIT',0x0173:'THAIMONTHOFYEAR',0x0174:'THAINUMSOUND',0x0175:'THAINUMSTRING',0x0176:'THAISTRINGLENGTH',0x0177:'ISTHAIDIGIT',0x0178:'ROUNDBAHTDOWN',0x0179:'ROUNDBAHTUP',0x017A:'THAIYEAR',0x017B:'RTD',0x017C:'CUBEVALUE',0x017D:'CUBEMEMBER',0x017E:'CUBEMEMBERPROPERTY',0x017F:'CUBERANKEDMEMBER',0x0180:'HEX2BIN',0x0181:'HEX2DEC',0x0182:'HEX2OCT',0x0183:'DEC2BIN',0x0184:'DEC2HEX',0x0185:'DEC2OCT',0x0186:'OCT2BIN',0x0187:'OCT2HEX',0x0188:'OCT2DEC',0x0189:'BIN2DEC',0x018A:'BIN2OCT',0x018B:'BIN2HEX',0x018C:'IMSUB',0x018D:'IMDIV',0x018E:'IMPOWER',0x018F:'IMABS',0x0190:'IMSQRT',0x0191:'IMLN',0x0192:'IMLOG2',0x0193:'IMLOG10',0x0194:'IMSIN',0x0195:'IMCOS',0x0196:'IMEXP',0x0197:'IMARGUMENT',0x0198:'IMCONJUGATE',0x0199:'IMAGINARY',0x019A:'IMREAL',0x019B:'COMPLEX',0x019C:'IMSUM',0x019D:'IMPRODUCT',0x019E:'SERIESSUM',0x019F:'FACTDOUBLE',0x01A0:'SQRTPI',0x01A1:'QUOTIENT',0x01A2:'DELTA',0x01A3:'GESTEP',0x01A4:'ISEVEN',0x01A5:'ISODD',0x01A6:'MROUND',0x01A7:'ERF',0x01A8:'ERFC',0x01A9:'BESSELJ',0x01AA:'BESSELK',0x01AB:'BESSELY',0x01AC:'BESSELI',0x01AD:'XIRR',0x01AE:'XNPV',0x01AF:'PRICEMAT',0x01B0:'YIELDMAT',0x01B1:'INTRATE',0x01B2:'RECEIVED',0x01B3:'DISC',0x01B4:'PRICEDISC',0x01B5:'YIELDDISC',0x01B6:'TBILLEQ',0x01B7:'TBILLPRICE',0x01B8:'TBILLYIELD',0x01B9:'PRICE',0x01BA:'YIELD',0x01BB:'DOLLARDE',0x01BC:'DOLLARFR',0x01BD:'NOMINAL',0x01BE:'EFFECT',0x01BF:'CUMPRINC',0x01C0:'CUMIPMT',0x01C1:'EDATE',0x01C2:'EOMONTH',0x01C3:'YEARFRAC',0x01C4:'COUPDAYBS',0x01C5:'COUPDAYS',0x01C6:'COUPDAYSNC',0x01C7:'COUPNCD',0x01C8:'COUPNUM',0x01C9:'COUPPCD',0x01CA:'DURATION',0x01CB:'MDURATION',0x01CC:'ODDLPRICE',0x01CD:'ODDLYIELD',0x01CE:'ODDFPRICE',0x01CF:'ODDFYIELD',0x01D0:'RANDBETWEEN',0x01D1:'WEEKNUM',0x01D2:'AMORDEGRC',0x01D3:'AMORLINC',0x01D4:'CONVERT',0x02D4:'SHEETJS',0x01D5:'ACCRINT',0x01D6:'ACCRINTM',0x01D7:'WORKDAY',0x01D8:'NETWORKDAYS',0x01D9:'GCD',0x01DA:'MULTINOMIAL',0x01DB:'LCM',0x01DC:'FVSCHEDULE',0x01DD:'CUBEKPIMEMBER',0x01DE:'CUBESET',0x01DF:'CUBESETCOUNT',0x01E0:'IFERROR',0x01E1:'COUNTIFS',0x01E2:'SUMIFS',0x01E3:'AVERAGEIF',0x01E4:'AVERAGEIFS'};var FtabArgc={0x0002:1,/* ISNA */0x0003:1,/* ISERROR */0x000A:0,/* NA */0x000F:1,/* SIN */0x0010:1,/* COS */0x0011:1,/* TAN */0x0012:1,/* ATAN */0x0013:0,/* PI */0x0014:1,/* SQRT */0x0015:1,/* EXP */0x0016:1,/* LN */0x0017:1,/* LOG10 */0x0018:1,/* ABS */0x0019:1,/* INT */0x001A:1,/* SIGN */0x001B:2,/* ROUND */0x001E:2,/* REPT */0x001F:3,/* MID */0x0020:1,/* LEN */0x0021:1,/* VALUE */0x0022:0,/* TRUE */0x0023:0,/* FALSE */0x0026:1,/* NOT */0x0027:2,/* MOD */0x0028:3,/* DCOUNT */0x0029:3,/* DSUM */0x002A:3,/* DAVERAGE */0x002B:3,/* DMIN */0x002C:3,/* DMAX */0x002D:3,/* DSTDEV */0x002F:3,/* DVAR */0x0030:2,/* TEXT */0x0035:1,/* GOTO */0x003D:3,/* MIRR */0x003F:0,/* RAND */0x0041:3,/* DATE */0x0042:3,/* TIME */0x0043:1,/* DAY */0x0044:1,/* MONTH */0x0045:1,/* YEAR */0x0046:1,/* WEEKDAY */0x0047:1,/* HOUR */0x0048:1,/* MINUTE */0x0049:1,/* SECOND */0x004A:0,/* NOW */0x004B:1,/* AREAS */0x004C:1,/* ROWS */0x004D:1,/* COLUMNS */0x004F:2,/* ABSREF */0x0050:2,/* RELREF */0x0053:1,/* TRANSPOSE */0x0055:0,/* STEP */0x0056:1,/* TYPE */0x0059:0,/* CALLER */0x005A:1,/* DEREF */0x005E:0,/* ACTIVE.CELL */0x005F:0,/* SELECTION */0x0061:2,/* ATAN2 */0x0062:1,/* ASIN */0x0063:1,/* ACOS */0x0065:3,/* HLOOKUP */0x0066:3,/* VLOOKUP */0x0069:1,/* ISREF */0x006A:1,/* GET.FORMULA */0x006C:2,/* SET.VALUE */0x006F:1,/* CHAR */0x0070:1,/* LOWER */0x0071:1,/* UPPER */0x0072:1,/* PROPER */0x0075:2,/* EXACT */0x0076:1,/* TRIM */0x0077:4,/* REPLACE */0x0079:1,/* CODE */0x007E:1,/* ISERR */0x007F:1,/* ISTEXT */0x0080:1,/* ISNUMBER */0x0081:1,/* ISBLANK */0x0082:1,/* T */0x0083:1,/* N */0x0085:1,/* FCLOSE */0x0086:1,/* FSIZE */0x0087:1,/* FREADLN */0x0088:2,/* FREAD */0x0089:2,/* FWRITELN */0x008A:2,/* FWRITE */0x008C:1,/* DATEVALUE */0x008D:1,/* TIMEVALUE */0x008E:3,/* SLN */0x008F:4,/* SYD */0x0090:4,/* DDB */0x00A1:1,/* DIALOG.BOX */0x00A2:1,/* CLEAN */0x00A3:1,/* MDETERM */0x00A4:1,/* MINVERSE */0x00A5:2,/* MMULT */0x00AC:1,/* WHILE */0x00AF:2,/* INITIATE */0x00B0:2,/* REQUEST */0x00B1:3,/* POKE */0x00B2:2,/* EXECUTE */0x00B3:1,/* TERMINATE */0x00B8:1,/* FACT */0x00BA:1,/* GET.WORKSPACE */0x00BD:3,/* DPRODUCT */0x00BE:1,/* ISNONTEXT */0x00C3:3,/* DSTDEVP */0x00C4:3,/* DVARP */0x00C5:1,/* TRUNC */0x00C6:1,/* ISLOGICAL */0x00C7:3,/* DCOUNTA */0x00C9:1,/* UNREGISTER */0x00CF:4,/* REPLACEB */0x00D2:3,/* MIDB */0x00D3:1,/* LENB */0x00D4:2,/* ROUNDUP */0x00D5:2,/* ROUNDDOWN */0x00D6:1,/* ASC */0x00D7:1,/* DBCS */0x00E1:0,/* END.IF */0x00E5:1,/* SINH */0x00E6:1,/* COSH */0x00E7:1,/* TANH */0x00E8:1,/* ASINH */0x00E9:1,/* ACOSH */0x00EA:1,/* ATANH */0x00EB:3,/* DGET */0x00F4:1,/* INFO */0x00F7:4,/* DB */0x00FC:2,/* FREQUENCY */0x0101:1,/* EVALUATE */0x0105:1,/* ERROR.TYPE */0x010F:1,/* GAMMALN */0x0111:4,/* BINOMDIST */0x0112:2,/* CHIDIST */0x0113:2,/* CHIINV */0x0114:2,/* COMBIN */0x0115:3,/* CONFIDENCE */0x0116:3,/* CRITBINOM */0x0117:1,/* EVEN */0x0118:3,/* EXPONDIST */0x0119:3,/* FDIST */0x011A:3,/* FINV */0x011B:1,/* FISHER */0x011C:1,/* FISHERINV */0x011D:2,/* FLOOR */0x011E:4,/* GAMMADIST */0x011F:3,/* GAMMAINV */0x0120:2,/* CEILING */0x0121:4,/* HYPGEOMDIST */0x0122:3,/* LOGNORMDIST */0x0123:3,/* LOGINV */0x0124:3,/* NEGBINOMDIST */0x0125:4,/* NORMDIST */0x0126:1,/* NORMSDIST */0x0127:3,/* NORMINV */0x0128:1,/* NORMSINV */0x0129:3,/* STANDARDIZE */0x012A:1,/* ODD */0x012B:2,/* PERMUT */0x012C:3,/* POISSON */0x012D:3,/* TDIST */0x012E:4,/* WEIBULL */0x012F:2,/* SUMXMY2 */0x0130:2,/* SUMX2MY2 */0x0131:2,/* SUMX2PY2 */0x0132:2,/* CHITEST */0x0133:2,/* CORREL */0x0134:2,/* COVAR */0x0135:3,/* FORECAST */0x0136:2,/* FTEST */0x0137:2,/* INTERCEPT */0x0138:2,/* PEARSON */0x0139:2,/* RSQ */0x013A:2,/* STEYX */0x013B:2,/* SLOPE */0x013C:4,/* TTEST */0x0145:2,/* LARGE */0x0146:2,/* SMALL */0x0147:2,/* QUARTILE */0x0148:2,/* PERCENTILE */0x014B:2,/* TRIMMEAN */0x014C:2,/* TINV */0x0151:2,/* POWER */0x0156:1,/* RADIANS */0x0157:1,/* DEGREES */0x015A:2,/* COUNTIF */0x015B:1,/* COUNTBLANK */0x015E:4,/* ISPMT */0x015F:3,/* DATEDIF */0x0160:1,/* DATESTRING */0x0161:2,/* NUMBERSTRING */0x0168:1,/* PHONETIC */0x0170:1,/* BAHTTEXT */0x0171:1,/* THAIDAYOFWEEK */0x0172:1,/* THAIDIGIT */0x0173:1,/* THAIMONTHOFYEAR */0x0174:1,/* THAINUMSOUND */0x0175:1,/* THAINUMSTRING */0x0176:1,/* THAISTRINGLENGTH */0x0177:1,/* ISTHAIDIGIT */0x0178:1,/* ROUNDBAHTDOWN */0x0179:1,/* ROUNDBAHTUP */0x017A:1,/* THAIYEAR */0x017E:3,/* CUBEMEMBERPROPERTY */0x0181:1,/* HEX2DEC */0x0188:1,/* OCT2DEC */0x0189:1,/* BIN2DEC */0x018C:2,/* IMSUB */0x018D:2,/* IMDIV */0x018E:2,/* IMPOWER */0x018F:1,/* IMABS */0x0190:1,/* IMSQRT */0x0191:1,/* IMLN */0x0192:1,/* IMLOG2 */0x0193:1,/* IMLOG10 */0x0194:1,/* IMSIN */0x0195:1,/* IMCOS */0x0196:1,/* IMEXP */0x0197:1,/* IMARGUMENT */0x0198:1,/* IMCONJUGATE */0x0199:1,/* IMAGINARY */0x019A:1,/* IMREAL */0x019E:4,/* SERIESSUM */0x019F:1,/* FACTDOUBLE */0x01A0:1,/* SQRTPI */0x01A1:2,/* QUOTIENT */0x01A4:1,/* ISEVEN */0x01A5:1,/* ISODD */0x01A6:2,/* MROUND */0x01A8:1,/* ERFC */0x01A9:2,/* BESSELJ */0x01AA:2,/* BESSELK */0x01AB:2,/* BESSELY */0x01AC:2,/* BESSELI */0x01AE:3,/* XNPV */0x01B6:3,/* TBILLEQ */0x01B7:3,/* TBILLPRICE */0x01B8:3,/* TBILLYIELD */0x01BB:2,/* DOLLARDE */0x01BC:2,/* DOLLARFR */0x01BD:2,/* NOMINAL */0x01BE:2,/* EFFECT */0x01BF:6,/* CUMPRINC */0x01C0:6,/* CUMIPMT */0x01C1:2,/* EDATE */0x01C2:2,/* EOMONTH */0x01D0:2,/* RANDBETWEEN */0x01D4:3,/* CONVERT */0x01DC:2,/* FVSCHEDULE */0x01DF:1,/* CUBESETCOUNT */0x01E0:2,/* IFERROR */0xFFFF:0};/* [MS-XLSX] 2.2.3 Functions */ /* [MS-XLSB] 2.5.97.10 Ftab */var XLSXFutureFunctions={"_xlfn.ACOT":"ACOT","_xlfn.ACOTH":"ACOTH","_xlfn.AGGREGATE":"AGGREGATE","_xlfn.ARABIC":"ARABIC","_xlfn.AVERAGEIF":"AVERAGEIF","_xlfn.AVERAGEIFS":"AVERAGEIFS","_xlfn.BASE":"BASE","_xlfn.BETA.DIST":"BETA.DIST","_xlfn.BETA.INV":"BETA.INV","_xlfn.BINOM.DIST":"BINOM.DIST","_xlfn.BINOM.DIST.RANGE":"BINOM.DIST.RANGE","_xlfn.BINOM.INV":"BINOM.INV","_xlfn.BITAND":"BITAND","_xlfn.BITLSHIFT":"BITLSHIFT","_xlfn.BITOR":"BITOR","_xlfn.BITRSHIFT":"BITRSHIFT","_xlfn.BITXOR":"BITXOR","_xlfn.CEILING.MATH":"CEILING.MATH","_xlfn.CEILING.PRECISE":"CEILING.PRECISE","_xlfn.CHISQ.DIST":"CHISQ.DIST","_xlfn.CHISQ.DIST.RT":"CHISQ.DIST.RT","_xlfn.CHISQ.INV":"CHISQ.INV","_xlfn.CHISQ.INV.RT":"CHISQ.INV.RT","_xlfn.CHISQ.TEST":"CHISQ.TEST","_xlfn.COMBINA":"COMBINA","_xlfn.CONCAT":"CONCAT","_xlfn.CONFIDENCE.NORM":"CONFIDENCE.NORM","_xlfn.CONFIDENCE.T":"CONFIDENCE.T","_xlfn.COT":"COT","_xlfn.COTH":"COTH","_xlfn.COUNTIFS":"COUNTIFS","_xlfn.COVARIANCE.P":"COVARIANCE.P","_xlfn.COVARIANCE.S":"COVARIANCE.S","_xlfn.CSC":"CSC","_xlfn.CSCH":"CSCH","_xlfn.DAYS":"DAYS","_xlfn.DECIMAL":"DECIMAL","_xlfn.ECMA.CEILING":"ECMA.CEILING","_xlfn.ERF.PRECISE":"ERF.PRECISE","_xlfn.ERFC.PRECISE":"ERFC.PRECISE","_xlfn.EXPON.DIST":"EXPON.DIST","_xlfn.F.DIST":"F.DIST","_xlfn.F.DIST.RT":"F.DIST.RT","_xlfn.F.INV":"F.INV","_xlfn.F.INV.RT":"F.INV.RT","_xlfn.F.TEST":"F.TEST","_xlfn.FILTERXML":"FILTERXML","_xlfn.FLOOR.MATH":"FLOOR.MATH","_xlfn.FLOOR.PRECISE":"FLOOR.PRECISE","_xlfn.FORECAST.ETS":"FORECAST.ETS","_xlfn.FORECAST.ETS.CONFINT":"FORECAST.ETS.CONFINT","_xlfn.FORECAST.ETS.SEASONALITY":"FORECAST.ETS.SEASONALITY","_xlfn.FORECAST.ETS.STAT":"FORECAST.ETS.STAT","_xlfn.FORECAST.LINEAR":"FORECAST.LINEAR","_xlfn.FORMULATEXT":"FORMULATEXT","_xlfn.GAMMA":"GAMMA","_xlfn.GAMMA.DIST":"GAMMA.DIST","_xlfn.GAMMA.INV":"GAMMA.INV","_xlfn.GAMMALN.PRECISE":"GAMMALN.PRECISE","_xlfn.GAUSS":"GAUSS","_xlfn.HYPGEOM.DIST":"HYPGEOM.DIST","_xlfn.IFERROR":"IFERROR","_xlfn.IFNA":"IFNA","_xlfn.IFS":"IFS","_xlfn.IMCOSH":"IMCOSH","_xlfn.IMCOT":"IMCOT","_xlfn.IMCSC":"IMCSC","_xlfn.IMCSCH":"IMCSCH","_xlfn.IMSEC":"IMSEC","_xlfn.IMSECH":"IMSECH","_xlfn.IMSINH":"IMSINH","_xlfn.IMTAN":"IMTAN","_xlfn.ISFORMULA":"ISFORMULA","_xlfn.ISO.CEILING":"ISO.CEILING","_xlfn.ISOWEEKNUM":"ISOWEEKNUM","_xlfn.LOGNORM.DIST":"LOGNORM.DIST","_xlfn.LOGNORM.INV":"LOGNORM.INV","_xlfn.MAXIFS":"MAXIFS","_xlfn.MINIFS":"MINIFS","_xlfn.MODE.MULT":"MODE.MULT","_xlfn.MODE.SNGL":"MODE.SNGL","_xlfn.MUNIT":"MUNIT","_xlfn.NEGBINOM.DIST":"NEGBINOM.DIST","_xlfn.NETWORKDAYS.INTL":"NETWORKDAYS.INTL","_xlfn.NIGBINOM":"NIGBINOM","_xlfn.NORM.DIST":"NORM.DIST","_xlfn.NORM.INV":"NORM.INV","_xlfn.NORM.S.DIST":"NORM.S.DIST","_xlfn.NORM.S.INV":"NORM.S.INV","_xlfn.NUMBERVALUE":"NUMBERVALUE","_xlfn.PDURATION":"PDURATION","_xlfn.PERCENTILE.EXC":"PERCENTILE.EXC","_xlfn.PERCENTILE.INC":"PERCENTILE.INC","_xlfn.PERCENTRANK.EXC":"PERCENTRANK.EXC","_xlfn.PERCENTRANK.INC":"PERCENTRANK.INC","_xlfn.PERMUTATIONA":"PERMUTATIONA","_xlfn.PHI":"PHI","_xlfn.POISSON.DIST":"POISSON.DIST","_xlfn.QUARTILE.EXC":"QUARTILE.EXC","_xlfn.QUARTILE.INC":"QUARTILE.INC","_xlfn.QUERYSTRING":"QUERYSTRING","_xlfn.RANK.AVG":"RANK.AVG","_xlfn.RANK.EQ":"RANK.EQ","_xlfn.RRI":"RRI","_xlfn.SEC":"SEC","_xlfn.SECH":"SECH","_xlfn.SHEET":"SHEET","_xlfn.SHEETS":"SHEETS","_xlfn.SKEW.P":"SKEW.P","_xlfn.STDEV.P":"STDEV.P","_xlfn.STDEV.S":"STDEV.S","_xlfn.SUMIFS":"SUMIFS","_xlfn.SWITCH":"SWITCH","_xlfn.T.DIST":"T.DIST","_xlfn.T.DIST.2T":"T.DIST.2T","_xlfn.T.DIST.RT":"T.DIST.RT","_xlfn.T.INV":"T.INV","_xlfn.T.INV.2T":"T.INV.2T","_xlfn.T.TEST":"T.TEST","_xlfn.TEXTJOIN":"TEXTJOIN","_xlfn.UNICHAR":"UNICHAR","_xlfn.UNICODE":"UNICODE","_xlfn.VAR.P":"VAR.P","_xlfn.VAR.S":"VAR.S","_xlfn.WEBSERVICE":"WEBSERVICE","_xlfn.WEIBULL.DIST":"WEIBULL.DIST","_xlfn.WORKDAY.INTL":"WORKDAY.INTL","_xlfn.XOR":"XOR","_xlfn.Z.TEST":"Z.TEST"};/* Part 3 TODO: actually parse formulae */function ods_to_csf_formula(f){if(f.slice(0,3)=="of:")f=f.slice(3);/* 5.2 Basic Expressions */if(f.charCodeAt(0)==61){f=f.slice(1);if(f.charCodeAt(0)==61)f=f.slice(1);}f=f.replace(/COM\.MICROSOFT\./g,"");/* Part 3 Section 5.8 References */f=f.replace(/\[((?:\.[A-Z]+[0-9]+)(?::\.[A-Z]+[0-9]+)?)\]/g,function($$,$1){return $1.replace(/\./g,"");});/* TODO: something other than this */f=f.replace(/\[.(#[A-Z]*[?!])\]/g,"$1");return f.replace(/[;~]/g,",").replace(/\|/g,";");}function csf_to_ods_formula(f){var o="of:="+f.replace(crefregex,"$1[.$2$3$4$5]").replace(/\]:\[/g,":");/* TODO: something other than this */return o.replace(/;/g,"|").replace(/,/g,";");}function ods_to_csf_3D(r){var a=r.split(":");var s=a[0].split(".")[0];return [s,a[0].split(".")[1]+(a.length>1?":"+(a[1].split(".")[1]||a[1].split(".")[0]):"")];}function csf_to_ods_3D(r){return r.replace(/\./,"!");}var strs={};// shared strings
   var _ssfopts={};// spreadsheet formatting options
   RELS.WS=["http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet","http://purl.oclc.org/ooxml/officeDocument/relationships/worksheet"];/*global Map */var browser_has_Map=typeof Map!=='undefined';function get_sst_id(sst,str,rev){var i=0,len=sst.length;if(rev){if(browser_has_Map?rev.has(str):Object.prototype.hasOwnProperty.call(rev,str)){var revarr=browser_has_Map?rev.get(str):rev[str];for(;i<revarr.length;++i){if(sst[revarr[i]].t===str){sst.Count++;return revarr[i];}}}}else for(;i<len;++i){if(sst[i].t===str){sst.Count++;return i;}}sst[len]={t:str};sst.Count++;sst.Unique++;if(rev){if(browser_has_Map){if(!rev.has(str))rev.set(str,[]);rev.get(str).push(len);}else {if(!Object.prototype.hasOwnProperty.call(rev,str))rev[str]=[];rev[str].push(len);}}return len;}function col_obj_w(C,col){var p={min:C+1,max:C+1};/* wch (chars), wpx (pixels) */var wch=-1;if(col.MDW)MDW=col.MDW;if(col.width!=null)p.customWidth=1;else if(col.wpx!=null)wch=px2char(col.wpx);else if(col.wch!=null)wch=col.wch;if(wch>-1){p.width=char2width(wch);p.customWidth=1;}else if(col.width!=null)p.width=col.width;if(col.hidden)p.hidden=true;return p;}function default_margins(margins,mode){if(!margins)return;var defs=[0.7,0.7,0.75,0.75,0.3,0.3];if(mode=='xlml')defs=[1,1,1,1,0.5,0.5];if(margins.left==null)margins.left=defs[0];if(margins.right==null)margins.right=defs[1];if(margins.top==null)margins.top=defs[2];if(margins.bottom==null)margins.bottom=defs[3];if(margins.header==null)margins.header=defs[4];if(margins.footer==null)margins.footer=defs[5];}function get_cell_style(styles,cell,opts){var z=opts.revssf[cell.z!=null?cell.z:"General"];var i=0x3c,len=styles.length;if(z==null&&opts.ssf){for(;i<0x188;++i)if(opts.ssf[i]==null){SSF.load(cell.z,i);// $FlowIgnore
-  opts.ssf[i]=cell.z;opts.revssf[cell.z]=z=i;break;}}for(i=0;i!=len;++i)if(styles[i].numFmtId===z)return i;styles[len]={numFmtId:z,fontId:0,fillId:0,borderId:0,xfId:0,applyNumberFormat:1};return len;}function safe_format(p,fmtid,fillid,opts,themes,styles){try{if(opts.cellNF)p.z=SSF._table[fmtid];}catch(e){if(opts.WTF)throw e;}if(p.t==='z')return;if(p.t==='d'&&typeof p.v==='string')p.v=parseDate(p.v);if(!opts||opts.cellText!==false)try{if(SSF._table[fmtid]==null)SSF.load(SSFImplicit[fmtid]||"General",fmtid);if(p.t==='e')p.w=p.w||BErr[p.v];else if(fmtid===0){if(p.t==='n'){if((p.v|0)===p.v)p.w=SSF._general_int(p.v);else p.w=SSF._general_num(p.v);}else if(p.t==='d'){var dd=datenum(p.v);if((dd|0)===dd)p.w=SSF._general_int(dd);else p.w=SSF._general_num(dd);}else if(p.v===undefined)return "";else p.w=SSF._general(p.v,_ssfopts);}else if(p.t==='d')p.w=SSF.format(fmtid,datenum(p.v),_ssfopts);else p.w=SSF.format(fmtid,p.v,_ssfopts);}catch(e){if(opts.WTF)throw e;}if(!opts.cellStyles)return;if(fillid!=null)try{p.s=styles.Fills[fillid];if(p.s.fgColor&&p.s.fgColor.theme&&!p.s.fgColor.rgb){p.s.fgColor.rgb=rgb_tint(themes.themeElements.clrScheme[p.s.fgColor.theme].rgb,p.s.fgColor.tint||0);if(opts.WTF)p.s.fgColor.raw_rgb=themes.themeElements.clrScheme[p.s.fgColor.theme].rgb;}if(p.s.bgColor&&p.s.bgColor.theme){p.s.bgColor.rgb=rgb_tint(themes.themeElements.clrScheme[p.s.bgColor.theme].rgb,p.s.bgColor.tint||0);if(opts.WTF)p.s.bgColor.raw_rgb=themes.themeElements.clrScheme[p.s.bgColor.theme].rgb;}}catch(e){if(opts.WTF&&styles.Fills)throw e;}}function check_ws(ws,sname,i){if(ws&&ws['!ref']){var range=safe_decode_range(ws['!ref']);if(range.e.c<range.s.c||range.e.r<range.s.r)throw new Error("Bad range ("+i+"): "+ws['!ref']);}}function parse_ws_xml_dim(ws,s){var d=safe_decode_range(s);if(d.s.r<=d.e.r&&d.s.c<=d.e.c&&d.s.r>=0&&d.s.c>=0)ws["!ref"]=encode_range(d);}var mergecregex=/<(?:\w:)?mergeCell ref="[A-Z0-9:]+"\s*[\/]?>/g;var sheetdataregex=/<(?:\w+:)?sheetData[^>]*>([\s\S]*)<\/(?:\w+:)?sheetData>/;var hlinkregex=/<(?:\w:)?hyperlink [^>]*>/mg;var dimregex=/"(\w*:\w*)"/;var colregex=/<(?:\w:)?col\b[^>]*[\/]?>/g;var afregex=/<(?:\w:)?autoFilter[^>]*([\/]|>([\s\S]*)<\/(?:\w:)?autoFilter)>/g;var marginregex=/<(?:\w:)?pageMargins[^>]*\/>/g;var sheetprregex=/<(?:\w:)?sheetPr\b(?:[^>a-z][^>]*)?\/>/;var svsregex=/<(?:\w:)?sheetViews[^>]*(?:[\/]|>([\s\S]*)<\/(?:\w:)?sheetViews)>/;/* 18.3 Worksheets */function parse_ws_xml(data,opts,idx,rels,wb,themes,styles){if(!data)return data;if(!rels)rels={'!id':{}};/* 18.3.1.99 worksheet CT_Worksheet */var s=opts.dense?[]:{};var refguess={s:{r:2000000,c:2000000},e:{r:0,c:0}};var data1="",data2="";var mtch=data.match(sheetdataregex);if(mtch){data1=data.slice(0,mtch.index);data2=data.slice(mtch.index+mtch[0].length);}else data1=data2=data;/* 18.3.1.82 sheetPr CT_SheetPr */var sheetPr=data1.match(sheetprregex);if(sheetPr)parse_ws_xml_sheetpr(sheetPr[0],s,wb,idx);/* 18.3.1.35 dimension CT_SheetDimension */var ridx=(data1.match(/<(?:\w*:)?dimension/)||{index:-1}).index;if(ridx>0){var ref=data1.slice(ridx,ridx+50).match(dimregex);if(ref)parse_ws_xml_dim(s,ref[1]);}/* 18.3.1.88 sheetViews CT_SheetViews */var svs=data1.match(svsregex);if(svs&&svs[1])parse_ws_xml_sheetviews(svs[1],wb);/* 18.3.1.17 cols CT_Cols */var columns=[];if(opts.cellStyles){/* 18.3.1.13 col CT_Col */var cols=data1.match(colregex);if(cols)parse_ws_xml_cols(columns,cols);}/* 18.3.1.80 sheetData CT_SheetData ? */if(mtch)parse_ws_xml_data(mtch[1],s,opts,refguess,themes,styles);/* 18.3.1.2  autoFilter CT_AutoFilter */var afilter=data2.match(afregex);if(afilter)s['!autofilter']=parse_ws_xml_autofilter(afilter[0]);/* 18.3.1.55 mergeCells CT_MergeCells */var merges=[];var _merge=data2.match(mergecregex);if(_merge)for(ridx=0;ridx!=_merge.length;++ridx)merges[ridx]=safe_decode_range(_merge[ridx].slice(_merge[ridx].indexOf("\"")+1));/* 18.3.1.48 hyperlinks CT_Hyperlinks */var hlink=data2.match(hlinkregex);if(hlink)parse_ws_xml_hlinks(s,hlink,rels);/* 18.3.1.62 pageMargins CT_PageMargins */var margins=data2.match(marginregex);if(margins)s['!margins']=parse_ws_xml_margins(parsexmltag(margins[0]));if(!s["!ref"]&&refguess.e.c>=refguess.s.c&&refguess.e.r>=refguess.s.r)s["!ref"]=encode_range(refguess);if(opts.sheetRows>0&&s["!ref"]){var tmpref=safe_decode_range(s["!ref"]);if(opts.sheetRows<=+tmpref.e.r){tmpref.e.r=opts.sheetRows-1;if(tmpref.e.r>refguess.e.r)tmpref.e.r=refguess.e.r;if(tmpref.e.r<tmpref.s.r)tmpref.s.r=tmpref.e.r;if(tmpref.e.c>refguess.e.c)tmpref.e.c=refguess.e.c;if(tmpref.e.c<tmpref.s.c)tmpref.s.c=tmpref.e.c;s["!fullref"]=s["!ref"];s["!ref"]=encode_range(tmpref);}}if(columns.length>0)s["!cols"]=columns;if(merges.length>0)s["!merges"]=merges;return s;}function write_ws_xml_merges(merges){if(merges.length===0)return "";var o='<mergeCells count="'+merges.length+'">';for(var i=0;i!=merges.length;++i)o+='<mergeCell ref="'+encode_range(merges[i])+'"/>';return o+'</mergeCells>';}/* 18.3.1.82-3 sheetPr CT_ChartsheetPr / CT_SheetPr */function parse_ws_xml_sheetpr(sheetPr,s,wb,idx){var data=parsexmltag(sheetPr);if(!wb.Sheets[idx])wb.Sheets[idx]={};if(data.codeName)wb.Sheets[idx].CodeName=data.codeName;}function write_ws_xml_sheetpr(ws,wb,idx,opts,o){var needed=false;var props={},payload=null;if(opts.bookType!=='xlsx'&&wb.vbaraw){var cname=wb.SheetNames[idx];try{if(wb.Workbook)cname=wb.Workbook.Sheets[idx].CodeName||cname;}catch(e){}needed=true;props.codeName=escapexml(cname);}if(!needed&&!payload)return;o[o.length]=writextag('sheetPr',payload,props);}/* 18.3.1.85 sheetProtection CT_SheetProtection */var sheetprot_deffalse=["objects","scenarios","selectLockedCells","selectUnlockedCells"];var sheetprot_deftrue=["formatColumns","formatRows","formatCells","insertColumns","insertRows","insertHyperlinks","deleteColumns","deleteRows","sort","autoFilter","pivotTables"];function write_ws_xml_protection(sp){// algorithmName, hashValue, saltValue, spinCount
+  opts.ssf[i]=cell.z;opts.revssf[cell.z]=z=i;break;}}for(i=0;i!=len;++i)if(styles[i].numFmtId===z)return i;styles[len]={numFmtId:z,fontId:0,fillId:0,borderId:0,xfId:0,applyNumberFormat:1};return len;}function safe_format(p,fmtid,fillid,opts,themes,styles){try{if(opts.cellNF)p.z=SSF._table[fmtid];}catch(e){if(opts.WTF)throw e;}if(p.t==='z')return;if(p.t==='d'&&typeof p.v==='string')p.v=parseDate(p.v);if(!opts||opts.cellText!==false)try{if(SSF._table[fmtid]==null)SSF.load(SSFImplicit[fmtid]||"General",fmtid);if(p.t==='e')p.w=p.w||BErr[p.v];else if(fmtid===0){if(p.t==='n'){if((p.v|0)===p.v)p.w=SSF._general_int(p.v);else p.w=SSF._general_num(p.v);}else if(p.t==='d'){var dd=datenum(p.v);if((dd|0)===dd)p.w=SSF._general_int(dd);else p.w=SSF._general_num(dd);}else if(p.v===undefined)return "";else p.w=SSF._general(p.v,_ssfopts);}else if(p.t==='d')p.w=SSF.format(fmtid,datenum(p.v),_ssfopts);else p.w=SSF.format(fmtid,p.v,_ssfopts);}catch(e){if(opts.WTF)throw e;}if(!opts.cellStyles)return;if(fillid!=null)try{p.s=styles.Fills[fillid];if(p.s.fgColor&&p.s.fgColor.theme&&!p.s.fgColor.rgb){p.s.fgColor.rgb=rgb_tint(themes.themeElements.clrScheme[p.s.fgColor.theme].rgb,p.s.fgColor.tint||0);if(opts.WTF)p.s.fgColor.raw_rgb=themes.themeElements.clrScheme[p.s.fgColor.theme].rgb;}if(p.s.bgColor&&p.s.bgColor.theme){p.s.bgColor.rgb=rgb_tint(themes.themeElements.clrScheme[p.s.bgColor.theme].rgb,p.s.bgColor.tint||0);if(opts.WTF)p.s.bgColor.raw_rgb=themes.themeElements.clrScheme[p.s.bgColor.theme].rgb;}}catch(e){if(opts.WTF&&styles.Fills)throw e;}}function check_ws(ws,sname,i){if(ws&&ws['!ref']){var range=safe_decode_range(ws['!ref']);if(range.e.c<range.s.c||range.e.r<range.s.r)throw new Error("Bad range ("+i+"): "+ws['!ref']);}}function parse_ws_xml_dim(ws,s){var d=safe_decode_range(s);if(d.s.r<=d.e.r&&d.s.c<=d.e.c&&d.s.r>=0&&d.s.c>=0)ws["!ref"]=encode_range(d);}var mergecregex=/<(?:\w:)?mergeCell ref="[A-Z0-9:]+"\s*[\/]?>/g;var sheetdataregex=/<(?:\w+:)?sheetData[^>]*>([\s\S]*)<\/(?:\w+:)?sheetData>/;var hlinkregex=/<(?:\w:)?hyperlink [^>]*>/mg;var dimregex=/"(\w*:\w*)"/;var colregex=/<(?:\w:)?col\b[^>]*[\/]?>/g;var afregex=/<(?:\w:)?autoFilter[^>]*([\/]|>([\s\S]*)<\/(?:\w:)?autoFilter)>/g;var marginregex=/<(?:\w:)?pageMargins[^>]*\/>/g;var sheetprregex=/<(?:\w:)?sheetPr\b(?:[^>a-z][^>]*)?\/>/;var svsregex=/<(?:\w:)?sheetViews[^>]*(?:[\/]|>([\s\S]*)<\/(?:\w:)?sheetViews)>/;/* 18.3 Worksheets */function parse_ws_xml(data,opts,idx,rels,wb,themes,styles){if(!data)return data;if(!rels)rels={'!id':{}};/* 18.3.1.99 worksheet CT_Worksheet */var s=opts.dense?[]:{};var refguess={s:{r:2000000,c:2000000},e:{r:0,c:0}};var data1="",data2="";var mtch=data.match(sheetdataregex);if(mtch){data1=data.slice(0,mtch.index);data2=data.slice(mtch.index+mtch[0].length);}else data1=data2=data;/* 18.3.1.82 sheetPr CT_SheetPr */var sheetPr=data1.match(sheetprregex);if(sheetPr)parse_ws_xml_sheetpr(sheetPr[0],s,wb,idx);/* 18.3.1.35 dimension CT_SheetDimension */var ridx=(data1.match(/<(?:\w*:)?dimension/)||{index:-1}).index;if(ridx>0){var ref=data1.slice(ridx,ridx+50).match(dimregex);if(ref)parse_ws_xml_dim(s,ref[1]);}/* 18.3.1.88 sheetViews CT_SheetViews */var svs=data1.match(svsregex);if(svs&&svs[1])parse_ws_xml_sheetviews(svs[1],wb);/* 18.3.1.17 cols CT_Cols */var columns=[];if(opts.cellStyles){/* 18.3.1.13 col CT_Col */var cols=data1.match(colregex);if(cols)parse_ws_xml_cols(columns,cols);}/* 18.3.1.80 sheetData CT_SheetData ? */if(mtch)parse_ws_xml_data(mtch[1],s,opts,refguess,themes,styles);/* 18.3.1.2  autoFilter CT_AutoFilter */var afilter=data2.match(afregex);if(afilter)s['!autofilter']=parse_ws_xml_autofilter(afilter[0]);/* 18.3.1.55 mergeCells CT_MergeCells */var merges=[];var _merge=data2.match(mergecregex);if(_merge)for(ridx=0;ridx!=_merge.length;++ridx)merges[ridx]=safe_decode_range(_merge[ridx].slice(_merge[ridx].indexOf("\"")+1));/* 18.3.1.48 hyperlinks CT_Hyperlinks */var hlink=data2.match(hlinkregex);if(hlink)parse_ws_xml_hlinks(s,hlink,rels);/* 18.3.1.62 pageMargins CT_PageMargins */var margins=data2.match(marginregex);if(margins)s['!margins']=parse_ws_xml_margins(parsexmltag(margins[0]));if(!s["!ref"]&&refguess.e.c>=refguess.s.c&&refguess.e.r>=refguess.s.r)s["!ref"]=encode_range(refguess);if(opts.sheetRows>0&&s["!ref"]){var tmpref=safe_decode_range(s["!ref"]);if(opts.sheetRows<=+tmpref.e.r){tmpref.e.r=opts.sheetRows-1;if(tmpref.e.r>refguess.e.r)tmpref.e.r=refguess.e.r;if(tmpref.e.r<tmpref.s.r)tmpref.s.r=tmpref.e.r;if(tmpref.e.c>refguess.e.c)tmpref.e.c=refguess.e.c;if(tmpref.e.c<tmpref.s.c)tmpref.s.c=tmpref.e.c;s["!fullref"]=s["!ref"];s["!ref"]=encode_range(tmpref);}}if(columns.length>0)s["!cols"]=columns;if(merges.length>0)s["!merges"]=merges;return s;}function write_ws_xml_merges(merges){if(merges.length===0)return "";var o='<mergeCells count="'+merges.length+'">';for(var i=0;i!=merges.length;++i)o+='<mergeCell ref="'+encode_range(merges[i])+'"/>';return o+'</mergeCells>';}/* 18.3.1.82-3 sheetPr CT_ChartsheetPr / CT_SheetPr */function parse_ws_xml_sheetpr(sheetPr,s,wb,idx){var data=parsexmltag(sheetPr);if(!wb.Sheets[idx])wb.Sheets[idx]={};if(data.codeName)wb.Sheets[idx].CodeName=unescapexml(utf8read(data.codeName));}function write_ws_xml_sheetpr(ws,wb,idx,opts,o){var needed=false;var props={},payload=null;if(opts.bookType!=='xlsx'&&wb.vbaraw){var cname=wb.SheetNames[idx];try{if(wb.Workbook)cname=wb.Workbook.Sheets[idx].CodeName||cname;}catch(e){}needed=true;props.codeName=utf8write(escapexml(cname));}if(ws&&ws["!outline"]){var outlineprops={summaryBelow:1,summaryRight:1};if(ws["!outline"].above)outlineprops.summaryBelow=0;if(ws["!outline"].left)outlineprops.summaryRight=0;payload=(payload||"")+writextag('outlinePr',null,outlineprops);}if(!needed&&!payload)return;o[o.length]=writextag('sheetPr',payload,props);}/* 18.3.1.85 sheetProtection CT_SheetProtection */var sheetprot_deffalse=["objects","scenarios","selectLockedCells","selectUnlockedCells"];var sheetprot_deftrue=["formatColumns","formatRows","formatCells","insertColumns","insertRows","insertHyperlinks","deleteColumns","deleteRows","sort","autoFilter","pivotTables"];function write_ws_xml_protection(sp){// algorithmName, hashValue, saltValue, spinCount
   var o={sheet:1};sheetprot_deffalse.forEach(function(n){if(sp[n]!=null&&sp[n])o[n]="1";});sheetprot_deftrue.forEach(function(n){if(sp[n]!=null&&!sp[n])o[n]="0";});/* TODO: algorithm */if(sp.password)o.password=crypto_CreatePasswordVerifier_Method1(sp.password).toString(16).toUpperCase();return writextag('sheetProtection',null,o);}function parse_ws_xml_hlinks(s,data,rels){var dense=Array.isArray(s);for(var i=0;i!=data.length;++i){var val=parsexmltag(utf8read(data[i]),true);if(!val.ref)return;var rel=((rels||{})['!id']||[])[val.id];if(rel){val.Target=rel.Target;if(val.location)val.Target+="#"+val.location;}else {val.Target="#"+val.location;rel={Target:val.Target,TargetMode:'Internal'};}val.Rel=rel;if(val.tooltip){val.Tooltip=val.tooltip;delete val.tooltip;}var rng=safe_decode_range(val.ref);for(var R=rng.s.r;R<=rng.e.r;++R)for(var C=rng.s.c;C<=rng.e.c;++C){var addr=encode_cell({c:C,r:R});if(dense){if(!s[R])s[R]=[];if(!s[R][C])s[R][C]={t:"z",v:undefined};s[R][C].l=val;}else {if(!s[addr])s[addr]={t:"z",v:undefined};s[addr].l=val;}}}}function parse_ws_xml_margins(margin){var o={};["left","right","top","bottom","header","footer"].forEach(function(k){if(margin[k])o[k]=parseFloat(margin[k]);});return o;}function write_ws_xml_margins(margin){default_margins(margin);return writextag('pageMargins',null,margin);}function parse_ws_xml_cols(columns,cols){var seencol=false;for(var coli=0;coli!=cols.length;++coli){var coll=parsexmltag(cols[coli],true);if(coll.hidden)coll.hidden=parsexmlbool(coll.hidden);var colm=parseInt(coll.min,10)-1,colM=parseInt(coll.max,10)-1;delete coll.min;delete coll.max;coll.width=+coll.width;if(!seencol&&coll.width){seencol=true;find_mdw_colw(coll.width);}process_col(coll);while(colm<=colM)columns[colm++]=dup(coll);}}function write_ws_xml_cols(ws,cols){var o=["<cols>"],col;for(var i=0;i!=cols.length;++i){if(!(col=cols[i]))continue;o[o.length]=writextag('col',null,col_obj_w(i,col));}o[o.length]="</cols>";return o.join("");}function parse_ws_xml_autofilter(data){var o={ref:(data.match(/ref="([^"]*)"/)||[])[1]};return o;}function write_ws_xml_autofilter(data,ws,wb,idx){var ref=typeof data.ref=="string"?data.ref:encode_range(data.ref);if(!wb.Workbook)wb.Workbook={Sheets:[]};if(!wb.Workbook.Names)wb.Workbook.Names=[];var names=wb.Workbook.Names;var range=decode_range(ref);if(range.s.r==range.e.r){range.e.r=decode_range(ws["!ref"]).e.r;ref=encode_range(range);}for(var i=0;i<names.length;++i){var name=names[i];if(name.Name!='_xlnm._FilterDatabase')continue;if(name.Sheet!=idx)continue;name.Ref="'"+wb.SheetNames[idx]+"'!"+ref;break;}if(i==names.length)names.push({Name:'_xlnm._FilterDatabase',Sheet:idx,Ref:"'"+wb.SheetNames[idx]+"'!"+ref});return writextag("autoFilter",null,{ref:ref});}/* 18.3.1.88 sheetViews CT_SheetViews */ /* 18.3.1.87 sheetView CT_SheetView */var sviewregex=/<(?:\w:)?sheetView(?:[^>a-z][^>]*)?\/?>/;function parse_ws_xml_sheetviews(data,wb){if(!wb.Views)wb.Views=[{}];(data.match(sviewregex)||[]).forEach(function(r,i){var tag=parsexmltag(r);// $FlowIgnore
   if(!wb.Views[i])wb.Views[i]={};// $FlowIgnore
   if(parsexmlbool(tag.rightToLeft))wb.Views[i].RTL=true;});}function write_ws_xml_sheetviews(ws,opts,idx,wb){var sview={workbookViewId:"0"};// $FlowIgnore
-  if((((wb||{}).Workbook||{}).Views||[])[0])sview.rightToLeft=wb.Workbook.Views[0].RTL?"1":"0";return writextag("sheetViews",writextag("sheetView",null,sview),{});}function write_ws_xml_cell(cell,ref,ws,opts){if(cell.v===undefined&&typeof cell.f!=="string"||cell.t==='z')return "";var vv="";var oldt=cell.t,oldv=cell.v;if(cell.t!=="z")switch(cell.t){case'b':vv=cell.v?"1":"0";break;case'n':vv=''+cell.v;break;case'e':vv=BErr[cell.v];break;case'd':if(opts&&opts.cellDates)vv=parseDate(cell.v,-1).toISOString();else {cell=dup(cell);cell.t='n';vv=''+(cell.v=datenum(parseDate(cell.v)));}if(typeof cell.z==='undefined')cell.z=SSF._table[14];break;default:vv=cell.v;break;}var v=writetag('v',escapexml(vv)),o={r:ref};/* TODO: cell style */var os=get_cell_style(opts.cellXfs,cell,opts);if(os!==0)o.s=os;switch(cell.t){case'n':break;case'd':o.t="d";break;case'b':o.t="b";break;case'e':o.t="e";break;case'z':break;default:if(cell.v==null){delete cell.t;break;}if(opts&&opts.bookSST){v=writetag('v',''+get_sst_id(opts.Strings,cell.v,opts.revStrings));o.t="s";break;}o.t="str";break;}if(cell.t!=oldt){cell.t=oldt;cell.v=oldv;}if(typeof cell.f=="string"&&cell.f){var ff=cell.F&&cell.F.slice(0,ref.length)==ref?{t:"array",ref:cell.F}:null;v=writextag('f',escapexml(cell.f),ff)+(cell.v!=null?v:"");}if(cell.l)ws['!links'].push([ref,cell.l]);if(cell.c)ws['!comments'].push([ref,cell.c]);return writextag('c',v,o);}var parse_ws_xml_data=function(){var cellregex=/<(?:\w+:)?c[ >]/,rowregex=/<\/(?:\w+:)?row>/;var rregex=/r=["']([^"']*)["']/,isregex=/<(?:\w+:)?is>([\S\s]*?)<\/(?:\w+:)?is>/;var refregex=/ref=["']([^"']*)["']/;var match_v=matchtag("v"),match_f=matchtag("f");return function parse_ws_xml_data(sdata,s,opts,guess,themes,styles){var ri=0,x="",cells=[],cref=[],idx=0,i=0,cc=0,d="",p;var tag,tagr=0,tagc=0;var sstr,ftag;var fmtid=0,fillid=0;var do_format=Array.isArray(styles.CellXf),cf;var arrayf=[];var sharedf=[];var dense=Array.isArray(s);var rows=[],rowobj={},rowrite=false;var sheetStubs=!!opts.sheetStubs;for(var marr=sdata.split(rowregex),mt=0,marrlen=marr.length;mt!=marrlen;++mt){x=marr[mt].trim();var xlen=x.length;if(xlen===0)continue;/* 18.3.1.73 row CT_Row */for(ri=0;ri<xlen;++ri)if(x.charCodeAt(ri)===62)break;++ri;tag=parsexmltag(x.slice(0,ri),true);tagr=tag.r!=null?parseInt(tag.r,10):tagr+1;tagc=-1;if(opts.sheetRows&&opts.sheetRows<tagr)continue;if(guess.s.r>tagr-1)guess.s.r=tagr-1;if(guess.e.r<tagr-1)guess.e.r=tagr-1;if(opts&&opts.cellStyles){rowobj={};rowrite=false;if(tag.ht){rowrite=true;rowobj.hpt=parseFloat(tag.ht);rowobj.hpx=pt2px(rowobj.hpt);}if(tag.hidden=="1"){rowrite=true;rowobj.hidden=true;}if(tag.outlineLevel!=null){rowrite=true;rowobj.level=+tag.outlineLevel;}if(rowrite)rows[tagr-1]=rowobj;}/* 18.3.1.4 c CT_Cell */cells=x.slice(ri).split(cellregex);for(var rslice=0;rslice!=cells.length;++rslice)if(cells[rslice].trim().charAt(0)!="<")break;cells=cells.slice(rslice);for(ri=0;ri!=cells.length;++ri){x=cells[ri].trim();if(x.length===0)continue;cref=x.match(rregex);idx=ri;i=0;cc=0;x="<c "+(x.slice(0,1)=="<"?">":"")+x;if(cref!=null&&cref.length===2){idx=0;d=cref[1];for(i=0;i!=d.length;++i){if((cc=d.charCodeAt(i)-64)<1||cc>26)break;idx=26*idx+cc;}--idx;tagc=idx;}else ++tagc;for(i=0;i!=x.length;++i)if(x.charCodeAt(i)===62)break;++i;tag=parsexmltag(x.slice(0,i),true);if(!tag.r)tag.r=encode_cell({r:tagr-1,c:tagc});d=x.slice(i);p={t:""};if((cref=d.match(match_v))!=null&&cref[1]!=='')p.v=unescapexml(cref[1]);if(opts.cellFormula){if((cref=d.match(match_f))!=null&&cref[1]!==''){/* TODO: match against XLSXFutureFunctions */p.f=unescapexml(utf8read(cref[1])).replace(/\r\n/g,"\n");if(!opts.xlfn)p.f=_xlfn(p.f);if(cref[0].indexOf('t="array"')>-1){p.F=(d.match(refregex)||[])[1];if(p.F.indexOf(":")>-1)arrayf.push([safe_decode_range(p.F),p.F]);}else if(cref[0].indexOf('t="shared"')>-1){// TODO: parse formula
+  if((((wb||{}).Workbook||{}).Views||[])[0])sview.rightToLeft=wb.Workbook.Views[0].RTL?"1":"0";return writextag("sheetViews",writextag("sheetView",null,sview),{});}function write_ws_xml_cell(cell,ref,ws,opts){if(cell.v===undefined&&typeof cell.f!=="string"||cell.t==='z')return "";var vv="";var oldt=cell.t,oldv=cell.v;if(cell.t!=="z")switch(cell.t){case'b':vv=cell.v?"1":"0";break;case'n':vv=''+cell.v;break;case'e':vv=BErr[cell.v];break;case'd':if(opts&&opts.cellDates)vv=parseDate(cell.v,-1).toISOString();else {cell=dup(cell);cell.t='n';vv=''+(cell.v=datenum(parseDate(cell.v)));}if(typeof cell.z==='undefined')cell.z=SSF._table[14];break;default:vv=cell.v;break;}var v=writetag('v',escapexml(vv)),o={r:ref};/* TODO: cell style */var os=get_cell_style(opts.cellXfs,cell,opts);if(os!==0)o.s=os;switch(cell.t){case'n':break;case'd':o.t="d";break;case'b':o.t="b";break;case'e':o.t="e";break;case'z':break;default:if(cell.v==null){delete cell.t;break;}if(opts&&opts.bookSST){v=writetag('v',''+get_sst_id(opts.Strings,cell.v,opts.revStrings));o.t="s";break;}o.t="str";break;}if(cell.t!=oldt){cell.t=oldt;cell.v=oldv;}if(typeof cell.f=="string"&&cell.f){var ff=cell.F&&cell.F.slice(0,ref.length)==ref?{t:"array",ref:cell.F}:null;v=writextag('f',escapexml(cell.f),ff)+(cell.v!=null?v:"");}if(cell.l)ws['!links'].push([ref,cell.l]);if(cell.c)ws['!comments'].push([ref,cell.c]);return writextag('c',v,o);}var parse_ws_xml_data=function(){var cellregex=/<(?:\w+:)?c[ \/>]/,rowregex=/<\/(?:\w+:)?row>/;var rregex=/r=["']([^"']*)["']/,isregex=/<(?:\w+:)?is>([\S\s]*?)<\/(?:\w+:)?is>/;var refregex=/ref=["']([^"']*)["']/;var match_v=matchtag("v"),match_f=matchtag("f");return function parse_ws_xml_data(sdata,s,opts,guess,themes,styles){var ri=0,x="",cells=[],cref=[],idx=0,i=0,cc=0,d="",p;var tag,tagr=0,tagc=0;var sstr,ftag;var fmtid=0,fillid=0;var do_format=Array.isArray(styles.CellXf),cf;var arrayf=[];var sharedf=[];var dense=Array.isArray(s);var rows=[],rowobj={},rowrite=false;var sheetStubs=!!opts.sheetStubs;for(var marr=sdata.split(rowregex),mt=0,marrlen=marr.length;mt!=marrlen;++mt){x=marr[mt].trim();var xlen=x.length;if(xlen===0)continue;/* 18.3.1.73 row CT_Row */for(ri=0;ri<xlen;++ri)if(x.charCodeAt(ri)===62)break;++ri;tag=parsexmltag(x.slice(0,ri),true);tagr=tag.r!=null?parseInt(tag.r,10):tagr+1;tagc=-1;if(opts.sheetRows&&opts.sheetRows<tagr)continue;if(guess.s.r>tagr-1)guess.s.r=tagr-1;if(guess.e.r<tagr-1)guess.e.r=tagr-1;if(opts&&opts.cellStyles){rowobj={};rowrite=false;if(tag.ht){rowrite=true;rowobj.hpt=parseFloat(tag.ht);rowobj.hpx=pt2px(rowobj.hpt);}if(tag.hidden=="1"){rowrite=true;rowobj.hidden=true;}if(tag.outlineLevel!=null){rowrite=true;rowobj.level=+tag.outlineLevel;}if(rowrite)rows[tagr-1]=rowobj;}/* 18.3.1.4 c CT_Cell */cells=x.slice(ri).split(cellregex);for(var rslice=0;rslice!=cells.length;++rslice)if(cells[rslice].trim().charAt(0)!="<")break;cells=cells.slice(rslice);for(ri=0;ri!=cells.length;++ri){x=cells[ri].trim();if(x.length===0)continue;cref=x.match(rregex);idx=ri;i=0;cc=0;x="<c "+(x.slice(0,1)=="<"?">":"")+x;if(cref!=null&&cref.length===2){idx=0;d=cref[1];for(i=0;i!=d.length;++i){if((cc=d.charCodeAt(i)-64)<1||cc>26)break;idx=26*idx+cc;}--idx;tagc=idx;}else ++tagc;for(i=0;i!=x.length;++i)if(x.charCodeAt(i)===62)break;++i;tag=parsexmltag(x.slice(0,i),true);if(!tag.r)tag.r=encode_cell({r:tagr-1,c:tagc});d=x.slice(i);p={t:""};if((cref=d.match(match_v))!=null&&cref[1]!=='')p.v=unescapexml(cref[1]);if(opts.cellFormula){if((cref=d.match(match_f))!=null&&cref[1]!==''){/* TODO: match against XLSXFutureFunctions */p.f=unescapexml(utf8read(cref[1])).replace(/\r\n/g,"\n");if(!opts.xlfn)p.f=_xlfn(p.f);if(cref[0].indexOf('t="array"')>-1){p.F=(d.match(refregex)||[])[1];if(p.F.indexOf(":")>-1)arrayf.push([safe_decode_range(p.F),p.F]);}else if(cref[0].indexOf('t="shared"')>-1){// TODO: parse formula
   ftag=parsexmltag(cref[0]);var ___f=unescapexml(utf8read(cref[1]));if(!opts.xlfn)___f=_xlfn(___f);sharedf[parseInt(ftag.si,10)]=[ftag,___f,tag.r];}}else if(cref=d.match(/<f[^>]*\/>/)){ftag=parsexmltag(cref[0]);if(sharedf[ftag.si])p.f=shift_formula_xlsx(sharedf[ftag.si][1],sharedf[ftag.si][2]/*[0].ref*/,tag.r);}/* TODO: factor out contains logic */var _tag=decode_cell(tag.r);for(i=0;i<arrayf.length;++i)if(_tag.r>=arrayf[i][0].s.r&&_tag.r<=arrayf[i][0].e.r)if(_tag.c>=arrayf[i][0].s.c&&_tag.c<=arrayf[i][0].e.c)p.F=arrayf[i][1];}if(tag.t==null&&p.v===undefined){if(p.f||p.F){p.v=0;p.t="n";}else if(!sheetStubs)continue;else p.t="z";}else p.t=tag.t||"n";if(guess.s.c>tagc)guess.s.c=tagc;if(guess.e.c<tagc)guess.e.c=tagc;/* 18.18.11 t ST_CellType */switch(p.t){case'n':if(p.v==""||p.v==null){if(!sheetStubs)continue;p.t='z';}else p.v=parseFloat(p.v);break;case's':if(typeof p.v=='undefined'){if(!sheetStubs)continue;p.t='z';}else {sstr=strs[parseInt(p.v,10)];p.v=sstr.t;p.r=sstr.r;if(opts.cellHTML)p.h=sstr.h;}break;case'str':p.t="s";p.v=p.v!=null?utf8read(p.v):'';if(opts.cellHTML)p.h=escapehtml(p.v);break;case'inlineStr':cref=d.match(isregex);p.t='s';if(cref!=null&&(sstr=parse_si(cref[1]))){p.v=sstr.t;if(opts.cellHTML)p.h=sstr.h;}else p.v="";break;case'b':p.v=parsexmlbool(p.v);break;case'd':if(opts.cellDates)p.v=parseDate(p.v,1);else {p.v=datenum(parseDate(p.v,1));p.t='n';}break;/* error string in .w, number in .v */case'e':if(!opts||opts.cellText!==false)p.w=p.v;p.v=RBErr[p.v];break;}/* formatting */fmtid=fillid=0;cf=null;if(do_format&&tag.s!==undefined){cf=styles.CellXf[tag.s];if(cf!=null){if(cf.numFmtId!=null)fmtid=cf.numFmtId;if(opts.cellStyles){if(cf.fillId!=null)fillid=cf.fillId;}}}safe_format(p,fmtid,fillid,opts,themes,styles);if(opts.cellDates&&do_format&&p.t=='n'&&SSF.is_date(SSF._table[fmtid])){p.t='d';p.v=numdate(p.v);}if(dense){var _r=decode_cell(tag.r);if(!s[_r.r])s[_r.r]=[];s[_r.r][_r.c]=p;}else s[tag.r]=p;}}if(rows.length>0)s['!rows']=rows;};}();function write_ws_xml_data(ws,opts,idx,wb){var o=[],r=[],range=safe_decode_range(ws['!ref']),cell="",ref,rr="",cols=[],R=0,C=0,rows=ws['!rows'];var dense=Array.isArray(ws);var params={r:rr},row,height=-1;for(C=range.s.c;C<=range.e.c;++C)cols[C]=encode_col(C);for(R=range.s.r;R<=range.e.r;++R){r=[];rr=encode_row(R);for(C=range.s.c;C<=range.e.c;++C){ref=cols[C]+rr;var _cell=dense?(ws[R]||[])[C]:ws[ref];if(_cell===undefined)continue;if((cell=write_ws_xml_cell(_cell,ref,ws,opts))!=null)r.push(cell);}if(r.length>0||rows&&rows[R]){params={r:rr};if(rows&&rows[R]){row=rows[R];if(row.hidden)params.hidden=1;height=-1;if(row.hpx)height=px2pt(row.hpx);else if(row.hpt)height=row.hpt;if(height>-1){params.ht=height;params.customHeight=1;}if(row.level){params.outlineLevel=row.level;}}o[o.length]=writextag('row',r.join(""),params);}}if(rows)for(;R<rows.length;++R){if(rows&&rows[R]){params={r:R+1};row=rows[R];if(row.hidden)params.hidden=1;height=-1;if(row.hpx)height=px2pt(row.hpx);else if(row.hpt)height=row.hpt;if(height>-1){params.ht=height;params.customHeight=1;}if(row.level){params.outlineLevel=row.level;}o[o.length]=writextag('row',"",params);}}return o.join("");}var WS_XML_ROOT=writextag('worksheet',null,{'xmlns':XMLNS.main[0],'xmlns:r':XMLNS.r});function write_ws_xml(idx,opts,wb,rels){var o=[XML_HEADER,WS_XML_ROOT];var s=wb.SheetNames[idx],sidx=0,rdata="";var ws=wb.Sheets[s];if(ws==null)ws={};var ref=ws['!ref']||'A1';var range=safe_decode_range(ref);if(range.e.c>0x3FFF||range.e.r>0xFFFFF){if(opts.WTF)throw new Error("Range "+ref+" exceeds format limit A1:XFD1048576");range.e.c=Math.min(range.e.c,0x3FFF);range.e.r=Math.min(range.e.c,0xFFFFF);ref=encode_range(range);}if(!rels)rels={};ws['!comments']=[];var _drawing=[];write_ws_xml_sheetpr(ws,wb,idx,opts,o);o[o.length]=writextag('dimension',null,{'ref':ref});o[o.length]=write_ws_xml_sheetviews(ws,opts,idx,wb);/* TODO: store in WB, process styles */if(opts.sheetFormat)o[o.length]=writextag('sheetFormatPr',null,{defaultRowHeight:opts.sheetFormat.defaultRowHeight||'16',baseColWidth:opts.sheetFormat.baseColWidth||'10',outlineLevelRow:opts.sheetFormat.outlineLevelRow||'7'});if(ws['!cols']!=null&&ws['!cols'].length>0)o[o.length]=write_ws_xml_cols(ws,ws['!cols']);o[sidx=o.length]='<sheetData/>';ws['!links']=[];if(ws['!ref']!=null){rdata=write_ws_xml_data(ws,opts);if(rdata.length>0)o[o.length]=rdata;}if(o.length>sidx+1){o[o.length]='</sheetData>';o[sidx]=o[sidx].replace("/>",">");}/* sheetCalcPr */if(ws['!protect']!=null)o[o.length]=write_ws_xml_protection(ws['!protect']);/* protectedRanges */ /* scenarios */if(ws['!autofilter']!=null)o[o.length]=write_ws_xml_autofilter(ws['!autofilter'],ws,wb,idx);/* sortState */ /* dataConsolidate */ /* customSheetViews */if(ws['!merges']!=null&&ws['!merges'].length>0)o[o.length]=write_ws_xml_merges(ws['!merges']);/* phoneticPr */ /* conditionalFormatting */ /* dataValidations */var relc=-1,rel,rId=-1;if(ws['!links'].length>0){o[o.length]="<hyperlinks>";ws['!links'].forEach(function(l){if(!l[1].Target)return;rel={"ref":l[0]};if(l[1].Target.charAt(0)!="#"){rId=add_rels(rels,-1,escapexml(l[1].Target).replace(/#.*$/,""),RELS.HLINK);rel["r:id"]="rId"+rId;}if((relc=l[1].Target.indexOf("#"))>-1)rel.location=escapexml(l[1].Target.slice(relc+1));if(l[1].Tooltip)rel.tooltip=escapexml(l[1].Tooltip);o[o.length]=writextag("hyperlink",null,rel);});o[o.length]="</hyperlinks>";}delete ws['!links'];/* printOptions */if(ws['!margins']!=null)o[o.length]=write_ws_xml_margins(ws['!margins']);/* pageSetup */ /* headerFooter */ /* rowBreaks */ /* colBreaks */ /* customProperties */ /* cellWatches */if(!opts||opts.ignoreEC||opts.ignoreEC==void 0)o[o.length]=writetag("ignoredErrors",writextag("ignoredError",null,{numberStoredAsText:1,sqref:ref}));/* smartTags */if(_drawing.length>0){rId=add_rels(rels,-1,"../drawings/drawing"+(idx+1)+".xml",RELS.DRAW);o[o.length]=writextag("drawing",null,{"r:id":"rId"+rId});ws['!drawing']=_drawing;}if(ws['!comments'].length>0){rId=add_rels(rels,-1,"../drawings/vmlDrawing"+(idx+1)+".vml",RELS.VML);o[o.length]=writextag("legacyDrawing",null,{"r:id":"rId"+rId});ws['!legacy']=rId;}/* legacyDrawingHF */ /* picture */ /* oleObjects */ /* controls */ /* webPublishItems */ /* tableParts */ /* extLst */if(o.length>1){o[o.length]='</worksheet>';o[1]=o[1].replace("/>",">");}return o.join("");}/* [MS-XLSB] 2.4.726 BrtRowHdr */function parse_BrtRowHdr(data,length){var z={};var tgt=data.l+length;z.r=data.read_shift(4);data.l+=4;// TODO: ixfe
   var miyRw=data.read_shift(2);data.l+=1;// TODO: top/bot padding
   var flags=data.read_shift(1);data.l=tgt;if(flags&0x07)z.level=flags&0x07;if(flags&0x10)z.hidden=true;if(flags&0x20)z.hpt=miyRw/20;return z;}function write_BrtRowHdr(R,range,ws){var o=new_buf(17+8*16);var row=(ws['!rows']||[])[R]||{};o.write_shift(4,R);o.write_shift(4,0);/* TODO: ixfe */var miyRw=0x0140;if(row.hpx)miyRw=px2pt(row.hpx)*20;else if(row.hpt)miyRw=row.hpt*20;o.write_shift(2,miyRw);o.write_shift(1,0);/* top/bot padding */var flags=0x0;if(row.level)flags|=row.level;if(row.hidden)flags|=0x10;if(row.hpx||row.hpt)flags|=0x20;o.write_shift(1,flags);o.write_shift(1,0);/* phonetic guide */ /* [MS-XLSB] 2.5.8 BrtColSpan explains the mechanism */var ncolspan=0,lcs=o.l;o.l+=4;var caddr={r:R,c:0};for(var i=0;i<16;++i){if(range.s.c>i+1<<10||range.e.c<i<<10)continue;var first=-1,last=-1;for(var j=i<<10;j<i+1<<10;++j){caddr.c=j;var cell=Array.isArray(ws)?(ws[caddr.r]||[])[caddr.c]:ws[encode_cell(caddr)];if(cell){if(first<0)first=j;last=j;}}if(first<0)continue;++ncolspan;o.write_shift(4,first);o.write_shift(4,last);}var l=o.l;o.l=lcs;o.write_shift(4,ncolspan);o.l=l;return o.length>o.l?o.slice(0,o.l):o;}function write_row_header(ba,ws,range,R){var o=write_BrtRowHdr(R,range,ws);if(o.length>17||(ws['!rows']||[])[R])write_record(ba,'BrtRowHdr',o);}/* [MS-XLSB] 2.4.820 BrtWsDim */var parse_BrtWsDim=parse_UncheckedRfX;var write_BrtWsDim=write_UncheckedRfX;/* [MS-XLSB] 2.4.821 BrtWsFmtInfo */function parse_BrtWsFmtInfo(){}//function write_BrtWsFmtInfo(ws, o) { }
@@ -27836,7 +28411,7 @@ ${points.join('\n')}
   ["pivotTables",true],// fPivotTables
   ["selectUnlockedCells",false]// fSelUnlockedCells
   ].forEach(function(n){if(n[1])o.write_shift(4,sp[n[0]]!=null&&!sp[n[0]]?1:0);else o.write_shift(4,sp[n[0]]!=null&&sp[n[0]]?0:1);});return o;}function parse_BrtDVal()/*data, length, opts*/{}function parse_BrtDVal14()/*data, length, opts*/{}/* [MS-XLSB] 2.1.7.61 Worksheet */function parse_ws_bin(data,_opts,idx,rels,wb,themes,styles){if(!data)return data;var opts=_opts||{};if(!rels)rels={'!id':{}};var s=opts.dense?[]:{};var ref;var refguess={s:{r:2000000,c:2000000},e:{r:0,c:0}};var pass=false,end=false;var row,p,cf,R,C,addr,sstr,rr,cell;var merges=[];opts.biff=12;opts['!row']=0;var ai=0,af=false;var arrayf=[];var sharedf={};var supbooks=opts.supbooks||wb.supbooks||[[]];supbooks.sharedf=sharedf;supbooks.arrayf=arrayf;supbooks.SheetNames=wb.SheetNames||wb.Sheets.map(function(x){return x.name;});if(!opts.supbooks){opts.supbooks=supbooks;if(wb.Names)for(var i=0;i<wb.Names.length;++i)supbooks[0][i+1]=wb.Names[i];}var colinfo=[],rowinfo=[];var seencol=false;recordhopper(data,function ws_parse(val,R_n,RT){if(end)return;switch(RT){case 0x0094:/* 'BrtWsDim' */ref=val;break;case 0x0000:/* 'BrtRowHdr' */row=val;if(opts.sheetRows&&opts.sheetRows<=row.r)end=true;rr=encode_row(R=row.r);opts['!row']=row.r;if(val.hidden||val.hpt||val.level!=null){if(val.hpt)val.hpx=pt2px(val.hpt);rowinfo[val.r]=val;}break;case 0x0002:/* 'BrtCellRk' */case 0x0003:/* 'BrtCellError' */case 0x0004:/* 'BrtCellBool' */case 0x0005:/* 'BrtCellReal' */case 0x0006:/* 'BrtCellSt' */case 0x0007:/* 'BrtCellIsst' */case 0x0008:/* 'BrtFmlaString' */case 0x0009:/* 'BrtFmlaNum' */case 0x000A:/* 'BrtFmlaBool' */case 0x000B:/* 'BrtFmlaError' */p={t:val[2]};switch(val[2]){case'n':p.v=val[1];break;case's':sstr=strs[val[1]];p.v=sstr.t;p.r=sstr.r;break;case'b':p.v=val[1]?true:false;break;case'e':p.v=val[1];if(opts.cellText!==false)p.w=BErr[p.v];break;case'str':p.t='s';p.v=val[1];break;}if(cf=styles.CellXf[val[0].iStyleRef])safe_format(p,cf.numFmtId,null,opts,themes,styles);C=val[0].c;if(opts.dense){if(!s[R])s[R]=[];s[R][C]=p;}else s[encode_col(C)+rr]=p;if(opts.cellFormula){af=false;for(ai=0;ai<arrayf.length;++ai){var aii=arrayf[ai];if(row.r>=aii[0].s.r&&row.r<=aii[0].e.r)if(C>=aii[0].s.c&&C<=aii[0].e.c){p.F=encode_range(aii[0]);af=true;}}if(!af&&val.length>3)p.f=val[3];}if(refguess.s.r>row.r)refguess.s.r=row.r;if(refguess.s.c>C)refguess.s.c=C;if(refguess.e.r<row.r)refguess.e.r=row.r;if(refguess.e.c<C)refguess.e.c=C;if(opts.cellDates&&cf&&p.t=='n'&&SSF.is_date(SSF._table[cf.numFmtId])){var _d=SSF.parse_date_code(p.v);if(_d){p.t='d';p.v=new Date(_d.y,_d.m-1,_d.d,_d.H,_d.M,_d.S,_d.u);}}break;case 0x0001:/* 'BrtCellBlank' */if(!opts.sheetStubs||pass)break;p={t:'z',v:undefined};C=val[0].c;if(opts.dense){if(!s[R])s[R]=[];s[R][C]=p;}else s[encode_col(C)+rr]=p;if(refguess.s.r>row.r)refguess.s.r=row.r;if(refguess.s.c>C)refguess.s.c=C;if(refguess.e.r<row.r)refguess.e.r=row.r;if(refguess.e.c<C)refguess.e.c=C;break;case 0x00B0:/* 'BrtMergeCell' */merges.push(val);break;case 0x01EE:/* 'BrtHLink' */var rel=rels['!id'][val.relId];if(rel){val.Target=rel.Target;if(val.loc)val.Target+="#"+val.loc;val.Rel=rel;}else if(val.relId==''){val.Target="#"+val.loc;}for(R=val.rfx.s.r;R<=val.rfx.e.r;++R)for(C=val.rfx.s.c;C<=val.rfx.e.c;++C){if(opts.dense){if(!s[R])s[R]=[];if(!s[R][C])s[R][C]={t:'z',v:undefined};s[R][C].l=val;}else {addr=encode_cell({c:C,r:R});if(!s[addr])s[addr]={t:'z',v:undefined};s[addr].l=val;}}break;case 0x01AA:/* 'BrtArrFmla' */if(!opts.cellFormula)break;arrayf.push(val);cell=opts.dense?s[R][C]:s[encode_col(C)+rr];cell.f=stringify_formula(val[1],refguess,{r:row.r,c:C},supbooks,opts);cell.F=encode_range(val[0]);break;case 0x01AB:/* 'BrtShrFmla' */if(!opts.cellFormula)break;sharedf[encode_cell(val[0].s)]=val[1];cell=opts.dense?s[R][C]:s[encode_col(C)+rr];cell.f=stringify_formula(val[1],refguess,{r:row.r,c:C},supbooks,opts);break;/* identical to 'ColInfo' in XLS */case 0x003C:/* 'BrtColInfo' */if(!opts.cellStyles)break;while(val.e>=val.s){colinfo[val.e--]={width:val.w/256,hidden:!!(val.flags&0x01),level:val.level};if(!seencol){seencol=true;find_mdw_colw(val.w/256);}process_col(colinfo[val.e+1]);}break;case 0x00A1:/* 'BrtBeginAFilter' */s['!autofilter']={ref:encode_range(val)};break;case 0x01DC:/* 'BrtMargins' */s['!margins']=val;break;case 0x0093:/* 'BrtWsProp' */if(!wb.Sheets[idx])wb.Sheets[idx]={};if(val.name)wb.Sheets[idx].CodeName=val.name;break;case 0x0089:/* 'BrtBeginWsView' */if(!wb.Views)wb.Views=[{}];if(!wb.Views[0])wb.Views[0]={};if(val.RTL)wb.Views[0].RTL=true;break;case 0x01E5:/* 'BrtWsFmtInfo' */break;case 0x0040:/* 'BrtDVal' */case 0x041D:/* 'BrtDVal14' */break;case 0x0097:/* 'BrtPane' */break;case 0x00AF:/* 'BrtAFilterDateGroupItem' */case 0x0284:/* 'BrtActiveX' */case 0x0271:/* 'BrtBigName' */case 0x0232:/* 'BrtBkHim' */case 0x018C:/* 'BrtBrk' */case 0x0458:/* 'BrtCFIcon' */case 0x047A:/* 'BrtCFRuleExt' */case 0x01D7:/* 'BrtCFVO' */case 0x041A:/* 'BrtCFVO14' */case 0x0289:/* 'BrtCellIgnoreEC' */case 0x0451:/* 'BrtCellIgnoreEC14' */case 0x0031:/* 'BrtCellMeta' */case 0x024D:/* 'BrtCellSmartTagProperty' */case 0x025F:/* 'BrtCellWatch' */case 0x0234:/* 'BrtColor' */case 0x041F:/* 'BrtColor14' */case 0x00A8:/* 'BrtColorFilter' */case 0x00AE:/* 'BrtCustomFilter' */case 0x049C:/* 'BrtCustomFilter14' */case 0x01F3:/* 'BrtDRef' */case 0x01FB:/* 'BrtDXF' */case 0x0226:/* 'BrtDrawing' */case 0x00AB:/* 'BrtDynamicFilter' */case 0x00A7:/* 'BrtFilter' */case 0x0499:/* 'BrtFilter14' */case 0x00A9:/* 'BrtIconFilter' */case 0x049D:/* 'BrtIconFilter14' */case 0x0227:/* 'BrtLegacyDrawing' */case 0x0228:/* 'BrtLegacyDrawingHF' */case 0x0295:/* 'BrtListPart' */case 0x027F:/* 'BrtOleObject' */case 0x01DE:/* 'BrtPageSetup' */case 0x0219:/* 'BrtPhoneticInfo' */case 0x01DD:/* 'BrtPrintOptions' */case 0x0218:/* 'BrtRangeProtection' */case 0x044F:/* 'BrtRangeProtection14' */case 0x02A8:/* 'BrtRangeProtectionIso' */case 0x0450:/* 'BrtRangeProtectionIso14' */case 0x0400:/* 'BrtRwDescent' */case 0x0098:/* 'BrtSel' */case 0x0297:/* 'BrtSheetCalcProp' */case 0x0217:/* 'BrtSheetProtection' */case 0x02A6:/* 'BrtSheetProtectionIso' */case 0x01F8:/* 'BrtSlc' */case 0x0413:/* 'BrtSparkline' */case 0x01AC:/* 'BrtTable' */case 0x00AA:/* 'BrtTop10Filter' */case 0x0C00:/* 'BrtUid' */case 0x0032:/* 'BrtValueMeta' */case 0x0816:/* 'BrtWebExtension' */case 0x0415:/* 'BrtWsFmtInfoEx14' */break;case 0x0023:/* 'BrtFRTBegin' */pass=true;break;case 0x0024:/* 'BrtFRTEnd' */pass=false;break;case 0x0025:pass=true;break;case 0x0026:pass=false;break;default:if((R_n||"").indexOf("Begin")>0);else if((R_n||"").indexOf("End")>0);else if(!pass||opts.WTF)throw new Error("Unexpected record "+RT+" "+R_n);}},opts);delete opts.supbooks;delete opts['!row'];if(!s["!ref"]&&(refguess.s.r<2000000||ref&&(ref.e.r>0||ref.e.c>0||ref.s.r>0||ref.s.c>0)))s["!ref"]=encode_range(ref||refguess);if(opts.sheetRows&&s["!ref"]){var tmpref=safe_decode_range(s["!ref"]);if(opts.sheetRows<=+tmpref.e.r){tmpref.e.r=opts.sheetRows-1;if(tmpref.e.r>refguess.e.r)tmpref.e.r=refguess.e.r;if(tmpref.e.r<tmpref.s.r)tmpref.s.r=tmpref.e.r;if(tmpref.e.c>refguess.e.c)tmpref.e.c=refguess.e.c;if(tmpref.e.c<tmpref.s.c)tmpref.s.c=tmpref.e.c;s["!fullref"]=s["!ref"];s["!ref"]=encode_range(tmpref);}}if(merges.length>0)s["!merges"]=merges;if(colinfo.length>0)s["!cols"]=colinfo;if(rowinfo.length>0)s["!rows"]=rowinfo;return s;}/* TODO: something useful -- this is a stub */function write_ws_bin_cell(ba,cell,R,C,opts,ws){if(cell.v===undefined)return;var vv="";switch(cell.t){case'b':vv=cell.v?"1":"0";break;case'd':// no BrtCellDate :(
-  cell=dup(cell);cell.z=cell.z||SSF._table[14];cell.v=datenum(parseDate(cell.v));cell.t='n';break;/* falls through */case'n':case'e':vv=''+cell.v;break;default:vv=cell.v;break;}var o={r:R,c:C};/* TODO: cell style */o.s=get_cell_style(opts.cellXfs,cell,opts);if(cell.l)ws['!links'].push([encode_cell(o),cell.l]);if(cell.c)ws['!comments'].push([encode_cell(o),cell.c]);switch(cell.t){case's':case'str':if(opts.bookSST){vv=get_sst_id(opts.Strings,cell.v,opts.revStrings);o.t="s";o.v=vv;write_record(ba,"BrtCellIsst",write_BrtCellIsst(cell,o));}else {o.t="str";write_record(ba,"BrtCellSt",write_BrtCellSt(cell,o));}return;case'n':/* TODO: determine threshold for Real vs RK */if(cell.v==(cell.v|0)&&cell.v>-1000&&cell.v<1000)write_record(ba,"BrtCellRk",write_BrtCellRk(cell,o));else write_record(ba,"BrtCellReal",write_BrtCellReal(cell,o));return;case'b':o.t="b";write_record(ba,"BrtCellBool",write_BrtCellBool(cell,o));return;case'e':/* TODO: error */o.t="e";break;}write_record(ba,"BrtCellBlank",write_BrtCellBlank(cell,o));}function write_CELLTABLE(ba,ws,idx,opts){var range=safe_decode_range(ws['!ref']||"A1"),ref,rr="",cols=[];write_record(ba,'BrtBeginSheetData');var dense=Array.isArray(ws);var cap=range.e.r;if(ws['!rows'])cap=Math.max(range.e.r,ws['!rows'].length-1);for(var R=range.s.r;R<=cap;++R){rr=encode_row(R);/* [ACCELLTABLE] */ /* BrtRowHdr */write_row_header(ba,ws,range,R);if(R<=range.e.r)for(var C=range.s.c;C<=range.e.c;++C){/* *16384CELL */if(R===range.s.r)cols[C]=encode_col(C);ref=cols[C]+rr;var cell=dense?(ws[R]||[])[C]:ws[ref];if(!cell)continue;/* write cell */write_ws_bin_cell(ba,cell,R,C,opts,ws);}}write_record(ba,'BrtEndSheetData');}function write_MERGECELLS(ba,ws){if(!ws||!ws['!merges'])return;write_record(ba,'BrtBeginMergeCells',write_BrtBeginMergeCells(ws['!merges'].length));ws['!merges'].forEach(function(m){write_record(ba,'BrtMergeCell',write_BrtMergeCell(m));});write_record(ba,'BrtEndMergeCells');}function write_COLINFOS(ba,ws){if(!ws||!ws['!cols'])return;write_record(ba,'BrtBeginColInfos');ws['!cols'].forEach(function(m,i){if(m)write_record(ba,'BrtColInfo',write_BrtColInfo(i,m));});write_record(ba,'BrtEndColInfos');}function write_IGNOREECS(ba,ws){if(!ws||!ws['!ref'])return;write_record(ba,'BrtBeginCellIgnoreECs');write_record(ba,'BrtCellIgnoreEC',write_BrtCellIgnoreEC(safe_decode_range(ws['!ref'])));write_record(ba,'BrtEndCellIgnoreECs');}function write_HLINKS(ba,ws,rels){/* *BrtHLink */ws['!links'].forEach(function(l){if(!l[1].Target)return;var rId=add_rels(rels,-1,l[1].Target.replace(/#.*$/,""),RELS.HLINK);write_record(ba,"BrtHLink",write_BrtHLink(l,rId));});delete ws['!links'];}function write_LEGACYDRAWING(ba,ws,idx,rels){/* [BrtLegacyDrawing] */if(ws['!comments'].length>0){var rId=add_rels(rels,-1,"../drawings/vmlDrawing"+(idx+1)+".vml",RELS.VML);write_record(ba,"BrtLegacyDrawing",write_RelID("rId"+rId));ws['!legacy']=rId;}}function write_AUTOFILTER(ba,ws,wb,idx){if(!ws['!autofilter'])return;var data=ws['!autofilter'];var ref=typeof data.ref==="string"?data.ref:encode_range(data.ref);/* Update FilterDatabase defined name for the worksheet */if(!wb.Workbook)wb.Workbook={Sheets:[]};if(!wb.Workbook.Names)wb.Workbook.Names=[];var names=wb.Workbook.Names;var range=decode_range(ref);if(range.s.r==range.e.r){range.e.r=decode_range(ws["!ref"]).e.r;ref=encode_range(range);}for(var i=0;i<names.length;++i){var name=names[i];if(name.Name!='_xlnm._FilterDatabase')continue;if(name.Sheet!=idx)continue;name.Ref="'"+wb.SheetNames[idx]+"'!"+ref;break;}if(i==names.length)names.push({Name:'_xlnm._FilterDatabase',Sheet:idx,Ref:"'"+wb.SheetNames[idx]+"'!"+ref});write_record(ba,"BrtBeginAFilter",write_UncheckedRfX(safe_decode_range(ref)));/* *FILTERCOLUMN */ /* [SORTSTATE] */ /* BrtEndAFilter */write_record(ba,"BrtEndAFilter");}function write_WSVIEWS2(ba,ws,Workbook){write_record(ba,"BrtBeginWsViews");{/* 1*WSVIEW2 */ /* [ACUID] */write_record(ba,"BrtBeginWsView",write_BrtBeginWsView(ws,Workbook));/* [BrtPane] */ /* *4BrtSel */ /* *4SXSELECT */ /* *FRT */write_record(ba,"BrtEndWsView");}/* *FRT */write_record(ba,"BrtEndWsViews");}function write_SHEETPROTECT(ba,ws){if(!ws['!protect'])return;/* [BrtSheetProtectionIso] */write_record(ba,"BrtSheetProtection",write_BrtSheetProtection(ws['!protect']));}function write_ws_bin(idx,opts,wb,rels){var ba=buf_array();var s=wb.SheetNames[idx],ws=wb.Sheets[s]||{};var c=s;try{if(wb&&wb.Workbook)c=wb.Workbook.Sheets[idx].CodeName||c;}catch(e){}var r=safe_decode_range(ws['!ref']||"A1");if(r.e.c>0x3FFF||r.e.r>0xFFFFF){if(opts.WTF)throw new Error("Range "+(ws['!ref']||"A1")+" exceeds format limit A1:XFD1048576");r.e.c=Math.min(r.e.c,0x3FFF);r.e.r=Math.min(r.e.c,0xFFFFF);}ws['!links']=[];/* passed back to write_zip and removed there */ws['!comments']=[];write_record(ba,"BrtBeginSheet");if(wb.vbaraw)write_record(ba,"BrtWsProp",write_BrtWsProp(c));write_record(ba,"BrtWsDim",write_BrtWsDim(r));write_WSVIEWS2(ba,ws,wb.Workbook);write_COLINFOS(ba,ws);write_CELLTABLE(ba,ws,idx,opts);/* [BrtSheetCalcProp] */write_SHEETPROTECT(ba,ws);/* *([BrtRangeProtectionIso] BrtRangeProtection) */ /* [SCENMAN] */write_AUTOFILTER(ba,ws,wb,idx);/* [SORTSTATE] */ /* [DCON] */ /* [USERSHVIEWS] */write_MERGECELLS(ba,ws);/* [BrtPhoneticInfo] */ /* *CONDITIONALFORMATTING */ /* [DVALS] */write_HLINKS(ba,ws,rels);/* [BrtPrintOptions] */if(ws['!margins'])write_record(ba,"BrtMargins",write_BrtMargins(ws['!margins']));/* [BrtPageSetup] */ /* [HEADERFOOTER] */ /* [RWBRK] */ /* [COLBRK] */ /* *BrtBigName */ /* [CELLWATCHES] */if(!opts||opts.ignoreEC||opts.ignoreEC==void 0)write_IGNOREECS(ba,ws);/* [SMARTTAGS] */ /* [BrtDrawing] */write_LEGACYDRAWING(ba,ws,idx,rels);/* [BrtLegacyDrawingHF] */ /* [BrtBkHim] */ /* [OLEOBJECTS] */ /* [ACTIVEXCONTROLS] */ /* [WEBPUBITEMS] */ /* [LISTPARTS] */ /* FRTWORKSHEET */write_record(ba,"BrtEndSheet");return ba.end();}RELS.CHART="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart";RELS.CHARTEX="http://schemas.microsoft.com/office/2014/relationships/chartEx";function parse_Cache(data){var col=[];var num=data.match(/^<c:numCache>/);var f;/* 21.2.2.150 pt CT_NumVal */(data.match(/<c:pt idx="(\d*)">(.*?)<\/c:pt>/mg)||[]).forEach(function(pt){var q=pt.match(/<c:pt idx="(\d*?)"><c:v>(.*)<\/c:v><\/c:pt>/);if(!q)return;col[+q[1]]=num?+q[2]:q[2];});/* 21.2.2.71 formatCode CT_Xstring */var nf=unescapexml((data.match(/<c:formatCode>([\s\S]*?)<\/c:formatCode>/)||["","General"])[1]);(data.match(/<c:f>(.*?)<\/c:f>/mg)||[]).forEach(function(F){f=F.replace(/<.*?>/g,"");});return [col,nf,f];}/* 21.2 DrawingML - Charts */function parse_chart(data,name,opts,rels,wb,csheet){var cs=csheet||{"!type":"chart"};if(!data)return csheet;/* 21.2.2.27 chart CT_Chart */var C=0,R=0,col="A";var refguess={s:{r:2000000,c:2000000},e:{r:0,c:0}};/* 21.2.2.120 numCache CT_NumData */(data.match(/<c:numCache>[\s\S]*?<\/c:numCache>/gm)||[]).forEach(function(nc){var cache=parse_Cache(nc);refguess.s.r=refguess.s.c=0;refguess.e.c=C;col=encode_col(C);cache[0].forEach(function(n,i){cs[col+encode_row(i)]={t:'n',v:n,z:cache[1]};R=i;});if(refguess.e.r<R)refguess.e.r=R;++C;});if(C>0)cs["!ref"]=encode_range(refguess);return cs;}RELS.CS="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet";var CS_XML_ROOT=writextag('chartsheet',null,{'xmlns':XMLNS.main[0],'xmlns:r':XMLNS.r});/* 18.3 Worksheets also covers Chartsheets */function parse_cs_xml(data,opts,idx,rels,wb){if(!data)return data;/* 18.3.1.12 chartsheet CT_ChartSheet */if(!rels)rels={'!id':{}};var s={'!type':"chart",'!drawel':null,'!rel':""};var m;/* 18.3.1.83 sheetPr CT_ChartsheetPr */var sheetPr=data.match(sheetprregex);if(sheetPr)parse_ws_xml_sheetpr(sheetPr[0],s,wb,idx);/* 18.3.1.36 drawing CT_Drawing */if(m=data.match(/drawing r:id="(.*?)"/))s['!rel']=m[1];if(rels['!id'][s['!rel']])s['!drawel']=rels['!id'][s['!rel']];return s;}/* [MS-XLSB] 2.4.331 BrtCsProp */function parse_BrtCsProp(data,length){data.l+=10;var name=parse_XLWideString(data);return {name:name};}/* [MS-XLSB] 2.1.7.7 Chart Sheet */function parse_cs_bin(data,opts,idx,rels,wb){if(!data)return data;if(!rels)rels={'!id':{}};var s={'!type':"chart",'!drawel':null,'!rel':""};var pass=false;recordhopper(data,function cs_parse(val,R_n,RT){switch(RT){case 0x0226:/* 'BrtDrawing' */s['!rel']=val;break;case 0x028B:/* 'BrtCsProp' */if(!wb.Sheets[idx])wb.Sheets[idx]={};if(val.name)wb.Sheets[idx].CodeName=val.name;break;case 0x0232:/* 'BrtBkHim' */case 0x028C:/* 'BrtCsPageSetup' */case 0x029D:/* 'BrtCsProtection' */case 0x02A7:/* 'BrtCsProtectionIso' */case 0x0227:/* 'BrtLegacyDrawing' */case 0x0228:/* 'BrtLegacyDrawingHF' */case 0x01DC:/* 'BrtMargins' */case 0x0C00:/* 'BrtUid' */break;case 0x0023:/* 'BrtFRTBegin' */pass=true;break;case 0x0024:/* 'BrtFRTEnd' */pass=false;break;case 0x0025:break;case 0x0026:break;default:if((R_n||"").indexOf("Begin")>0);else if((R_n||"").indexOf("End")>0);else if(!pass||opts.WTF)throw new Error("Unexpected record "+RT+" "+R_n);}},opts);if(rels['!id'][s['!rel']])s['!drawel']=rels['!id'][s['!rel']];return s;}/* 18.2.28 (CT_WorkbookProtection) Defaults */var WBPropsDef=[['allowRefreshQuery',false,"bool"],['autoCompressPictures',true,"bool"],['backupFile',false,"bool"],['checkCompatibility',false,"bool"],['CodeName',''],['date1904',false,"bool"],['defaultThemeVersion',0,"int"],['filterPrivacy',false,"bool"],['hidePivotFieldList',false,"bool"],['promptedSolutions',false,"bool"],['publishItems',false,"bool"],['refreshAllConnections',false,"bool"],['saveExternalLinkValues',true,"bool"],['showBorderUnselectedTables',true,"bool"],['showInkAnnotation',true,"bool"],['showObjects','all'],['showPivotChartFilter',false,"bool"],['updateLinks','userSet']];/* 18.2.30 (CT_BookView) Defaults */var WBViewDef=[['activeTab',0,"int"],['autoFilterDateGrouping',true,"bool"],['firstSheet',0,"int"],['minimized',false,"bool"],['showHorizontalScroll',true,"bool"],['showSheetTabs',true,"bool"],['showVerticalScroll',true,"bool"],['tabRatio',600,"int"],['visibility','visible']//window{Height,Width}, {x,y}Window
+  cell=dup(cell);cell.z=cell.z||SSF._table[14];cell.v=datenum(parseDate(cell.v));cell.t='n';break;/* falls through */case'n':case'e':vv=''+cell.v;break;default:vv=cell.v;break;}var o={r:R,c:C};/* TODO: cell style */o.s=get_cell_style(opts.cellXfs,cell,opts);if(cell.l)ws['!links'].push([encode_cell(o),cell.l]);if(cell.c)ws['!comments'].push([encode_cell(o),cell.c]);switch(cell.t){case's':case'str':if(opts.bookSST){vv=get_sst_id(opts.Strings,cell.v,opts.revStrings);o.t="s";o.v=vv;write_record(ba,"BrtCellIsst",write_BrtCellIsst(cell,o));}else {o.t="str";write_record(ba,"BrtCellSt",write_BrtCellSt(cell,o));}return;case'n':/* TODO: determine threshold for Real vs RK */if(cell.v==(cell.v|0)&&cell.v>-1000&&cell.v<1000)write_record(ba,"BrtCellRk",write_BrtCellRk(cell,o));else write_record(ba,"BrtCellReal",write_BrtCellReal(cell,o));return;case'b':o.t="b";write_record(ba,"BrtCellBool",write_BrtCellBool(cell,o));return;case'e':/* TODO: error */o.t="e";break;}write_record(ba,"BrtCellBlank",write_BrtCellBlank(cell,o));}function write_CELLTABLE(ba,ws,idx,opts){var range=safe_decode_range(ws['!ref']||"A1"),ref,rr="",cols=[];write_record(ba,'BrtBeginSheetData');var dense=Array.isArray(ws);var cap=range.e.r;if(ws['!rows'])cap=Math.max(range.e.r,ws['!rows'].length-1);for(var R=range.s.r;R<=cap;++R){rr=encode_row(R);/* [ACCELLTABLE] */ /* BrtRowHdr */write_row_header(ba,ws,range,R);if(R<=range.e.r)for(var C=range.s.c;C<=range.e.c;++C){/* *16384CELL */if(R===range.s.r)cols[C]=encode_col(C);ref=cols[C]+rr;var cell=dense?(ws[R]||[])[C]:ws[ref];if(!cell)continue;/* write cell */write_ws_bin_cell(ba,cell,R,C,opts,ws);}}write_record(ba,'BrtEndSheetData');}function write_MERGECELLS(ba,ws){if(!ws||!ws['!merges'])return;write_record(ba,'BrtBeginMergeCells',write_BrtBeginMergeCells(ws['!merges'].length));ws['!merges'].forEach(function(m){write_record(ba,'BrtMergeCell',write_BrtMergeCell(m));});write_record(ba,'BrtEndMergeCells');}function write_COLINFOS(ba,ws){if(!ws||!ws['!cols'])return;write_record(ba,'BrtBeginColInfos');ws['!cols'].forEach(function(m,i){if(m)write_record(ba,'BrtColInfo',write_BrtColInfo(i,m));});write_record(ba,'BrtEndColInfos');}function write_IGNOREECS(ba,ws){if(!ws||!ws['!ref'])return;write_record(ba,'BrtBeginCellIgnoreECs');write_record(ba,'BrtCellIgnoreEC',write_BrtCellIgnoreEC(safe_decode_range(ws['!ref'])));write_record(ba,'BrtEndCellIgnoreECs');}function write_HLINKS(ba,ws,rels){/* *BrtHLink */ws['!links'].forEach(function(l){if(!l[1].Target)return;var rId=add_rels(rels,-1,l[1].Target.replace(/#.*$/,""),RELS.HLINK);write_record(ba,"BrtHLink",write_BrtHLink(l,rId));});delete ws['!links'];}function write_LEGACYDRAWING(ba,ws,idx,rels){/* [BrtLegacyDrawing] */if(ws['!comments'].length>0){var rId=add_rels(rels,-1,"../drawings/vmlDrawing"+(idx+1)+".vml",RELS.VML);write_record(ba,"BrtLegacyDrawing",write_RelID("rId"+rId));ws['!legacy']=rId;}}function write_AUTOFILTER(ba,ws,wb,idx){if(!ws['!autofilter'])return;var data=ws['!autofilter'];var ref=typeof data.ref==="string"?data.ref:encode_range(data.ref);/* Update FilterDatabase defined name for the worksheet */if(!wb.Workbook)wb.Workbook={Sheets:[]};if(!wb.Workbook.Names)wb.Workbook.Names=[];var names=wb.Workbook.Names;var range=decode_range(ref);if(range.s.r==range.e.r){range.e.r=decode_range(ws["!ref"]).e.r;ref=encode_range(range);}for(var i=0;i<names.length;++i){var name=names[i];if(name.Name!='_xlnm._FilterDatabase')continue;if(name.Sheet!=idx)continue;name.Ref="'"+wb.SheetNames[idx]+"'!"+ref;break;}if(i==names.length)names.push({Name:'_xlnm._FilterDatabase',Sheet:idx,Ref:"'"+wb.SheetNames[idx]+"'!"+ref});write_record(ba,"BrtBeginAFilter",write_UncheckedRfX(safe_decode_range(ref)));/* *FILTERCOLUMN */ /* [SORTSTATE] */ /* BrtEndAFilter */write_record(ba,"BrtEndAFilter");}function write_WSVIEWS2(ba,ws,Workbook){write_record(ba,"BrtBeginWsViews");{/* 1*WSVIEW2 */ /* [ACUID] */write_record(ba,"BrtBeginWsView",write_BrtBeginWsView(ws,Workbook));/* [BrtPane] */ /* *4BrtSel */ /* *4SXSELECT */ /* *FRT */write_record(ba,"BrtEndWsView");}/* *FRT */write_record(ba,"BrtEndWsViews");}function write_SHEETPROTECT(ba,ws){if(!ws['!protect'])return;/* [BrtSheetProtectionIso] */write_record(ba,"BrtSheetProtection",write_BrtSheetProtection(ws['!protect']));}function write_ws_bin(idx,opts,wb,rels){var ba=buf_array();var s=wb.SheetNames[idx],ws=wb.Sheets[s]||{};var c=s;try{if(wb&&wb.Workbook)c=wb.Workbook.Sheets[idx].CodeName||c;}catch(e){}var r=safe_decode_range(ws['!ref']||"A1");if(r.e.c>0x3FFF||r.e.r>0xFFFFF){if(opts.WTF)throw new Error("Range "+(ws['!ref']||"A1")+" exceeds format limit A1:XFD1048576");r.e.c=Math.min(r.e.c,0x3FFF);r.e.r=Math.min(r.e.c,0xFFFFF);}ws['!links']=[];/* passed back to write_zip and removed there */ws['!comments']=[];write_record(ba,"BrtBeginSheet");if(wb.vbaraw)write_record(ba,"BrtWsProp",write_BrtWsProp(c));write_record(ba,"BrtWsDim",write_BrtWsDim(r));write_WSVIEWS2(ba,ws,wb.Workbook);write_COLINFOS(ba,ws);write_CELLTABLE(ba,ws,idx,opts);/* [BrtSheetCalcProp] */write_SHEETPROTECT(ba,ws);/* *([BrtRangeProtectionIso] BrtRangeProtection) */ /* [SCENMAN] */write_AUTOFILTER(ba,ws,wb,idx);/* [SORTSTATE] */ /* [DCON] */ /* [USERSHVIEWS] */write_MERGECELLS(ba,ws);/* [BrtPhoneticInfo] */ /* *CONDITIONALFORMATTING */ /* [DVALS] */write_HLINKS(ba,ws,rels);/* [BrtPrintOptions] */if(ws['!margins'])write_record(ba,"BrtMargins",write_BrtMargins(ws['!margins']));/* [BrtPageSetup] */ /* [HEADERFOOTER] */ /* [RWBRK] */ /* [COLBRK] */ /* *BrtBigName */ /* [CELLWATCHES] */if(!opts||opts.ignoreEC||opts.ignoreEC==void 0)write_IGNOREECS(ba,ws);/* [SMARTTAGS] */ /* [BrtDrawing] */write_LEGACYDRAWING(ba,ws,idx,rels);/* [BrtLegacyDrawingHF] */ /* [BrtBkHim] */ /* [OLEOBJECTS] */ /* [ACTIVEXCONTROLS] */ /* [WEBPUBITEMS] */ /* [LISTPARTS] */ /* FRTWORKSHEET */write_record(ba,"BrtEndSheet");return ba.end();}RELS.CHART="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart";RELS.CHARTEX="http://schemas.microsoft.com/office/2014/relationships/chartEx";function parse_Cache(data){var col=[];var num=data.match(/^<c:numCache>/);var f;/* 21.2.2.150 pt CT_NumVal */(data.match(/<c:pt idx="(\d*)">(.*?)<\/c:pt>/mg)||[]).forEach(function(pt){var q=pt.match(/<c:pt idx="(\d*?)"><c:v>(.*)<\/c:v><\/c:pt>/);if(!q)return;col[+q[1]]=num?+q[2]:q[2];});/* 21.2.2.71 formatCode CT_Xstring */var nf=unescapexml((data.match(/<c:formatCode>([\s\S]*?)<\/c:formatCode>/)||["","General"])[1]);(data.match(/<c:f>(.*?)<\/c:f>/mg)||[]).forEach(function(F){f=F.replace(/<.*?>/g,"");});return [col,nf,f];}/* 21.2 DrawingML - Charts */function parse_chart(data,name,opts,rels,wb,csheet){var cs=csheet||{"!type":"chart"};if(!data)return csheet;/* 21.2.2.27 chart CT_Chart */var C=0,R=0,col="A";var refguess={s:{r:2000000,c:2000000},e:{r:0,c:0}};/* 21.2.2.120 numCache CT_NumData */(data.match(/<c:numCache>[\s\S]*?<\/c:numCache>/gm)||[]).forEach(function(nc){var cache=parse_Cache(nc);refguess.s.r=refguess.s.c=0;refguess.e.c=C;col=encode_col(C);cache[0].forEach(function(n,i){cs[col+encode_row(i)]={t:'n',v:n,z:cache[1]};R=i;});if(refguess.e.r<R)refguess.e.r=R;++C;});if(C>0)cs["!ref"]=encode_range(refguess);return cs;}RELS.CS="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet";writextag('chartsheet',null,{'xmlns':XMLNS.main[0],'xmlns:r':XMLNS.r});/* 18.3 Worksheets also covers Chartsheets */function parse_cs_xml(data,opts,idx,rels,wb){if(!data)return data;/* 18.3.1.12 chartsheet CT_ChartSheet */if(!rels)rels={'!id':{}};var s={'!type':"chart",'!drawel':null,'!rel':""};var m;/* 18.3.1.83 sheetPr CT_ChartsheetPr */var sheetPr=data.match(sheetprregex);if(sheetPr)parse_ws_xml_sheetpr(sheetPr[0],s,wb,idx);/* 18.3.1.36 drawing CT_Drawing */if(m=data.match(/drawing r:id="(.*?)"/))s['!rel']=m[1];if(rels['!id'][s['!rel']])s['!drawel']=rels['!id'][s['!rel']];return s;}/* [MS-XLSB] 2.4.331 BrtCsProp */function parse_BrtCsProp(data,length){data.l+=10;var name=parse_XLWideString(data);return {name:name};}/* [MS-XLSB] 2.1.7.7 Chart Sheet */function parse_cs_bin(data,opts,idx,rels,wb){if(!data)return data;if(!rels)rels={'!id':{}};var s={'!type':"chart",'!drawel':null,'!rel':""};var pass=false;recordhopper(data,function cs_parse(val,R_n,RT){switch(RT){case 0x0226:/* 'BrtDrawing' */s['!rel']=val;break;case 0x028B:/* 'BrtCsProp' */if(!wb.Sheets[idx])wb.Sheets[idx]={};if(val.name)wb.Sheets[idx].CodeName=val.name;break;case 0x0232:/* 'BrtBkHim' */case 0x028C:/* 'BrtCsPageSetup' */case 0x029D:/* 'BrtCsProtection' */case 0x02A7:/* 'BrtCsProtectionIso' */case 0x0227:/* 'BrtLegacyDrawing' */case 0x0228:/* 'BrtLegacyDrawingHF' */case 0x01DC:/* 'BrtMargins' */case 0x0C00:/* 'BrtUid' */break;case 0x0023:/* 'BrtFRTBegin' */pass=true;break;case 0x0024:/* 'BrtFRTEnd' */pass=false;break;case 0x0025:break;case 0x0026:break;default:if((R_n||"").indexOf("Begin")>0);else if((R_n||"").indexOf("End")>0);else if(!pass||opts.WTF)throw new Error("Unexpected record "+RT+" "+R_n);}},opts);if(rels['!id'][s['!rel']])s['!drawel']=rels['!id'][s['!rel']];return s;}/* 18.2.28 (CT_WorkbookProtection) Defaults */var WBPropsDef=[['allowRefreshQuery',false,"bool"],['autoCompressPictures',true,"bool"],['backupFile',false,"bool"],['checkCompatibility',false,"bool"],['CodeName',''],['date1904',false,"bool"],['defaultThemeVersion',0,"int"],['filterPrivacy',false,"bool"],['hidePivotFieldList',false,"bool"],['promptedSolutions',false,"bool"],['publishItems',false,"bool"],['refreshAllConnections',false,"bool"],['saveExternalLinkValues',true,"bool"],['showBorderUnselectedTables',true,"bool"],['showInkAnnotation',true,"bool"],['showObjects','all'],['showPivotChartFilter',false,"bool"],['updateLinks','userSet']];/* 18.2.30 (CT_BookView) Defaults */var WBViewDef=[['activeTab',0,"int"],['autoFilterDateGrouping',true,"bool"],['firstSheet',0,"int"],['minimized',false,"bool"],['showHorizontalScroll',true,"bool"],['showSheetTabs',true,"bool"],['showVerticalScroll',true,"bool"],['tabRatio',600,"int"],['visibility','visible']//window{Height,Width}, {x,y}Window
   ];/* 18.2.19 (CT_Sheet) Defaults */var SheetDef=[//['state', 'visible']
   ];/* 18.2.2  (CT_CalcPr) Defaults */var CalcPrDef=[['calcCompleted','true'],['calcMode','auto'],['calcOnSave','true'],['concurrentCalc','true'],['fullCalcOnLoad','false'],['fullPrecision','true'],['iterate','false'],['iterateCount','100'],['iterateDelta','0.001'],['refMode','A1']];/* 18.2.3 (CT_CustomWorkbookView) Defaults */ /*var CustomWBViewDef = [
   	['autoUpdate', 'false'],
@@ -27893,8 +28468,8 @@ ${points.join('\n')}
   */var attregexg2=/([\w:]+)=((?:")([^"]*)(?:")|(?:')([^']*)(?:'))/g;var attregex2=/([\w:]+)=((?:")(?:[^"]*)(?:")|(?:')(?:[^']*)(?:'))/;function xlml_parsexmltag(tag,skip_root){var words=tag.split(/\s+/);var z=[];if(!skip_root)z[0]=words[0];if(words.length===1)return z;var m=tag.match(attregexg2),y,j,w,i;if(m)for(i=0;i!=m.length;++i){y=m[i].match(attregex2);if((j=y[1].indexOf(":"))===-1)z[y[1]]=y[2].slice(1,y[2].length-1);else {if(y[1].slice(0,6)==="xmlns:")w="xmlns"+y[1].slice(6);else w=y[1].slice(j+1);z[w]=y[2].slice(1,y[2].length-1);}}return z;}function xlml_parsexmltagobj(tag){var words=tag.split(/\s+/);var z={};if(words.length===1)return z;var m=tag.match(attregexg2),y,j,w,i;if(m)for(i=0;i!=m.length;++i){y=m[i].match(attregex2);if((j=y[1].indexOf(":"))===-1)z[y[1]]=y[2].slice(1,y[2].length-1);else {if(y[1].slice(0,6)==="xmlns:")w="xmlns"+y[1].slice(6);else w=y[1].slice(j+1);z[w]=y[2].slice(1,y[2].length-1);}}return z;}// ----
   function xlml_format(format,value){var fmt=XLMLFormatMap[format]||unescapexml(format);if(fmt==="General")return SSF._general(value);return SSF.format(fmt,value);}function xlml_set_custprop(Custprops,key,cp,val){var oval=val;switch((cp[0].match(/dt:dt="([\w.]+)"/)||["",""])[1]){case"boolean":oval=parsexmlbool(val);break;case"i2":case"int":oval=parseInt(val,10);break;case"r4":case"float":oval=parseFloat(val);break;case"date":case"dateTime.tz":oval=parseDate(val);break;case"i8":case"string":case"fixed":case"uuid":case"bin.base64":break;default:throw new Error("bad custprop:"+cp[0]);}Custprops[unescapexml(key)]=oval;}function safe_format_xlml(cell,nf,o){if(cell.t==='z')return;if(!o||o.cellText!==false)try{if(cell.t==='e'){cell.w=cell.w||BErr[cell.v];}else if(nf==="General"){if(cell.t==='n'){if((cell.v|0)===cell.v)cell.w=SSF._general_int(cell.v);else cell.w=SSF._general_num(cell.v);}else cell.w=SSF._general(cell.v);}else cell.w=xlml_format(nf||"General",cell.v);}catch(e){if(o.WTF)throw e;}try{var z=XLMLFormatMap[nf]||nf||"General";if(o.cellNF)cell.z=z;if(o.cellDates&&cell.t=='n'&&SSF.is_date(z)){var _d=SSF.parse_date_code(cell.v);if(_d){cell.t='d';cell.v=new Date(_d.y,_d.m-1,_d.d,_d.H,_d.M,_d.S,_d.u);}}}catch(e){if(o.WTF)throw e;}}function process_style_xlml(styles,stag,opts){if(opts.cellStyles){if(stag.Interior){var I=stag.Interior;if(I.Pattern)I.patternType=XLMLPatternTypeMap[I.Pattern]||I.Pattern;}}styles[stag.ID]=stag;}/* TODO: there must exist some form of OSP-blessed spec */function parse_xlml_data(xml,ss,data,cell,base,styles,csty,row,arrayf,o){var nf="General",sid=cell.StyleID,S={};o=o||{};var interiors=[];var i=0;if(sid===undefined&&row)sid=row.StyleID;if(sid===undefined&&csty)sid=csty.StyleID;while(styles[sid]!==undefined){if(styles[sid].nf)nf=styles[sid].nf;if(styles[sid].Interior)interiors.push(styles[sid].Interior);if(!styles[sid].Parent)break;sid=styles[sid].Parent;}switch(data.Type){case'Boolean':cell.t='b';cell.v=parsexmlbool(xml);break;case'String':cell.t='s';cell.r=xlml_fixstr(unescapexml(xml));cell.v=xml.indexOf("<")>-1?unescapexml(ss||xml).replace(/<.*?>/g,""):cell.r;// todo: BR etc
   break;case'DateTime':if(xml.slice(-1)!="Z")xml+="Z";cell.v=(parseDate(xml)-new Date(Date.UTC(1899,11,30)))/(24*60*60*1000);if(cell.v!==cell.v)cell.v=unescapexml(xml);else if(cell.v<60)cell.v=cell.v-1;if(!nf||nf=="General")nf="yyyy-mm-dd";/* falls through */case'Number':if(cell.v===undefined)cell.v=+xml;if(!cell.t)cell.t='n';break;case'Error':cell.t='e';cell.v=RBErr[xml];if(o.cellText!==false)cell.w=xml;break;default:if(xml==""&&ss==""){cell.t='z';}else {cell.t='s';cell.v=xlml_fixstr(ss||xml);}break;}safe_format_xlml(cell,nf,o);if(o.cellFormula!==false){if(cell.Formula){var fstr=unescapexml(cell.Formula);/* strictly speaking, the leading = is required but some writers omit */if(fstr.charCodeAt(0)==61/* = */)fstr=fstr.slice(1);cell.f=rc_to_a1(fstr,base);delete cell.Formula;if(cell.ArrayRange=="RC")cell.F=rc_to_a1("RC:RC",base);else if(cell.ArrayRange){cell.F=rc_to_a1(cell.ArrayRange,base);arrayf.push([safe_decode_range(cell.F),cell.F]);}}else {for(i=0;i<arrayf.length;++i)if(base.r>=arrayf[i][0].s.r&&base.r<=arrayf[i][0].e.r)if(base.c>=arrayf[i][0].s.c&&base.c<=arrayf[i][0].e.c)cell.F=arrayf[i][1];}}if(o.cellStyles){interiors.forEach(function(x){if(!S.patternType&&x.patternType)S.patternType=x.patternType;});cell.s=S;}if(cell.StyleID!==undefined)cell.ixfe=cell.StyleID;}function xlml_clean_comment(comment){comment.t=comment.v||"";comment.t=comment.t.replace(/\r\n/g,"\n").replace(/\r/g,"\n");comment.v=comment.w=comment.ixfe=undefined;}function xlml_normalize(d){if(has_buf&&Buffer.isBuffer(d))return d.toString('utf8');if(typeof d==='string')return d;/* duktape */if(typeof Uint8Array!=='undefined'&&d instanceof Uint8Array)return utf8read(a2s(ab2a(d)));throw new Error("Bad input format: expected Buffer or string");}/* TODO: Everything */ /* UOS uses CJK in tags */var xlmlregex=/<(\/?)([^\s?><!\/:]*:|)([^\s?<>:\/]+)(?:[\s?:\/][^>]*)?>/mg;//var xlmlregex = /<(\/?)([a-z0-9]*:|)(\w+)[^>]*>/mg;
-  function parse_xlml_xml(d,_opts){var opts=_opts||{};make_ssf(SSF);var str=debom(xlml_normalize(d));if(opts.type=='binary'||opts.type=='array'||opts.type=='base64'){if(typeof cptable!=='undefined')str=cptable.utils.decode(65001,char_codes(str));else str=utf8read(str);}var opening=str.slice(0,1024).toLowerCase(),ishtml=false;if(opening.indexOf("<?xml")==-1)["html","table","head","meta","script","style","div"].forEach(function(tag){if(opening.indexOf("<"+tag)>=0)ishtml=true;});if(ishtml)return HTML_.to_workbook(str,opts);var Rn;var state=[],tmp;var sheets={},sheetnames=[],cursheet=opts.dense?[]:{},sheetname="";var table={},cell={},row={};// eslint-disable-line no-unused-vars
-  var dtag=xlml_parsexmltag('<Data ss:Type="String">'),didx=0;var c=0,r=0;var refguess={s:{r:2000000,c:2000000},e:{r:0,c:0}};var styles={},stag={};var ss="",fidx=0;var merges=[];var Props={},Custprops={},pidx=0,cp=[];var comments=[],comment={};var cstys=[],csty,seencol=false;var arrayf=[];var rowinfo=[],rowobj={},cc=0,rr=0;var Workbook={Sheets:[],WBProps:{date1904:false}},wsprops={};xlmlregex.lastIndex=0;str=str.replace(/<!--([\s\S]*?)-->/mg,"");var raw_Rn3="";while(Rn=xlmlregex.exec(str))switch(Rn[3]=(raw_Rn3=Rn[3]).toLowerCase()){case'data'/*case 'Data'*/:if(raw_Rn3=="data"){if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));}else if(Rn[0].charAt(Rn[0].length-2)!=='/')state.push([Rn[3],true]);break;}if(state[state.length-1][1])break;if(Rn[1]==='/')parse_xlml_data(str.slice(didx,Rn.index),ss,dtag,state[state.length-1][0]==/*"Comment"*/"comment"?comment:cell,{c:c,r:r},styles,cstys[c],row,arrayf,opts);else {ss="";dtag=xlml_parsexmltag(Rn[0]);didx=Rn.index+Rn[0].length;}break;case'cell'/*case 'Cell'*/:if(Rn[1]==='/'){if(comments.length>0)cell.c=comments;if((!opts.sheetRows||opts.sheetRows>r)&&cell.v!==undefined){if(opts.dense){if(!cursheet[r])cursheet[r]=[];cursheet[r][c]=cell;}else cursheet[encode_col(c)+encode_row(r)]=cell;}if(cell.HRef){cell.l={Target:cell.HRef};if(cell.HRefScreenTip)cell.l.Tooltip=cell.HRefScreenTip;delete cell.HRef;delete cell.HRefScreenTip;}if(cell.MergeAcross||cell.MergeDown){cc=c+(parseInt(cell.MergeAcross,10)|0);rr=r+(parseInt(cell.MergeDown,10)|0);merges.push({s:{c:c,r:r},e:{c:cc,r:rr}});}if(!opts.sheetStubs){if(cell.MergeAcross)c=cc+1;else ++c;}else if(cell.MergeAcross||cell.MergeDown){for(var cma=c;cma<=cc;++cma){for(var cmd=r;cmd<=rr;++cmd){if(cma>c||cmd>r){if(opts.dense){if(!cursheet[cmd])cursheet[cmd]=[];cursheet[cmd][cma]={t:'z'};}else cursheet[encode_col(cma)+encode_row(cmd)]={t:'z'};}}}c=cc+1;}else ++c;}else {cell=xlml_parsexmltagobj(Rn[0]);if(cell.Index)c=+cell.Index-1;if(c<refguess.s.c)refguess.s.c=c;if(c>refguess.e.c)refguess.e.c=c;if(Rn[0].slice(-2)==="/>")++c;comments=[];}break;case'row'/*case 'Row'*/:if(Rn[1]==='/'||Rn[0].slice(-2)==="/>"){if(r<refguess.s.r)refguess.s.r=r;if(r>refguess.e.r)refguess.e.r=r;if(Rn[0].slice(-2)==="/>"){row=xlml_parsexmltag(Rn[0]);if(row.Index)r=+row.Index-1;}c=0;++r;}else {row=xlml_parsexmltag(Rn[0]);if(row.Index)r=+row.Index-1;rowobj={};if(row.AutoFitHeight=="0"||row.Height){rowobj.hpx=parseInt(row.Height,10);rowobj.hpt=px2pt(rowobj.hpx);rowinfo[r]=rowobj;}if(row.Hidden=="1"){rowobj.hidden=true;rowinfo[r]=rowobj;}}break;case'worksheet'/*case 'Worksheet'*/:/* TODO: read range from FullRows/FullColumns */if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));sheetnames.push(sheetname);if(refguess.s.r<=refguess.e.r&&refguess.s.c<=refguess.e.c){cursheet["!ref"]=encode_range(refguess);if(opts.sheetRows&&opts.sheetRows<=refguess.e.r){cursheet["!fullref"]=cursheet["!ref"];refguess.e.r=opts.sheetRows-1;cursheet["!ref"]=encode_range(refguess);}}if(merges.length)cursheet["!merges"]=merges;if(cstys.length>0)cursheet["!cols"]=cstys;if(rowinfo.length>0)cursheet["!rows"]=rowinfo;sheets[sheetname]=cursheet;}else {refguess={s:{r:2000000,c:2000000},e:{r:0,c:0}};r=c=0;state.push([Rn[3],false]);tmp=xlml_parsexmltag(Rn[0]);sheetname=unescapexml(tmp.Name);cursheet=opts.dense?[]:{};merges=[];arrayf=[];rowinfo=[];wsprops={name:sheetname,Hidden:0};Workbook.Sheets.push(wsprops);}break;case'table'/*case 'Table'*/:if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));}else if(Rn[0].slice(-2)=="/>")break;else {table=xlml_parsexmltag(Rn[0]);state.push([Rn[3],false]);cstys=[];seencol=false;}break;case'style'/*case 'Style'*/:if(Rn[1]==='/')process_style_xlml(styles,stag,opts);else stag=xlml_parsexmltag(Rn[0]);break;case'numberformat'/*case 'NumberFormat'*/:stag.nf=unescapexml(xlml_parsexmltag(Rn[0]).Format||"General");if(XLMLFormatMap[stag.nf])stag.nf=XLMLFormatMap[stag.nf];for(var ssfidx=0;ssfidx!=0x188;++ssfidx)if(SSF._table[ssfidx]==stag.nf)break;if(ssfidx==0x188)for(ssfidx=0x39;ssfidx!=0x188;++ssfidx)if(SSF._table[ssfidx]==null){SSF.load(stag.nf,ssfidx);break;}break;case'column'/*case 'Column'*/:if(state[state.length-1][0]!==/*'Table'*/'table')break;csty=xlml_parsexmltag(Rn[0]);if(csty.Hidden){csty.hidden=true;delete csty.Hidden;}if(csty.Width)csty.wpx=parseInt(csty.Width,10);if(!seencol&&csty.wpx>10){seencol=true;MDW=DEF_MDW;//find_mdw_wpx(csty.wpx);
+  function parse_xlml_xml(d,_opts){var opts=_opts||{};make_ssf(SSF);var str=debom(xlml_normalize(d));if(opts.type=='binary'||opts.type=='array'||opts.type=='base64'){if(typeof cptable!=='undefined')str=cptable.utils.decode(65001,char_codes(str));else str=utf8read(str);}var opening=str.slice(0,1024).toLowerCase(),ishtml=false;if(opening.indexOf("<?xml")==-1)["html","table","head","meta","script","style","div"].forEach(function(tag){if(opening.indexOf("<"+tag)>=0)ishtml=true;});if(ishtml)return HTML_.to_workbook(str,opts);var Rn;var state=[],tmp;var sheets={},sheetnames=[],cursheet=opts.dense?[]:{},sheetname="";var cell={},row={};// eslint-disable-line no-unused-vars
+  var dtag=xlml_parsexmltag('<Data ss:Type="String">'),didx=0;var c=0,r=0;var refguess={s:{r:2000000,c:2000000},e:{r:0,c:0}};var styles={},stag={};var ss="",fidx=0;var merges=[];var Props={},Custprops={},pidx=0,cp=[];var comments=[],comment={};var cstys=[],csty,seencol=false;var arrayf=[];var rowinfo=[],rowobj={},cc=0,rr=0;var Workbook={Sheets:[],WBProps:{date1904:false}},wsprops={};xlmlregex.lastIndex=0;str=str.replace(/<!--([\s\S]*?)-->/mg,"");var raw_Rn3="";while(Rn=xlmlregex.exec(str))switch(Rn[3]=(raw_Rn3=Rn[3]).toLowerCase()){case'data'/*case 'Data'*/:if(raw_Rn3=="data"){if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));}else if(Rn[0].charAt(Rn[0].length-2)!=='/')state.push([Rn[3],true]);break;}if(state[state.length-1][1])break;if(Rn[1]==='/')parse_xlml_data(str.slice(didx,Rn.index),ss,dtag,state[state.length-1][0]==/*"Comment"*/"comment"?comment:cell,{c:c,r:r},styles,cstys[c],row,arrayf,opts);else {ss="";dtag=xlml_parsexmltag(Rn[0]);didx=Rn.index+Rn[0].length;}break;case'cell'/*case 'Cell'*/:if(Rn[1]==='/'){if(comments.length>0)cell.c=comments;if((!opts.sheetRows||opts.sheetRows>r)&&cell.v!==undefined){if(opts.dense){if(!cursheet[r])cursheet[r]=[];cursheet[r][c]=cell;}else cursheet[encode_col(c)+encode_row(r)]=cell;}if(cell.HRef){cell.l={Target:cell.HRef};if(cell.HRefScreenTip)cell.l.Tooltip=cell.HRefScreenTip;delete cell.HRef;delete cell.HRefScreenTip;}if(cell.MergeAcross||cell.MergeDown){cc=c+(parseInt(cell.MergeAcross,10)|0);rr=r+(parseInt(cell.MergeDown,10)|0);merges.push({s:{c:c,r:r},e:{c:cc,r:rr}});}if(!opts.sheetStubs){if(cell.MergeAcross)c=cc+1;else ++c;}else if(cell.MergeAcross||cell.MergeDown){for(var cma=c;cma<=cc;++cma){for(var cmd=r;cmd<=rr;++cmd){if(cma>c||cmd>r){if(opts.dense){if(!cursheet[cmd])cursheet[cmd]=[];cursheet[cmd][cma]={t:'z'};}else cursheet[encode_col(cma)+encode_row(cmd)]={t:'z'};}}}c=cc+1;}else ++c;}else {cell=xlml_parsexmltagobj(Rn[0]);if(cell.Index)c=+cell.Index-1;if(c<refguess.s.c)refguess.s.c=c;if(c>refguess.e.c)refguess.e.c=c;if(Rn[0].slice(-2)==="/>")++c;comments=[];}break;case'row'/*case 'Row'*/:if(Rn[1]==='/'||Rn[0].slice(-2)==="/>"){if(r<refguess.s.r)refguess.s.r=r;if(r>refguess.e.r)refguess.e.r=r;if(Rn[0].slice(-2)==="/>"){row=xlml_parsexmltag(Rn[0]);if(row.Index)r=+row.Index-1;}c=0;++r;}else {row=xlml_parsexmltag(Rn[0]);if(row.Index)r=+row.Index-1;rowobj={};if(row.AutoFitHeight=="0"||row.Height){rowobj.hpx=parseInt(row.Height,10);rowobj.hpt=px2pt(rowobj.hpx);rowinfo[r]=rowobj;}if(row.Hidden=="1"){rowobj.hidden=true;rowinfo[r]=rowobj;}}break;case'worksheet'/*case 'Worksheet'*/:/* TODO: read range from FullRows/FullColumns */if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));sheetnames.push(sheetname);if(refguess.s.r<=refguess.e.r&&refguess.s.c<=refguess.e.c){cursheet["!ref"]=encode_range(refguess);if(opts.sheetRows&&opts.sheetRows<=refguess.e.r){cursheet["!fullref"]=cursheet["!ref"];refguess.e.r=opts.sheetRows-1;cursheet["!ref"]=encode_range(refguess);}}if(merges.length)cursheet["!merges"]=merges;if(cstys.length>0)cursheet["!cols"]=cstys;if(rowinfo.length>0)cursheet["!rows"]=rowinfo;sheets[sheetname]=cursheet;}else {refguess={s:{r:2000000,c:2000000},e:{r:0,c:0}};r=c=0;state.push([Rn[3],false]);tmp=xlml_parsexmltag(Rn[0]);sheetname=unescapexml(tmp.Name);cursheet=opts.dense?[]:{};merges=[];arrayf=[];rowinfo=[];wsprops={name:sheetname,Hidden:0};Workbook.Sheets.push(wsprops);}break;case'table'/*case 'Table'*/:if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));}else if(Rn[0].slice(-2)=="/>")break;else {xlml_parsexmltag(Rn[0]);state.push([Rn[3],false]);cstys=[];seencol=false;}break;case'style'/*case 'Style'*/:if(Rn[1]==='/')process_style_xlml(styles,stag,opts);else stag=xlml_parsexmltag(Rn[0]);break;case'numberformat'/*case 'NumberFormat'*/:stag.nf=unescapexml(xlml_parsexmltag(Rn[0]).Format||"General");if(XLMLFormatMap[stag.nf])stag.nf=XLMLFormatMap[stag.nf];for(var ssfidx=0;ssfidx!=0x188;++ssfidx)if(SSF._table[ssfidx]==stag.nf)break;if(ssfidx==0x188)for(ssfidx=0x39;ssfidx!=0x188;++ssfidx)if(SSF._table[ssfidx]==null){SSF.load(stag.nf,ssfidx);break;}break;case'column'/*case 'Column'*/:if(state[state.length-1][0]!==/*'Table'*/'table')break;csty=xlml_parsexmltag(Rn[0]);if(csty.Hidden){csty.hidden=true;delete csty.Hidden;}if(csty.Width)csty.wpx=parseInt(csty.Width,10);if(!seencol&&csty.wpx>10){seencol=true;MDW=DEF_MDW;//find_mdw_wpx(csty.wpx);
   for(var _col=0;_col<cstys.length;++_col)if(cstys[_col])process_col(cstys[_col]);}if(seencol)process_col(csty);cstys[csty.Index-1||cstys.length]=csty;for(var i=0;i<+csty.Span;++i)cstys[cstys.length]=dup(csty);break;case'namedrange'/*case 'NamedRange'*/:if(Rn[1]==='/')break;if(!Workbook.Names)Workbook.Names=[];var _NamedRange=parsexmltag(Rn[0]);var _DefinedName={Name:_NamedRange.Name,Ref:rc_to_a1(_NamedRange.RefersTo.slice(1),{r:0,c:0})};if(Workbook.Sheets.length>0)_DefinedName.Sheet=Workbook.Sheets.length-1;Workbook.Names.push(_DefinedName);break;case'namedcell'/*case 'NamedCell'*/:break;case'b'/*case 'B'*/:break;case'i'/*case 'I'*/:break;case'u'/*case 'U'*/:break;case's'/*case 'S'*/:break;case'em'/*case 'EM'*/:break;case'h2'/*case 'H2'*/:break;case'h3'/*case 'H3'*/:break;case'sub'/*case 'Sub'*/:break;case'sup'/*case 'Sup'*/:break;case'span'/*case 'Span'*/:break;case'alignment'/*case 'Alignment'*/:break;case'borders'/*case 'Borders'*/:break;case'border'/*case 'Border'*/:break;case'font'/*case 'Font'*/:if(Rn[0].slice(-2)==="/>")break;else if(Rn[1]==="/")ss+=str.slice(fidx,Rn.index);else fidx=Rn.index+Rn[0].length;break;case'interior'/*case 'Interior'*/:if(!opts.cellStyles)break;stag.Interior=xlml_parsexmltag(Rn[0]);break;case'protection'/*case 'Protection'*/:break;case'author'/*case 'Author'*/:case'title'/*case 'Title'*/:case'description'/*case 'Description'*/:case'created'/*case 'Created'*/:case'keywords'/*case 'Keywords'*/:case'subject'/*case 'Subject'*/:case'category'/*case 'Category'*/:case'company'/*case 'Company'*/:case'lastauthor'/*case 'LastAuthor'*/:case'lastsaved'/*case 'LastSaved'*/:case'lastprinted'/*case 'LastPrinted'*/:case'version'/*case 'Version'*/:case'revision'/*case 'Revision'*/:case'totaltime'/*case 'TotalTime'*/:case'hyperlinkbase'/*case 'HyperlinkBase'*/:case'manager'/*case 'Manager'*/:case'contentstatus'/*case 'ContentStatus'*/:case'identifier'/*case 'Identifier'*/:case'language'/*case 'Language'*/:case'appname'/*case 'AppName'*/:if(Rn[0].slice(-2)==="/>")break;else if(Rn[1]==="/")xlml_set_prop(Props,raw_Rn3,str.slice(pidx,Rn.index));else pidx=Rn.index+Rn[0].length;break;case'paragraphs'/*case 'Paragraphs'*/:break;case'styles'/*case 'Styles'*/:case'workbook'/*case 'Workbook'*/:if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));}else state.push([Rn[3],false]);break;case'comment'/*case 'Comment'*/:if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));xlml_clean_comment(comment);comments.push(comment);}else {state.push([Rn[3],false]);tmp=xlml_parsexmltag(Rn[0]);comment={a:tmp.Author};}break;case'autofilter'/*case 'AutoFilter'*/:if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));}else if(Rn[0].charAt(Rn[0].length-2)!=='/'){var AutoFilter=xlml_parsexmltag(Rn[0]);cursheet['!autofilter']={ref:rc_to_a1(AutoFilter.Range).replace(/\$/g,"")};state.push([Rn[3],true]);}break;case'name'/*case 'Name'*/:break;case'datavalidation'/*case 'DataValidation'*/:if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));}else {if(Rn[0].charAt(Rn[0].length-2)!=='/')state.push([Rn[3],true]);}break;case'pixelsperinch'/*case 'PixelsPerInch'*/:break;case'componentoptions'/*case 'ComponentOptions'*/:case'documentproperties'/*case 'DocumentProperties'*/:case'customdocumentproperties'/*case 'CustomDocumentProperties'*/:case'officedocumentsettings'/*case 'OfficeDocumentSettings'*/:case'pivottable'/*case 'PivotTable'*/:case'pivotcache'/*case 'PivotCache'*/:case'names'/*case 'Names'*/:case'mapinfo'/*case 'MapInfo'*/:case'pagebreaks'/*case 'PageBreaks'*/:case'querytable'/*case 'QueryTable'*/:case'sorting'/*case 'Sorting'*/:case'schema'/*case 'Schema'*/://case 'data' /*case 'data'*/:
   case'conditionalformatting'/*case 'ConditionalFormatting'*/:case'smarttagtype'/*case 'SmartTagType'*/:case'smarttags'/*case 'SmartTags'*/:case'excelworkbook'/*case 'ExcelWorkbook'*/:case'workbookoptions'/*case 'WorkbookOptions'*/:case'worksheetoptions'/*case 'WorksheetOptions'*/:if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw new Error("Bad state: "+tmp.join("|"));}else if(Rn[0].charAt(Rn[0].length-2)!=='/')state.push([Rn[3],true]);break;default:/* FODS file root is <office:document> */if(state.length==0&&Rn[3]=="document")return parse_fods(str,opts);/* UOS file root is <uof:UOF> */if(state.length==0&&Rn[3]=="uof"/*"UOF"*/)return parse_fods(str,opts);var seen=true;switch(state[state.length-1][0]){/* OfficeDocumentSettings */case'officedocumentsettings'/*case 'OfficeDocumentSettings'*/:switch(Rn[3]){case'allowpng'/*case 'AllowPNG'*/:break;case'removepersonalinformation'/*case 'RemovePersonalInformation'*/:break;case'downloadcomponents'/*case 'DownloadComponents'*/:break;case'locationofcomponents'/*case 'LocationOfComponents'*/:break;case'colors'/*case 'Colors'*/:break;case'color'/*case 'Color'*/:break;case'index'/*case 'Index'*/:break;case'rgb'/*case 'RGB'*/:break;case'targetscreensize'/*case 'TargetScreenSize'*/:break;case'readonlyrecommended'/*case 'ReadOnlyRecommended'*/:break;default:seen=false;}break;/* ComponentOptions */case'componentoptions'/*case 'ComponentOptions'*/:switch(Rn[3]){case'toolbar'/*case 'Toolbar'*/:break;case'hideofficelogo'/*case 'HideOfficeLogo'*/:break;case'spreadsheetautofit'/*case 'SpreadsheetAutoFit'*/:break;case'label'/*case 'Label'*/:break;case'caption'/*case 'Caption'*/:break;case'maxheight'/*case 'MaxHeight'*/:break;case'maxwidth'/*case 'MaxWidth'*/:break;case'nextsheetnumber'/*case 'NextSheetNumber'*/:break;default:seen=false;}break;/* ExcelWorkbook */case'excelworkbook'/*case 'ExcelWorkbook'*/:switch(Rn[3]){case'date1904'/*case 'Date1904'*/:Workbook.WBProps.date1904=true;break;case'windowheight'/*case 'WindowHeight'*/:break;case'windowwidth'/*case 'WindowWidth'*/:break;case'windowtopx'/*case 'WindowTopX'*/:break;case'windowtopy'/*case 'WindowTopY'*/:break;case'tabratio'/*case 'TabRatio'*/:break;case'protectstructure'/*case 'ProtectStructure'*/:break;case'protectwindow'/*case 'ProtectWindow'*/:break;case'protectwindows'/*case 'ProtectWindows'*/:break;case'activesheet'/*case 'ActiveSheet'*/:break;case'displayinknotes'/*case 'DisplayInkNotes'*/:break;case'firstvisiblesheet'/*case 'FirstVisibleSheet'*/:break;case'supbook'/*case 'SupBook'*/:break;case'sheetname'/*case 'SheetName'*/:break;case'sheetindex'/*case 'SheetIndex'*/:break;case'sheetindexfirst'/*case 'SheetIndexFirst'*/:break;case'sheetindexlast'/*case 'SheetIndexLast'*/:break;case'dll'/*case 'Dll'*/:break;case'acceptlabelsinformulas'/*case 'AcceptLabelsInFormulas'*/:break;case'donotsavelinkvalues'/*case 'DoNotSaveLinkValues'*/:break;case'iteration'/*case 'Iteration'*/:break;case'maxiterations'/*case 'MaxIterations'*/:break;case'maxchange'/*case 'MaxChange'*/:break;case'path'/*case 'Path'*/:break;case'xct'/*case 'Xct'*/:break;case'count'/*case 'Count'*/:break;case'selectedsheets'/*case 'SelectedSheets'*/:break;case'calculation'/*case 'Calculation'*/:break;case'uncalced'/*case 'Uncalced'*/:break;case'startupprompt'/*case 'StartupPrompt'*/:break;case'crn'/*case 'Crn'*/:break;case'externname'/*case 'ExternName'*/:break;case'formula'/*case 'Formula'*/:break;case'colfirst'/*case 'ColFirst'*/:break;case'collast'/*case 'ColLast'*/:break;case'wantadvise'/*case 'WantAdvise'*/:break;case'boolean'/*case 'Boolean'*/:break;case'error'/*case 'Error'*/:break;case'text'/*case 'Text'*/:break;case'ole'/*case 'OLE'*/:break;case'noautorecover'/*case 'NoAutoRecover'*/:break;case'publishobjects'/*case 'PublishObjects'*/:break;case'donotcalculatebeforesave'/*case 'DoNotCalculateBeforeSave'*/:break;case'number'/*case 'Number'*/:break;case'refmoder1c1'/*case 'RefModeR1C1'*/:break;case'embedsavesmarttags'/*case 'EmbedSaveSmartTags'*/:break;default:seen=false;}break;/* WorkbookOptions */case'workbookoptions'/*case 'WorkbookOptions'*/:switch(Rn[3]){case'owcversion'/*case 'OWCVersion'*/:break;case'height'/*case 'Height'*/:break;case'width'/*case 'Width'*/:break;default:seen=false;}break;/* WorksheetOptions */case'worksheetoptions'/*case 'WorksheetOptions'*/:switch(Rn[3]){case'visible'/*case 'Visible'*/:if(Rn[0].slice(-2)==="/>");else if(Rn[1]==="/")switch(str.slice(pidx,Rn.index)){case"SheetHidden":wsprops.Hidden=1;break;case"SheetVeryHidden":wsprops.Hidden=2;break;}else pidx=Rn.index+Rn[0].length;break;case'header'/*case 'Header'*/:if(!cursheet['!margins'])default_margins(cursheet['!margins']={},'xlml');cursheet['!margins'].header=parsexmltag(Rn[0]).Margin;break;case'footer'/*case 'Footer'*/:if(!cursheet['!margins'])default_margins(cursheet['!margins']={},'xlml');cursheet['!margins'].footer=parsexmltag(Rn[0]).Margin;break;case'pagemargins'/*case 'PageMargins'*/:var pagemargins=parsexmltag(Rn[0]);if(!cursheet['!margins'])default_margins(cursheet['!margins']={},'xlml');if(pagemargins.Top)cursheet['!margins'].top=pagemargins.Top;if(pagemargins.Left)cursheet['!margins'].left=pagemargins.Left;if(pagemargins.Right)cursheet['!margins'].right=pagemargins.Right;if(pagemargins.Bottom)cursheet['!margins'].bottom=pagemargins.Bottom;break;case'displayrighttoleft'/*case 'DisplayRightToLeft'*/:if(!Workbook.Views)Workbook.Views=[];if(!Workbook.Views[0])Workbook.Views[0]={};Workbook.Views[0].RTL=true;break;case'freezepanes'/*case 'FreezePanes'*/:break;case'frozennosplit'/*case 'FrozenNoSplit'*/:break;case'splithorizontal'/*case 'SplitHorizontal'*/:case'splitvertical'/*case 'SplitVertical'*/:break;case'donotdisplaygridlines'/*case 'DoNotDisplayGridlines'*/:break;case'activerow'/*case 'ActiveRow'*/:break;case'activecol'/*case 'ActiveCol'*/:break;case'toprowbottompane'/*case 'TopRowBottomPane'*/:break;case'leftcolumnrightpane'/*case 'LeftColumnRightPane'*/:break;case'unsynced'/*case 'Unsynced'*/:break;case'print'/*case 'Print'*/:break;case'panes'/*case 'Panes'*/:break;case'scale'/*case 'Scale'*/:break;case'pane'/*case 'Pane'*/:break;case'number'/*case 'Number'*/:break;case'layout'/*case 'Layout'*/:break;case'pagesetup'/*case 'PageSetup'*/:break;case'selected'/*case 'Selected'*/:break;case'protectobjects'/*case 'ProtectObjects'*/:break;case'enableselection'/*case 'EnableSelection'*/:break;case'protectscenarios'/*case 'ProtectScenarios'*/:break;case'validprinterinfo'/*case 'ValidPrinterInfo'*/:break;case'horizontalresolution'/*case 'HorizontalResolution'*/:break;case'verticalresolution'/*case 'VerticalResolution'*/:break;case'numberofcopies'/*case 'NumberofCopies'*/:break;case'activepane'/*case 'ActivePane'*/:break;case'toprowvisible'/*case 'TopRowVisible'*/:break;case'leftcolumnvisible'/*case 'LeftColumnVisible'*/:break;case'fittopage'/*case 'FitToPage'*/:break;case'rangeselection'/*case 'RangeSelection'*/:break;case'papersizeindex'/*case 'PaperSizeIndex'*/:break;case'pagelayoutzoom'/*case 'PageLayoutZoom'*/:break;case'pagebreakzoom'/*case 'PageBreakZoom'*/:break;case'filteron'/*case 'FilterOn'*/:break;case'fitwidth'/*case 'FitWidth'*/:break;case'fitheight'/*case 'FitHeight'*/:break;case'commentslayout'/*case 'CommentsLayout'*/:break;case'zoom'/*case 'Zoom'*/:break;case'lefttoright'/*case 'LeftToRight'*/:break;case'gridlines'/*case 'Gridlines'*/:break;case'allowsort'/*case 'AllowSort'*/:break;case'allowfilter'/*case 'AllowFilter'*/:break;case'allowinsertrows'/*case 'AllowInsertRows'*/:break;case'allowdeleterows'/*case 'AllowDeleteRows'*/:break;case'allowinsertcols'/*case 'AllowInsertCols'*/:break;case'allowdeletecols'/*case 'AllowDeleteCols'*/:break;case'allowinserthyperlinks'/*case 'AllowInsertHyperlinks'*/:break;case'allowformatcells'/*case 'AllowFormatCells'*/:break;case'allowsizecols'/*case 'AllowSizeCols'*/:break;case'allowsizerows'/*case 'AllowSizeRows'*/:break;case'nosummaryrowsbelowdetail'/*case 'NoSummaryRowsBelowDetail'*/:break;case'tabcolorindex'/*case 'TabColorIndex'*/:break;case'donotdisplayheadings'/*case 'DoNotDisplayHeadings'*/:break;case'showpagelayoutzoom'/*case 'ShowPageLayoutZoom'*/:break;case'nosummarycolumnsrightdetail'/*case 'NoSummaryColumnsRightDetail'*/:break;case'blackandwhite'/*case 'BlackAndWhite'*/:break;case'donotdisplayzeros'/*case 'DoNotDisplayZeros'*/:break;case'displaypagebreak'/*case 'DisplayPageBreak'*/:break;case'rowcolheadings'/*case 'RowColHeadings'*/:break;case'donotdisplayoutline'/*case 'DoNotDisplayOutline'*/:break;case'noorientation'/*case 'NoOrientation'*/:break;case'allowusepivottables'/*case 'AllowUsePivotTables'*/:break;case'zeroheight'/*case 'ZeroHeight'*/:break;case'viewablerange'/*case 'ViewableRange'*/:break;case'selection'/*case 'Selection'*/:break;case'protectcontents'/*case 'ProtectContents'*/:break;default:seen=false;}break;/* PivotTable */case'pivottable'/*case 'PivotTable'*/:case'pivotcache'/*case 'PivotCache'*/:switch(Rn[3]){case'immediateitemsondrop'/*case 'ImmediateItemsOnDrop'*/:break;case'showpagemultipleitemlabel'/*case 'ShowPageMultipleItemLabel'*/:break;case'compactrowindent'/*case 'CompactRowIndent'*/:break;case'location'/*case 'Location'*/:break;case'pivotfield'/*case 'PivotField'*/:break;case'orientation'/*case 'Orientation'*/:break;case'layoutform'/*case 'LayoutForm'*/:break;case'layoutsubtotallocation'/*case 'LayoutSubtotalLocation'*/:break;case'layoutcompactrow'/*case 'LayoutCompactRow'*/:break;case'position'/*case 'Position'*/:break;case'pivotitem'/*case 'PivotItem'*/:break;case'datatype'/*case 'DataType'*/:break;case'datafield'/*case 'DataField'*/:break;case'sourcename'/*case 'SourceName'*/:break;case'parentfield'/*case 'ParentField'*/:break;case'ptlineitems'/*case 'PTLineItems'*/:break;case'ptlineitem'/*case 'PTLineItem'*/:break;case'countofsameitems'/*case 'CountOfSameItems'*/:break;case'item'/*case 'Item'*/:break;case'itemtype'/*case 'ItemType'*/:break;case'ptsource'/*case 'PTSource'*/:break;case'cacheindex'/*case 'CacheIndex'*/:break;case'consolidationreference'/*case 'ConsolidationReference'*/:break;case'filename'/*case 'FileName'*/:break;case'reference'/*case 'Reference'*/:break;case'nocolumngrand'/*case 'NoColumnGrand'*/:break;case'norowgrand'/*case 'NoRowGrand'*/:break;case'blanklineafteritems'/*case 'BlankLineAfterItems'*/:break;case'hidden'/*case 'Hidden'*/:break;case'subtotal'/*case 'Subtotal'*/:break;case'basefield'/*case 'BaseField'*/:break;case'mapchilditems'/*case 'MapChildItems'*/:break;case'function'/*case 'Function'*/:break;case'refreshonfileopen'/*case 'RefreshOnFileOpen'*/:break;case'printsettitles'/*case 'PrintSetTitles'*/:break;case'mergelabels'/*case 'MergeLabels'*/:break;case'defaultversion'/*case 'DefaultVersion'*/:break;case'refreshname'/*case 'RefreshName'*/:break;case'refreshdate'/*case 'RefreshDate'*/:break;case'refreshdatecopy'/*case 'RefreshDateCopy'*/:break;case'versionlastrefresh'/*case 'VersionLastRefresh'*/:break;case'versionlastupdate'/*case 'VersionLastUpdate'*/:break;case'versionupdateablemin'/*case 'VersionUpdateableMin'*/:break;case'versionrefreshablemin'/*case 'VersionRefreshableMin'*/:break;case'calculation'/*case 'Calculation'*/:break;default:seen=false;}break;/* PageBreaks */case'pagebreaks'/*case 'PageBreaks'*/:switch(Rn[3]){case'colbreaks'/*case 'ColBreaks'*/:break;case'colbreak'/*case 'ColBreak'*/:break;case'rowbreaks'/*case 'RowBreaks'*/:break;case'rowbreak'/*case 'RowBreak'*/:break;case'colstart'/*case 'ColStart'*/:break;case'colend'/*case 'ColEnd'*/:break;case'rowend'/*case 'RowEnd'*/:break;default:seen=false;}break;/* AutoFilter */case'autofilter'/*case 'AutoFilter'*/:switch(Rn[3]){case'autofiltercolumn'/*case 'AutoFilterColumn'*/:break;case'autofiltercondition'/*case 'AutoFilterCondition'*/:break;case'autofilterand'/*case 'AutoFilterAnd'*/:break;case'autofilteror'/*case 'AutoFilterOr'*/:break;default:seen=false;}break;/* QueryTable */case'querytable'/*case 'QueryTable'*/:switch(Rn[3]){case'id'/*case 'Id'*/:break;case'autoformatfont'/*case 'AutoFormatFont'*/:break;case'autoformatpattern'/*case 'AutoFormatPattern'*/:break;case'querysource'/*case 'QuerySource'*/:break;case'querytype'/*case 'QueryType'*/:break;case'enableredirections'/*case 'EnableRedirections'*/:break;case'refreshedinxl9'/*case 'RefreshedInXl9'*/:break;case'urlstring'/*case 'URLString'*/:break;case'htmltables'/*case 'HTMLTables'*/:break;case'connection'/*case 'Connection'*/:break;case'commandtext'/*case 'CommandText'*/:break;case'refreshinfo'/*case 'RefreshInfo'*/:break;case'notitles'/*case 'NoTitles'*/:break;case'nextid'/*case 'NextId'*/:break;case'columninfo'/*case 'ColumnInfo'*/:break;case'overwritecells'/*case 'OverwriteCells'*/:break;case'donotpromptforfile'/*case 'DoNotPromptForFile'*/:break;case'textwizardsettings'/*case 'TextWizardSettings'*/:break;case'source'/*case 'Source'*/:break;case'number'/*case 'Number'*/:break;case'decimal'/*case 'Decimal'*/:break;case'thousandseparator'/*case 'ThousandSeparator'*/:break;case'trailingminusnumbers'/*case 'TrailingMinusNumbers'*/:break;case'formatsettings'/*case 'FormatSettings'*/:break;case'fieldtype'/*case 'FieldType'*/:break;case'delimiters'/*case 'Delimiters'*/:break;case'tab'/*case 'Tab'*/:break;case'comma'/*case 'Comma'*/:break;case'autoformatname'/*case 'AutoFormatName'*/:break;case'versionlastedit'/*case 'VersionLastEdit'*/:break;case'versionlastrefresh'/*case 'VersionLastRefresh'*/:break;default:seen=false;}break;case'datavalidation'/*case 'DataValidation'*/:switch(Rn[3]){case'range'/*case 'Range'*/:break;case'type'/*case 'Type'*/:break;case'min'/*case 'Min'*/:break;case'max'/*case 'Max'*/:break;case'sort'/*case 'Sort'*/:break;case'descending'/*case 'Descending'*/:break;case'order'/*case 'Order'*/:break;case'casesensitive'/*case 'CaseSensitive'*/:break;case'value'/*case 'Value'*/:break;case'errorstyle'/*case 'ErrorStyle'*/:break;case'errormessage'/*case 'ErrorMessage'*/:break;case'errortitle'/*case 'ErrorTitle'*/:break;case'inputmessage'/*case 'InputMessage'*/:break;case'inputtitle'/*case 'InputTitle'*/:break;case'combohide'/*case 'ComboHide'*/:break;case'inputhide'/*case 'InputHide'*/:break;case'condition'/*case 'Condition'*/:break;case'qualifier'/*case 'Qualifier'*/:break;case'useblank'/*case 'UseBlank'*/:break;case'value1'/*case 'Value1'*/:break;case'value2'/*case 'Value2'*/:break;case'format'/*case 'Format'*/:break;case'cellrangelist'/*case 'CellRangeList'*/:break;default:seen=false;}break;case'sorting'/*case 'Sorting'*/:case'conditionalformatting'/*case 'ConditionalFormatting'*/:switch(Rn[3]){case'range'/*case 'Range'*/:break;case'type'/*case 'Type'*/:break;case'min'/*case 'Min'*/:break;case'max'/*case 'Max'*/:break;case'sort'/*case 'Sort'*/:break;case'descending'/*case 'Descending'*/:break;case'order'/*case 'Order'*/:break;case'casesensitive'/*case 'CaseSensitive'*/:break;case'value'/*case 'Value'*/:break;case'errorstyle'/*case 'ErrorStyle'*/:break;case'errormessage'/*case 'ErrorMessage'*/:break;case'errortitle'/*case 'ErrorTitle'*/:break;case'cellrangelist'/*case 'CellRangeList'*/:break;case'inputmessage'/*case 'InputMessage'*/:break;case'inputtitle'/*case 'InputTitle'*/:break;case'combohide'/*case 'ComboHide'*/:break;case'inputhide'/*case 'InputHide'*/:break;case'condition'/*case 'Condition'*/:break;case'qualifier'/*case 'Qualifier'*/:break;case'useblank'/*case 'UseBlank'*/:break;case'value1'/*case 'Value1'*/:break;case'value2'/*case 'Value2'*/:break;case'format'/*case 'Format'*/:break;default:seen=false;}break;/* MapInfo (schema) */case'mapinfo'/*case 'MapInfo'*/:case'schema'/*case 'Schema'*/:case'data'/*case 'data'*/:switch(Rn[3]){case'map'/*case 'Map'*/:break;case'entry'/*case 'Entry'*/:break;case'range'/*case 'Range'*/:break;case'xpath'/*case 'XPath'*/:break;case'field'/*case 'Field'*/:break;case'xsdtype'/*case 'XSDType'*/:break;case'filteron'/*case 'FilterOn'*/:break;case'aggregate'/*case 'Aggregate'*/:break;case'elementtype'/*case 'ElementType'*/:break;case'attributetype'/*case 'AttributeType'*/:break;/* These are from xsd (XML Schema Definition) */case'schema'/*case 'schema'*/:case'element'/*case 'element'*/:case'complextype'/*case 'complexType'*/:case'datatype'/*case 'datatype'*/:case'all'/*case 'all'*/:case'attribute'/*case 'attribute'*/:case'extends'/*case 'extends'*/:break;case'row'/*case 'row'*/:break;default:seen=false;}break;/* SmartTags (can be anything) */case'smarttags'/*case 'SmartTags'*/:break;default:seen=false;break;}if(seen)break;/* CustomDocumentProperties */if(Rn[3].match(/!\[CDATA/))break;if(!state[state.length-1][1])throw 'Unrecognized tag: '+Rn[3]+"|"+state.join("|");if(state[state.length-1][0]===/*'CustomDocumentProperties'*/'customdocumentproperties'){if(Rn[0].slice(-2)==="/>")break;else if(Rn[1]==="/")xlml_set_custprop(Custprops,raw_Rn3,cp,str.slice(pidx,Rn.index));else {cp=Rn;pidx=Rn.index+Rn[0].length;}break;}if(opts.WTF)throw 'Unrecognized tag: '+Rn[3]+"|"+state.join("|");}var out={};if(!opts.bookSheets&&!opts.bookProps)out.Sheets=sheets;out.SheetNames=sheetnames;out.Workbook=Workbook;out.SSF=SSF.get_table();out.Props=Props;out.Custprops=Custprops;return out;}function parse_xlml(data,opts){fix_read_opts(opts=opts||{});switch(opts.type||"base64"){case"base64":return parse_xlml_xml(Base64.decode(data),opts);case"binary":case"buffer":case"file":return parse_xlml_xml(data,opts);case"array":return parse_xlml_xml(a2s(data),opts);}}/* TODO */function write_props_xlml(wb,opts){var o=[];/* DocumentProperties */if(wb.Props)o.push(xlml_write_docprops(wb.Props,opts));/* CustomDocumentProperties */if(wb.Custprops)o.push(xlml_write_custprops(wb.Props,wb.Custprops));return o.join("");}/* TODO */function write_wb_xlml(){/* OfficeDocumentSettings */ /* ExcelWorkbook */return "";}/* TODO */function write_sty_xlml(wb,opts){/* Styles */var styles=['<Style ss:ID="Default" ss:Name="Normal"><NumberFormat/></Style>'];opts.cellXfs.forEach(function(xf,id){var payload=[];payload.push(writextag('NumberFormat',null,{"ss:Format":escapexml(SSF._table[xf.numFmtId])}));var o={"ss:ID":"s"+(21+id)};styles.push(writextag('Style',payload.join(""),o));});return writextag("Styles",styles.join(""));}function write_name_xlml(n){return writextag("NamedRange",null,{"ss:Name":n.Name,"ss:RefersTo":"="+a1_to_rc(n.Ref,{r:0,c:0})});}function write_names_xlml(wb){if(!((wb||{}).Workbook||{}).Names)return "";var names=wb.Workbook.Names;var out=[];for(var i=0;i<names.length;++i){var n=names[i];if(n.Sheet!=null)continue;if(n.Name.match(/^_xlfn\./))continue;out.push(write_name_xlml(n));}return writextag("Names",out.join(""));}function write_ws_xlml_names(ws,opts,idx,wb){if(!ws)return "";if(!((wb||{}).Workbook||{}).Names)return "";var names=wb.Workbook.Names;var out=[];for(var i=0;i<names.length;++i){var n=names[i];if(n.Sheet!=idx)continue;/*switch(n.Name) {
   			case "_": continue;
@@ -27919,7 +28494,6 @@ ${points.join('\n')}
   codepage:0,// CP from CodePage record
   winlocked:0,// fLockWn from WinProtect
   cellStyles:!!options&&!!options.cellStyles,WTF:!!options&&!!options.wtf};if(options.password)opts.password=options.password;var themes;var merges=[];var objects=[];var colinfo=[],rowinfo=[];// eslint-disable-next-line no-unused-vars
-  var defwidth=0,defheight=0;// twips / MDW respectively
   var seencol=false;var supbooks=[];// 1-indexed, will hold extern names
   supbooks.SheetNames=opts.snames;supbooks.sharedf=opts.sharedf;supbooks.arrayf=opts.arrayf;supbooks.names=[];supbooks.XTI=[];var last_Rn='';var file_depth=0;/* TODO: make a real stack */var BIFF2Fmt=0,BIFF2FmtTable=[];var FilterDatabases=[];/* TODO: sort out supbooks and process elsewhere */var last_lbl;/* explicit override for some broken writers */opts.codepage=1200;set_cp(1200);var seen_codepage=false;while(blob.l<blob.length-1){var s=blob.l;var RecordType=blob.read_shift(2);if(RecordType===0&&last_Rn==='EOF')break;var length=blob.l===blob.length?0:blob.read_shift(2);var R=XLSRecordEnum[RecordType];//console.log(RecordType.toString(16), RecordType, R, blob.l, length, blob.length);
   //if(!R) console.log(blob.slice(blob.l, blob.l + length));
@@ -27933,7 +28507,7 @@ ${points.join('\n')}
   case'XF':XFs.push(val);break;case'ExtSST':break;// TODO
   case'BookExt':break;// TODO
   case'RichTextStream':break;case'BkHim':break;case'SupBook':supbooks.push([val]);supbooks[supbooks.length-1].XTI=[];break;case'ExternName':supbooks[supbooks.length-1].push(val);break;case'Index':break;// TODO
-  case'Lbl':last_lbl={Name:val.Name,Ref:stringify_formula(val.rgce,range,null,supbooks,opts)};if(val.itab>0)last_lbl.Sheet=val.itab-1;supbooks.names.push(last_lbl);if(!supbooks[0]){supbooks[0]=[];supbooks[0].XTI=[];}supbooks[supbooks.length-1].push(val);if(val.Name=="_xlnm._FilterDatabase"&&val.itab>0)if(val.rgce&&val.rgce[0]&&val.rgce[0][0]&&val.rgce[0][0][0]=='PtgArea3d')FilterDatabases[val.itab-1]={ref:encode_range(val.rgce[0][0][1][2])};break;case'ExternCount':opts.ExternCount=val;break;case'ExternSheet':if(supbooks.length==0){supbooks[0]=[];supbooks[0].XTI=[];}supbooks[supbooks.length-1].XTI=supbooks[supbooks.length-1].XTI.concat(val);supbooks.XTI=supbooks.XTI.concat(val);break;case'NameCmt':/* TODO: search for correct name */if(opts.biff<8)break;if(last_lbl!=null)last_lbl.Comment=val[1];break;case'Protect':out["!protect"]=val;break;/* for sheet or book */case'Password':if(val!==0&&opts.WTF)console.error("Password verifier: "+val);break;case'Prot4Rev':case'Prot4RevPass':break;/*TODO: Revision Control*/case'BoundSheet8':{Directory[val.pos]=val;opts.snames.push(val.name);}break;case'EOF':{if(--file_depth)break;if(range.e){if(range.e.r>0&&range.e.c>0){range.e.r--;range.e.c--;out["!ref"]=encode_range(range);if(options.sheetRows&&options.sheetRows<=range.e.r){var tmpri=range.e.r;range.e.r=options.sheetRows-1;out["!fullref"]=out["!ref"];out["!ref"]=encode_range(range);range.e.r=tmpri;}range.e.r++;range.e.c++;}if(merges.length>0)out["!merges"]=merges;if(objects.length>0)out["!objects"]=objects;if(colinfo.length>0)out["!cols"]=colinfo;if(rowinfo.length>0)out["!rows"]=rowinfo;Workbook.Sheets.push(wsprops);}if(cur_sheet==="")Preamble=out;else Sheets[cur_sheet]=out;out=options.dense?[]:{};}break;case'BOF':{if(opts.biff===8)opts.biff={0x0009:2,0x0209:3,0x0409:4}[RecordType]||{0x0200:2,0x0300:3,0x0400:4,0x0500:5,0x0600:8,0x0002:2,0x0007:2}[val.BIFFVer]||8;if(opts.biff==8&&val.BIFFVer==0&&val.dt==16)opts.biff=2;if(file_depth++)break;cell_valid=true;out=options.dense?[]:{};if(opts.biff<8&&!seen_codepage){seen_codepage=true;set_cp(opts.codepage=options.codepage||1252);}if(opts.biff<5){if(cur_sheet==="")cur_sheet="Sheet1";range={s:{r:0,c:0},e:{r:0,c:0}};/* fake BoundSheet8 */var fakebs8={pos:blob.l-length,name:cur_sheet};Directory[fakebs8.pos]=fakebs8;opts.snames.push(cur_sheet);}else cur_sheet=(Directory[s]||{name:""}).name;if(val.dt==0x20)out["!type"]="chart";if(val.dt==0x40)out["!type"]="macro";merges=[];objects=[];opts.arrayf=arrayf=[];colinfo=[];rowinfo=[];defwidth=defheight=0;seencol=false;wsprops={Hidden:(Directory[s]||{hs:0}).hs,name:cur_sheet};}break;case'Number':case'BIFF2NUM':case'BIFF2INT':{if(out["!type"]=="chart")if(options.dense?(out[val.r]||[])[val.c]:out[encode_cell({c:val.c,r:val.r})])++val.c;temp_val={ixfe:val.ixfe,XF:XFs[val.ixfe]||{},v:val.val,t:'n'};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);}break;case'BoolErr':{temp_val={ixfe:val.ixfe,XF:XFs[val.ixfe],v:val.val,t:val.t};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);}break;case'RK':{temp_val={ixfe:val.ixfe,XF:XFs[val.ixfe],v:val.rknum,t:'n'};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);}break;case'MulRk':{for(var j=val.c;j<=val.C;++j){var ixfe=val.rkrec[j-val.c][0];temp_val={ixfe:ixfe,XF:XFs[ixfe],v:val.rkrec[j-val.c][1],t:'n'};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:j,r:val.r},temp_val,options);}}break;case'Formula':{if(val.val=='String'){last_formula=val;break;}temp_val=make_cell(val.val,val.cell.ixfe,val.tt);temp_val.XF=XFs[temp_val.ixfe];if(options.cellFormula){var _f=val.formula;if(_f&&_f[0]&&_f[0][0]&&_f[0][0][0]=='PtgExp'){var _fr=_f[0][0][1][0],_fc=_f[0][0][1][1];var _fe=encode_cell({r:_fr,c:_fc});if(sharedf[_fe])temp_val.f=""+stringify_formula(val.formula,range,val.cell,supbooks,opts);else temp_val.F=((options.dense?(out[_fr]||[])[_fc]:out[_fe])||{}).F;}else temp_val.f=""+stringify_formula(val.formula,range,val.cell,supbooks,opts);}if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell(val.cell,temp_val,options);last_formula=val;}break;case'String':{if(last_formula){/* technically always true */last_formula.val=val;temp_val=make_cell(val,last_formula.cell.ixfe,'s');temp_val.XF=XFs[temp_val.ixfe];if(options.cellFormula){temp_val.f=""+stringify_formula(last_formula.formula,range,last_formula.cell,supbooks,opts);}if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell(last_formula.cell,temp_val,options);last_formula=null;}else throw new Error("String record expects Formula");}break;case'Array':{arrayf.push(val);var _arraystart=encode_cell(val[0].s);cc=options.dense?(out[val[0].s.r]||[])[val[0].s.c]:out[_arraystart];if(options.cellFormula&&cc){if(!last_formula)break;/* technically unreachable */if(!_arraystart||!cc)break;cc.f=""+stringify_formula(val[1],range,val[0],supbooks,opts);cc.F=encode_range(val[0]);}}break;case'ShrFmla':{if(!cell_valid)break;if(!options.cellFormula)break;if(last_cell){/* TODO: capture range */if(!last_formula)break;/* technically unreachable */sharedf[encode_cell(last_formula.cell)]=val[0];cc=options.dense?(out[last_formula.cell.r]||[])[last_formula.cell.c]:out[encode_cell(last_formula.cell)];(cc||{}).f=""+stringify_formula(val[0],range,lastcell,supbooks,opts);}}break;case'LabelSst':temp_val=make_cell(sst[val.isst].t,val.ixfe,'s');if(sst[val.isst].h)temp_val.h=sst[val.isst].h;temp_val.XF=XFs[temp_val.ixfe];if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);break;case'Blank':if(options.sheetStubs){temp_val={ixfe:val.ixfe,XF:XFs[val.ixfe],t:'z'};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);}break;case'MulBlank':if(options.sheetStubs){for(var _j=val.c;_j<=val.C;++_j){var _ixfe=val.ixfe[_j-val.c];temp_val={ixfe:_ixfe,XF:XFs[_ixfe],t:'z'};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:_j,r:val.r},temp_val,options);}}break;case'RString':case'Label':case'BIFF2STR':temp_val=make_cell(val.val,val.ixfe,'s');temp_val.XF=XFs[temp_val.ixfe];if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);break;case'Dimensions':{if(file_depth===1)range=val;/* TODO: stack */}break;case'SST':{sst=val;}break;case'Format':{/* val = [id, fmt] */if(opts.biff==4){BIFF2FmtTable[BIFF2Fmt++]=val[1];for(var b4idx=0;b4idx<BIFF2Fmt+163;++b4idx)if(SSF._table[b4idx]==val[1])break;if(b4idx>=163)SSF.load(val[1],BIFF2Fmt+163);}else SSF.load(val[1],val[0]);}break;case'BIFF2FORMAT':{BIFF2FmtTable[BIFF2Fmt++]=val;for(var b2idx=0;b2idx<BIFF2Fmt+163;++b2idx)if(SSF._table[b2idx]==val)break;if(b2idx>=163)SSF.load(val,BIFF2Fmt+163);}break;case'MergeCells':merges=merges.concat(val);break;case'Obj':objects[val.cmo[0]]=opts.lastobj=val;break;case'TxO':opts.lastobj.TxO=val;break;case'ImData':opts.lastobj.ImData=val;break;case'HLink':{for(rngR=val[0].s.r;rngR<=val[0].e.r;++rngR)for(rngC=val[0].s.c;rngC<=val[0].e.c;++rngC){cc=options.dense?(out[rngR]||[])[rngC]:out[encode_cell({c:rngC,r:rngR})];if(cc)cc.l=val[1];}}break;case'HLinkTooltip':{for(rngR=val[0].s.r;rngR<=val[0].e.r;++rngR)for(rngC=val[0].s.c;rngC<=val[0].e.c;++rngC){cc=options.dense?(out[rngR]||[])[rngC]:out[encode_cell({c:rngC,r:rngR})];if(cc&&cc.l)cc.l.Tooltip=val[1];}}break;/* Comments */case'Note':{if(opts.biff<=5&&opts.biff>=2)break;/* TODO: BIFF5 */cc=options.dense?(out[val[0].r]||[])[val[0].c]:out[encode_cell(val[0])];var noteobj=objects[val[2]];if(!cc){if(options.dense){if(!out[val[0].r])out[val[0].r]=[];cc=out[val[0].r][val[0].c]={t:"z"};}else {cc=out[encode_cell(val[0])]={t:"z"};}range.e.r=Math.max(range.e.r,val[0].r);range.s.r=Math.min(range.s.r,val[0].r);range.e.c=Math.max(range.e.c,val[0].c);range.s.c=Math.min(range.s.c,val[0].c);}if(!cc.c)cc.c=[];cmnt={a:val[1],t:noteobj.TxO.t};cc.c.push(cmnt);}break;default:switch(R.n){/* nested */case'ClrtClient':break;case'XFExt':update_xfext(XFs[val.ixfe],val.ext);break;case'DefColWidth':defwidth=val;break;case'DefaultRowHeight':defheight=val[1];break;// TODO: flags
+  case'Lbl':last_lbl={Name:val.Name,Ref:stringify_formula(val.rgce,range,null,supbooks,opts)};if(val.itab>0)last_lbl.Sheet=val.itab-1;supbooks.names.push(last_lbl);if(!supbooks[0]){supbooks[0]=[];supbooks[0].XTI=[];}supbooks[supbooks.length-1].push(val);if(val.Name=="_xlnm._FilterDatabase"&&val.itab>0)if(val.rgce&&val.rgce[0]&&val.rgce[0][0]&&val.rgce[0][0][0]=='PtgArea3d')FilterDatabases[val.itab-1]={ref:encode_range(val.rgce[0][0][1][2])};break;case'ExternCount':opts.ExternCount=val;break;case'ExternSheet':if(supbooks.length==0){supbooks[0]=[];supbooks[0].XTI=[];}supbooks[supbooks.length-1].XTI=supbooks[supbooks.length-1].XTI.concat(val);supbooks.XTI=supbooks.XTI.concat(val);break;case'NameCmt':/* TODO: search for correct name */if(opts.biff<8)break;if(last_lbl!=null)last_lbl.Comment=val[1];break;case'Protect':out["!protect"]=val;break;/* for sheet or book */case'Password':if(val!==0&&opts.WTF)console.error("Password verifier: "+val);break;case'Prot4Rev':case'Prot4RevPass':break;/*TODO: Revision Control*/case'BoundSheet8':{Directory[val.pos]=val;opts.snames.push(val.name);}break;case'EOF':{if(--file_depth)break;if(range.e){if(range.e.r>0&&range.e.c>0){range.e.r--;range.e.c--;out["!ref"]=encode_range(range);if(options.sheetRows&&options.sheetRows<=range.e.r){var tmpri=range.e.r;range.e.r=options.sheetRows-1;out["!fullref"]=out["!ref"];out["!ref"]=encode_range(range);range.e.r=tmpri;}range.e.r++;range.e.c++;}if(merges.length>0)out["!merges"]=merges;if(objects.length>0)out["!objects"]=objects;if(colinfo.length>0)out["!cols"]=colinfo;if(rowinfo.length>0)out["!rows"]=rowinfo;Workbook.Sheets.push(wsprops);}if(cur_sheet==="")Preamble=out;else Sheets[cur_sheet]=out;out=options.dense?[]:{};}break;case'BOF':{if(opts.biff===8)opts.biff={0x0009:2,0x0209:3,0x0409:4}[RecordType]||{0x0200:2,0x0300:3,0x0400:4,0x0500:5,0x0600:8,0x0002:2,0x0007:2}[val.BIFFVer]||8;if(opts.biff==8&&val.BIFFVer==0&&val.dt==16)opts.biff=2;if(file_depth++)break;cell_valid=true;out=options.dense?[]:{};if(opts.biff<8&&!seen_codepage){seen_codepage=true;set_cp(opts.codepage=options.codepage||1252);}if(opts.biff<5){if(cur_sheet==="")cur_sheet="Sheet1";range={s:{r:0,c:0},e:{r:0,c:0}};/* fake BoundSheet8 */var fakebs8={pos:blob.l-length,name:cur_sheet};Directory[fakebs8.pos]=fakebs8;opts.snames.push(cur_sheet);}else cur_sheet=(Directory[s]||{name:""}).name;if(val.dt==0x20)out["!type"]="chart";if(val.dt==0x40)out["!type"]="macro";merges=[];objects=[];opts.arrayf=arrayf=[];colinfo=[];rowinfo=[];seencol=false;wsprops={Hidden:(Directory[s]||{hs:0}).hs,name:cur_sheet};}break;case'Number':case'BIFF2NUM':case'BIFF2INT':{if(out["!type"]=="chart")if(options.dense?(out[val.r]||[])[val.c]:out[encode_cell({c:val.c,r:val.r})])++val.c;temp_val={ixfe:val.ixfe,XF:XFs[val.ixfe]||{},v:val.val,t:'n'};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);}break;case'BoolErr':{temp_val={ixfe:val.ixfe,XF:XFs[val.ixfe],v:val.val,t:val.t};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);}break;case'RK':{temp_val={ixfe:val.ixfe,XF:XFs[val.ixfe],v:val.rknum,t:'n'};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);}break;case'MulRk':{for(var j=val.c;j<=val.C;++j){var ixfe=val.rkrec[j-val.c][0];temp_val={ixfe:ixfe,XF:XFs[ixfe],v:val.rkrec[j-val.c][1],t:'n'};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:j,r:val.r},temp_val,options);}}break;case'Formula':{if(val.val=='String'){last_formula=val;break;}temp_val=make_cell(val.val,val.cell.ixfe,val.tt);temp_val.XF=XFs[temp_val.ixfe];if(options.cellFormula){var _f=val.formula;if(_f&&_f[0]&&_f[0][0]&&_f[0][0][0]=='PtgExp'){var _fr=_f[0][0][1][0],_fc=_f[0][0][1][1];var _fe=encode_cell({r:_fr,c:_fc});if(sharedf[_fe])temp_val.f=""+stringify_formula(val.formula,range,val.cell,supbooks,opts);else temp_val.F=((options.dense?(out[_fr]||[])[_fc]:out[_fe])||{}).F;}else temp_val.f=""+stringify_formula(val.formula,range,val.cell,supbooks,opts);}if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell(val.cell,temp_val,options);last_formula=val;}break;case'String':{if(last_formula){/* technically always true */last_formula.val=val;temp_val=make_cell(val,last_formula.cell.ixfe,'s');temp_val.XF=XFs[temp_val.ixfe];if(options.cellFormula){temp_val.f=""+stringify_formula(last_formula.formula,range,last_formula.cell,supbooks,opts);}if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell(last_formula.cell,temp_val,options);last_formula=null;}else throw new Error("String record expects Formula");}break;case'Array':{arrayf.push(val);var _arraystart=encode_cell(val[0].s);cc=options.dense?(out[val[0].s.r]||[])[val[0].s.c]:out[_arraystart];if(options.cellFormula&&cc){if(!last_formula)break;/* technically unreachable */if(!_arraystart||!cc)break;cc.f=""+stringify_formula(val[1],range,val[0],supbooks,opts);cc.F=encode_range(val[0]);}}break;case'ShrFmla':{if(!cell_valid)break;if(!options.cellFormula)break;if(last_cell){/* TODO: capture range */if(!last_formula)break;/* technically unreachable */sharedf[encode_cell(last_formula.cell)]=val[0];cc=options.dense?(out[last_formula.cell.r]||[])[last_formula.cell.c]:out[encode_cell(last_formula.cell)];(cc||{}).f=""+stringify_formula(val[0],range,lastcell,supbooks,opts);}}break;case'LabelSst':temp_val=make_cell(sst[val.isst].t,val.ixfe,'s');if(sst[val.isst].h)temp_val.h=sst[val.isst].h;temp_val.XF=XFs[temp_val.ixfe];if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);break;case'Blank':if(options.sheetStubs){temp_val={ixfe:val.ixfe,XF:XFs[val.ixfe],t:'z'};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);}break;case'MulBlank':if(options.sheetStubs){for(var _j=val.c;_j<=val.C;++_j){var _ixfe=val.ixfe[_j-val.c];temp_val={ixfe:_ixfe,XF:XFs[_ixfe],t:'z'};if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:_j,r:val.r},temp_val,options);}}break;case'RString':case'Label':case'BIFF2STR':temp_val=make_cell(val.val,val.ixfe,'s');temp_val.XF=XFs[temp_val.ixfe];if(BIFF2Fmt>0)temp_val.z=BIFF2FmtTable[temp_val.ixfe>>8&0x1F];safe_format_xf(temp_val,options,wb.opts.Date1904);addcell({c:val.c,r:val.r},temp_val,options);break;case'Dimensions':{if(file_depth===1)range=val;/* TODO: stack */}break;case'SST':{sst=val;}break;case'Format':{/* val = [id, fmt] */if(opts.biff==4){BIFF2FmtTable[BIFF2Fmt++]=val[1];for(var b4idx=0;b4idx<BIFF2Fmt+163;++b4idx)if(SSF._table[b4idx]==val[1])break;if(b4idx>=163)SSF.load(val[1],BIFF2Fmt+163);}else SSF.load(val[1],val[0]);}break;case'BIFF2FORMAT':{BIFF2FmtTable[BIFF2Fmt++]=val;for(var b2idx=0;b2idx<BIFF2Fmt+163;++b2idx)if(SSF._table[b2idx]==val)break;if(b2idx>=163)SSF.load(val,BIFF2Fmt+163);}break;case'MergeCells':merges=merges.concat(val);break;case'Obj':objects[val.cmo[0]]=opts.lastobj=val;break;case'TxO':opts.lastobj.TxO=val;break;case'ImData':opts.lastobj.ImData=val;break;case'HLink':{for(rngR=val[0].s.r;rngR<=val[0].e.r;++rngR)for(rngC=val[0].s.c;rngC<=val[0].e.c;++rngC){cc=options.dense?(out[rngR]||[])[rngC]:out[encode_cell({c:rngC,r:rngR})];if(cc)cc.l=val[1];}}break;case'HLinkTooltip':{for(rngR=val[0].s.r;rngR<=val[0].e.r;++rngR)for(rngC=val[0].s.c;rngC<=val[0].e.c;++rngC){cc=options.dense?(out[rngR]||[])[rngC]:out[encode_cell({c:rngC,r:rngR})];if(cc&&cc.l)cc.l.Tooltip=val[1];}}break;/* Comments */case'Note':{if(opts.biff<=5&&opts.biff>=2)break;/* TODO: BIFF5 */cc=options.dense?(out[val[0].r]||[])[val[0].c]:out[encode_cell(val[0])];var noteobj=objects[val[2]];if(!cc){if(options.dense){if(!out[val[0].r])out[val[0].r]=[];cc=out[val[0].r][val[0].c]={t:"z"};}else {cc=out[encode_cell(val[0])]={t:"z"};}range.e.r=Math.max(range.e.r,val[0].r);range.s.r=Math.min(range.s.r,val[0].r);range.e.c=Math.max(range.e.c,val[0].c);range.s.c=Math.min(range.s.c,val[0].c);}if(!cc.c)cc.c=[];cmnt={a:val[1],t:noteobj.TxO.t};cc.c.push(cmnt);}break;default:switch(R.n){/* nested */case'ClrtClient':break;case'XFExt':update_xfext(XFs[val.ixfe],val.ext);break;case'DefColWidth':break;case'DefaultRowHeight':val[1];break;// TODO: flags
   case'ColInfo':{if(!opts.cellStyles)break;while(val.e>=val.s){colinfo[val.e--]={width:val.w/256};if(!seencol){seencol=true;find_mdw_colw(val.w/256);}process_col(colinfo[val.e+1]);}}break;case'Row':{var rowobj={};if(val.level!=null){rowinfo[val.r]=rowobj;rowobj.level=val.level;}if(val.hidden){rowinfo[val.r]=rowobj;rowobj.hidden=true;}if(val.hpt){rowinfo[val.r]=rowobj;rowobj.hpt=val.hpt;rowobj.hpx=pt2px(val.hpt);}}break;case'LeftMargin':case'RightMargin':case'TopMargin':case'BottomMargin':if(!out['!margins'])default_margins(out['!margins']={});out['!margins'][Rn.slice(0,-6).toLowerCase()]=val;break;case'Setup':// TODO
   if(!out['!margins'])default_margins(out['!margins']={});out['!margins'].header=val.header;out['!margins'].footer=val.footer;break;case'Window2':// TODO
   // $FlowIgnore
@@ -27987,7 +28561,7 @@ ${points.join('\n')}
   return ws;}function parse_dom_table(table,_opts){var opts=_opts||{};var ws=opts.dense?[]:{};return sheet_add_dom(ws,table,_opts);}function table_to_book(table,opts){return sheet_to_workbook(parse_dom_table(table,opts),opts);}function is_dom_element_hidden(element){var display='';var get_computed_style=get_get_computed_style_function(element);if(get_computed_style)display=get_computed_style(element).getPropertyValue('display');if(!display)display=element.style.display;// Fallback for cases when getComputedStyle is not available (e.g. an old browser or some Node.js environments) or doesn't work (e.g. if the element is not inserted to a document)
   return display==='none';}/* global getComputedStyle */function get_get_computed_style_function(element){// The proper getComputedStyle implementation is the one defined in the element window
   if(element.ownerDocument.defaultView&&typeof element.ownerDocument.defaultView.getComputedStyle==='function')return element.ownerDocument.defaultView.getComputedStyle;// If it is not available, try to get one from the global namespace
-  if(typeof getComputedStyle==='function')return getComputedStyle;return null;}/* OpenDocument */var parse_content_xml=function(){var parse_text_p=function(text){/* 6.1.2 White Space Characters */var fixed=text.replace(/[\t\r\n]/g," ").trim().replace(/ +/g," ").replace(/<text:s\/>/g," ").replace(/<text:s text:c="(\d+)"\/>/g,function($$,$1){return Array(parseInt($1,10)+1).join(" ");}).replace(/<text:tab[^>]*\/>/g,"\t").replace(/<text:line-break\/>/g,"\n");var v=unescapexml(fixed.replace(/<[^>]*>/g,""));return [v];};var number_formats={/* ods name: [short ssf fmt, long ssf fmt] */day:["d","dd"],month:["m","mm"],year:["y","yy"],hours:["h","hh"],minutes:["m","mm"],seconds:["s","ss"],"am-pm":["A/P","AM/PM"],"day-of-week":["ddd","dddd"],era:["e","ee"],/* there is no native representation of LO "Q" format */quarter:["\\Qm","m\\\"th quarter\""]};return function pcx(d,_opts){var opts=_opts||{};var str=xlml_normalize(d);var state=[],tmp;var tag;var NFtag={name:""},NF="",pidx=0;var sheetag;var rowtag;var Sheets={},SheetNames=[];var ws=opts.dense?[]:{};var Rn,q;var ctag={value:""};var textp="",textpidx=0,textptag;var textR=[];var R=-1,C=-1,range={s:{r:1000000,c:10000000},e:{r:0,c:0}};var row_ol=0;var number_format_map={};var merges=[],mrange={},mR=0,mC=0;var rowinfo=[],rowpeat=1,colpeat=1;var arrayf=[];var WB={Names:[]};var atag={};var _Ref=["",""];var comments=[],comment={};var creator="",creatoridx=0;var isstub=false,intable=false;var i=0;xlmlregex.lastIndex=0;str=str.replace(/<!--([\s\S]*?)-->/mg,"").replace(/<!DOCTYPE[^\[]*\[[^\]]*\]>/gm,"");while(Rn=xlmlregex.exec(str))switch(Rn[3]=Rn[3].replace(/_.*$/,"")){case'table':case'工作表':// 9.1.2 <table:table>
+  if(typeof getComputedStyle==='function')return getComputedStyle;return null;}/* OpenDocument */var parse_content_xml=function(){var parse_text_p=function(text){/* 6.1.2 White Space Characters */var fixed=text.replace(/[\t\r\n]/g," ").trim().replace(/ +/g," ").replace(/<text:s\/>/g," ").replace(/<text:s text:c="(\d+)"\/>/g,function($$,$1){return Array(parseInt($1,10)+1).join(" ");}).replace(/<text:tab[^>]*\/>/g,"\t").replace(/<text:line-break\/>/g,"\n");var v=unescapexml(fixed.replace(/<[^>]*>/g,""));return [v];};var number_formats={/* ods name: [short ssf fmt, long ssf fmt] */day:["d","dd"],month:["m","mm"],year:["y","yy"],hours:["h","hh"],minutes:["m","mm"],seconds:["s","ss"],"am-pm":["A/P","AM/PM"],"day-of-week":["ddd","dddd"],era:["e","ee"],/* there is no native representation of LO "Q" format */quarter:["\\Qm","m\\\"th quarter\""]};return function pcx(d,_opts){var opts=_opts||{};var str=xlml_normalize(d);var state=[],tmp;var tag;var NFtag={name:""},NF="",pidx=0;var sheetag;var rowtag;var Sheets={},SheetNames=[];var ws=opts.dense?[]:{};var Rn,q;var ctag={value:""};var textp="",textpidx=0;var textR=[];var R=-1,C=-1,range={s:{r:1000000,c:10000000},e:{r:0,c:0}};var row_ol=0;var number_format_map={};var merges=[],mrange={},mR=0,mC=0;var rowinfo=[],rowpeat=1,colpeat=1;var arrayf=[];var WB={Names:[]};var atag={};var _Ref=["",""];var comments=[],comment={};var creator="",creatoridx=0;var isstub=false,intable=false;var i=0;xlmlregex.lastIndex=0;str=str.replace(/<!--([\s\S]*?)-->/mg,"").replace(/<!DOCTYPE[^\[]*\[[^\]]*\]>/gm,"");while(Rn=xlmlregex.exec(str))switch(Rn[3]=Rn[3].replace(/_.*$/,"")){case'table':case'工作表':// 9.1.2 <table:table>
   if(Rn[1]==='/'){if(range.e.c>=range.s.c&&range.e.r>=range.s.r)ws['!ref']=encode_range(range);else ws['!ref']="A1:A1";if(opts.sheetRows>0&&opts.sheetRows<=range.e.r){ws['!fullref']=ws['!ref'];range.e.r=opts.sheetRows-1;ws['!ref']=encode_range(range);}if(merges.length)ws['!merges']=merges;if(rowinfo.length)ws["!rows"]=rowinfo;sheetag.name=sheetag['名称']||sheetag.name;if(typeof JSON!=='undefined')JSON.stringify(sheetag);SheetNames.push(sheetag.name);Sheets[sheetag.name]=ws;intable=false;}else if(Rn[0].charAt(Rn[0].length-2)!=='/'){sheetag=parsexmltag(Rn[0],false);R=C=-1;range.s.r=range.s.c=10000000;range.e.r=range.e.c=0;ws=opts.dense?[]:{};merges=[];rowinfo=[];intable=true;}break;case'table-row-group':// 9.1.9 <table:table-row-group>
   if(Rn[1]==="/")--row_ol;else ++row_ol;break;case'table-row':case'行':// 9.1.3 <table:table-row>
   if(Rn[1]==='/'){R+=rowpeat;rowpeat=1;break;}rowtag=parsexmltag(Rn[0],false);if(rowtag['行号'])R=rowtag['行号']-1;else if(R==-1)R=0;rowpeat=+rowtag['number-rows-repeated']||1;/* TODO: remove magic */if(rowpeat<10)for(i=0;i<rowpeat;++i)if(row_ol>0)rowinfo[R+i]={level:row_ol};C=-1;break;case'covered-table-cell':// 9.1.5 <table:covered-table-cell>
@@ -27998,6 +28572,7 @@ ${points.join('\n')}
   case'scripts':// 3.12 <office:scripts>
   case'styles':// TODO <office:styles>
   case'font-face-decls':// 3.14 <office:font-face-decls>
+  case'master-styles'://3.15.4 <office:master-styles> -- relevant for FODS
   if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw "Bad state: "+tmp;}else if(Rn[0].charAt(Rn[0].length-2)!=='/')state.push([Rn[3],true]);break;case'annotation':// 14.1 <office:annotation>
   if(Rn[1]==='/'){if((tmp=state.pop())[0]!==Rn[3])throw "Bad state: "+tmp;comment.t=textp;if(textR.length)comment.R=textR;comment.a=creator;comments.push(comment);}else if(Rn[0].charAt(Rn[0].length-2)!=='/'){state.push([Rn[3],false]);}creator="";creatoridx=0;textp="";textpidx=0;textR=[];break;case'creator':// 4.3.2.7 <dc:creator>
   if(Rn[1]==='/'){creator=str.slice(creatoridx,Rn.index);}else creatoridx=Rn.index+Rn[0].length;break;/* ignore state */case'meta':case'元数据':// TODO: <office:meta> <uof:元数据> FODS/UOF
@@ -28026,7 +28601,6 @@ ${points.join('\n')}
   if(Rn[1]==='/'){number_format_map[NFtag.name]=NF;if((tmp=state.pop())[0]!==Rn[3])throw "Bad state: "+tmp;}else if(Rn[0].charAt(Rn[0].length-2)!=='/'){NF="";NFtag=parsexmltag(Rn[0],false);state.push([Rn[3],true]);}break;case'script':break;// 3.13 <office:script>
   case'libraries':break;// TODO: <ooo:libraries>
   case'automatic-styles':break;// 3.15.3 <office:automatic-styles>
-  case'master-styles':break;// TODO: <office:master-styles>
   case'default-style':// TODO: <style:default-style>
   case'page-layout':break;// TODO: <style:page-layout>
   case'style':// 16.2 <style:style>
@@ -28080,7 +28654,7 @@ ${points.join('\n')}
   case'line-break':break;// 6.1.5 <text:line-break>
   case'span':break;// 6.1.7 <text:span>
   case'p':case'文本串':// 5.1.3 <text:p>
-  if(Rn[1]==='/'&&(!ctag||!ctag['string-value'])){var ptp=parse_text_p(str.slice(textpidx,Rn.index));textp=(textp.length>0?textp+"\n":"")+ptp[0];}else {textptag=parsexmltag(Rn[0],false);textpidx=Rn.index+Rn[0].length;}break;// <text:p>
+  if(['master-styles'].indexOf(state[state.length-1][0])>-1)break;if(Rn[1]==='/'&&(!ctag||!ctag['string-value'])){var ptp=parse_text_p(str.slice(textpidx,Rn.index));textp=(textp.length>0?textp+"\n":"")+ptp[0];}else {parsexmltag(Rn[0],false);textpidx=Rn.index+Rn[0].length;}break;// <text:p>
   case's':break;// <text:s>
   case'database-range':// 9.4.15 <table:database-range>
   if(Rn[1]==='/')break;try{_Ref=ods_to_csf_3D(parsexmltag(Rn[0])['target-range-address']);Sheets[_Ref[0]]['!autofilter']={ref:_Ref[1]};}catch(e){/* empty */}break;case'date':break;// <*:date>
@@ -28199,6 +28773,14 @@ ${points.join('\n')}
     let val = cell ? cell.v : undefined;
     return val.replace(']', '').replace('[', '');
   }
+  /**
+   * Find metadata in the excelsheet and safe it with
+   * standardized names
+   *
+   * @param {object} adsDesSheet sheetjs worksheet
+   * @returns {object}
+   */
+
 
   function getAdsDesMeta(adsDesSheet) {
     let metaData = {};
@@ -28232,6 +28814,14 @@ ${points.join('\n')}
     metaData.desorptionPoints = valueElseUndefinedInt(adsDesSheet.H18);
     return metaData;
   }
+  /**
+   * Parses the cells with actual isotherm data
+   *
+   * @param {object} worksheet sheetjs worksheet
+   * @param {object} range sheetjs range
+   * @returns
+   */
+
 
   function parseIsothermBlock(worksheet, range) {
     let data = {
@@ -28263,9 +28853,17 @@ ${points.join('\n')}
     });
     return data;
   }
+  /**
+   * Finds the cells with the isotherm data and calls the parser on them
+   *
+   * @param {object} worksheet sheetjs worksheet
+   * @param {number} adsorptionPoints number of pressure points in the adsorption measurement
+   * @param {number} desorptionPoints number of pressure points in the desorption measurement
+   * @returns {object} with keys adsorption and desorption, values of which are arrays of floats
+   */
+
 
   function parseAdsDesData(worksheet, adsorptionPoints, desorptionPoints) {
-    // traverse the sheet
     const rangeAds = {
       s: {
         c: 1,
@@ -28293,6 +28891,14 @@ ${points.join('\n')}
       desorption: desData
     };
   }
+  /**
+   * Orchestrates the parsing of a Belsorp Excel (xls) file.
+   *
+   * @export
+   * @param {Buffer} dataFile input excel file, e.g., read with readfilesync
+   * @returns {Analysis}
+   */
+
 
   function fromBelsorp(dataFile) {
     const workbook = xlsx.read(dataFile);
@@ -28302,12 +28908,6 @@ ${points.join('\n')}
     let analysis = new Analysis();
     analysis.pushSpectrum({
       x: {
-        data: data.adsorption.pp0,
-        label: 'relative pressure',
-        type: 'independent',
-        units: ''
-      },
-      p: {
         data: data.adsorption.pe,
         label: 'Pressure',
         type: 'independent',
@@ -28318,6 +28918,12 @@ ${points.join('\n')}
         label: 'Excess adsorption',
         type: 'dependent',
         units: 'mmol/g'
+      },
+      p: {
+        data: data.adsorption.pp0,
+        label: 'relative pressure',
+        type: 'independent',
+        units: ''
       }
     }, {
       dataType: 'Adsorption Isotherm',
@@ -28331,17 +28937,17 @@ ${points.join('\n')}
         type: 'independent',
         units: ''
       },
-      p: {
-        data: data.desorption.pe,
-        label: 'Pressure',
-        type: 'independent',
-        units: 'kPa'
-      },
       y: {
         data: data.desorption.va,
         label: 'Excess adsorption',
         type: 'dependent',
         units: 'mmol/g'
+      },
+      p: {
+        data: data.desorption.pe,
+        label: 'Pressure',
+        type: 'independent',
+        units: 'kPa'
       }
     }, {
       dataType: 'Desorption Isotherm',
@@ -28358,9 +28964,8 @@ ${points.join('\n')}
   exports.fromJcamp = fromJcamp;
   exports.fromMicrometricsCSV = fromMicrometricsCSV;
   exports.fromMicrometricsTXT = fromMicrometricsTXT;
-  exports.getJSGraph = getJSGraph;
-  exports.getNormalizationAnnotations = getNormalizationAnnotations;
   exports.toJcamp = toJcamp;
+  exports.toJcamps = toJcamps;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
