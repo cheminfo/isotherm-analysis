@@ -1,7 +1,7 @@
 {
   "name": "isotherm-analysis",
   "version": "0.4.2",
-  "description": "Parse and analyze isotherms",
+  "description": "isotherm-analysis allows to parse and analyze isotherms. It converts from multiple formats to JCAMP-DX and provides utilities for basic analysis.",
   "main": "lib/index.js",
   "module": "src/index.js",
   "files": [
@@ -61,5 +61,46 @@
     "ml-array-mean": "^1.1.5",
     "papaparse": "^5.3.0",
     "xlsx": "^0.16.9"
+  },
+  "cheminfo": {
+    "logo": "https://raw.githubusercontent.com/cheminfo/font/master/src/isotherm/assignment.svg",
+    "domain": [
+      "Physical Chemistry",
+      "Materials Science"
+    ],
+    "technique": {
+      "name": "Isotherm",
+      "chmo": "0001992",
+      "iupac": "https://doi.org/10.1351/goldbook.AT06934"
+    },
+    "functionality": {
+      "fileTypes:": [
+        {
+          "extension": "csv",
+          "manufacturer": "Micrometrics",
+          "example": "https://raw.githubusercontent.com/cheminfo/isotherm-analysis/master/testFiles/micrometrics.csv"
+        },
+        {
+          "extension": "txt",
+          "manufacturer": "IGA",
+          "example": "https://raw.githubusercontent.com/cheminfo/isotherm-analysis/master/testFiles/IGA_raw_no_blank.txt"
+        },
+        {
+          "extension": "txt",
+          "manufacturer": "Micrometrics",
+          "example": "https://raw.githubusercontent.com/cheminfo/isotherm-analysis/master/testFiles/GVM-BET-Gemini.VII.2390.v1.03.TXT"
+        },
+        {
+          "extension": "xls",
+          "manufacturer": "Belsorp",
+          "example": "https://github.com/cheminfo/isotherm-analysis/blob/master/testFiles/BET.xls?raw=true"
+        },
+        {
+          "extension": "csv",
+          "manufacturer": "DVS-Vacuum",
+          "example": "https://raw.githubusercontent.com/cheminfo/isotherm-analysis/master/testFiles/CO2H2O_25C_30RH.csv"
+        }
+      ]
+    }
   }
 }
