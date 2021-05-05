@@ -140,10 +140,40 @@ function parseIGADataBlock(lines) {
   return dataBlock;
 }
 
+function parseNonBETData(lines, sampleWeight) {
+  let dataBlock = {
+    pressure: [],
+    gasDensity: [],
+    totalWeight: [],
+    sampleT: [],
+    wtPercent: [],
+    excessAdsorption: [],
+  };
+  for (let line of lines) {
+    let tmp = line.split(/\s{3,}/);
+    dataBlock.pressure.push(parseFloat(tmp[0]) * 0.1);
+    dataBlock.gasDensity.push(parseFloat(tmp[1]));
+    dataBlock.totalWeight.push(parseFloat(tmp[2]));
+    dataBlock.sampleT.push(parseFloat(tmp[3]));
+    let wtPercent = parseFloat(tmp[4]);
+    dataBlock.wtPercent.push(wtPercent);
+    dataBlock.excessAdsorption.push(wtPercent * sampleWeight);
+  }
+  return dataBlock;
+}
+
 function parseOneIGA(lines) {
   const measLen = lines.length;
   let meta = parseIGAMeasurmentHeader(lines.slice(2, 68));
-  const dataBlock = parseIGADataBlock(lines.slice(72, measLen - 3));
+  let dataBlock;
+  if (lines[68].match('BET')) {
+    dataBlock = parseIGADataBlock(lines.slice(72, measLen - 3));
+  } else {
+    dataBlock = parseNonBETData(
+      lines.slice(72, measLen - 3),
+      meta.sampleWeightDry,
+    );
+  }
   meta.scanEnd = lineSplitTrim(lines[measLen - 2]);
   meta.scanReferenceState = lineSplitTrim(lines[measLen - 1]);
   return { meta: meta, data: dataBlock };
@@ -156,7 +186,6 @@ function parseOneIGA(lines) {
  */
 export function fromIGA(text) {
   const lines = text.split(/[\r\n]+/);
-
   const lineNumbers = getLineNumbersOfMeasurement(lines);
   let analysis = new Analysis();
   for (let i = 0; i < lineNumbers[0].length; i++) {
@@ -165,8 +194,9 @@ export function fromIGA(text) {
     meas.meta.adsorptionT = mean(meas.data.sampleT);
     meas.meta.adsorptionTunits = '°C';
 
-    analysis.pushSpectrum(
-      {
+    let spectrum;
+    if ('pp0' in meas.data) {
+      spectrum = {
         x: {
           data: meas.data.pressure,
           label: 'Pressure',
@@ -197,14 +227,42 @@ export function fromIGA(text) {
           type: 'independent',
           units: '°C',
         },
-      },
-      {
-        dataType: 'Adsorption Isotherm',
-        title: meas.meta.experimentTitle,
-        meta: meas.meta,
-      },
-    );
+      };
+    } else {
+      spectrum = {
+        x: {
+          data: meas.data.pressure,
+          label: 'Pressure',
+          type: 'independent',
+          units: 'kPa',
+        },
+        y: {
+          data: meas.data.excessAdsorption,
+          label: 'Excess Adsorption',
+          type: 'dependent',
+          units: 'g/g',
+        },
+        r: {
+          data: meas.data.wtPercent,
+          label: 'Excess Adsorption',
+          type: 'dependent',
+          units: '%',
+        },
+        t: {
+          data: meas.data.sampleT,
+          label: 'Sample Temperature',
+          type: 'independent',
+          units: '°C',
+        },
+      };
+    }
+    analysis.pushSpectrum(spectrum, {
+      dataType: 'Adsorption Isotherm',
+      title: meas.meta.experimentTitle,
+      meta: meas.meta,
+    });
   }
+
   return analysis;
 }
 
