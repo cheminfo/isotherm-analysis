@@ -1,5 +1,9 @@
 export function lineSplitTrim(line) {
-  return lineSplit(line)[1].trim();
+  try {
+    return lineSplit(line)[1].trim();
+  } catch (e) {
+    return '';
+  }
 }
 
 export function lineSplit(line) {

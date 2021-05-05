@@ -1,0 +1,224 @@
+----------------------------------------------------------------------------------------------------
+                                S E R I E S   D A T A   R E C O R D
+----------------------------------------------------------------------------------------------------
+
+
+System Type                   IGA Systems
+System Owner                  EPFL
+System Reference              G200773
+System Serial Number          HALIGA241
+Sample Number                 0154
+Experiment Type               Sequence
+Experiment No                 014
+
+Title                         sion-66_b
+Comment                       
+Source                        
+Batch                         
+ID                            
+
+Experiment Title              Isotherm_20c_co2_hr
+Sample Wet Weight             11.8799 mg
+Sample Dry Weight             10.2293 mg
+Sample Dry Mass               10.2293 mg
+Sample Weight Loss            16.14 %d.b.
+
+Balance Trim (V)              0.0024 cc
+Balance Trim (T)              Cabinet
+Counterweight (M)             0.3065 g
+Counterweight (ρ)             7.886 g/cc
+Counterweight (T)             Air
+Tungsten (M)                  0.0568 g
+Tungsten (ρ)                  19.03976 g/cc
+Tungsten (T)                  Sample
+Chain Excess (M)              0.0719 g
+Chain Excess (ρ)              11.09856 g/cc
+Chain Excess (T)              Air
+
+Interaction Type              Not Specified
+Classification                Not Specified
+Sample Geometry               Not Specified
+Sample Dimension              Not Specified
+Presorbed                     Not Specified
+Sample Molar Mass             Not Specified
+Sample Skeletal Density       Not Specified
+Absolute Adsorption Basis     Not Specified
+Adsorbate Density             Not Specified
+Micropore Volume              Not Specified
+Dilation                      Not Specified
+
+Application Code              201510
+Mode                          Vacuum
+Source                        Gas Cylinder
+Vessel                        CF-SW High Pressure
+Reactor                       Conflat SS316L
+Pressure Sensor(s)            20 bar
+Thermostat                    Water Bath
+Species                       CO2
+EOS Option                    Lookup Table
+SVP Option                    C.L.Yaws et al
+
+Source Data                   C:\HIsorp\G200773\Sample_0154\Sequence\Sequence014\Data.txt
+Operations Log                C:\HIsorp\G200773\Sample_0154\Sequence\Sequence014\Operations Log.txt
+Method Log                    C:\HIsorp\G200773\Sample_0154\Sequence\Sequence014\Method Log.txt
+
+File created                  19:19:31 on 26 May 2017 by WR200774
+Issue Level                   Recalculation Not Issued
+Series Type                   Isothermal Series
+Data Delimiter                Space
+
+
+Scan                          1
+Course                        Sorption
+Reference State Device        Sample
+Scan Title                    
+Scan Commenced                12:38:01 on 21 May 2017 by WR200774
+
+
+Pressure   Gas        Total      Sample    %Wt      
+           Density    Weight                        
+(mbar)     (g/cc)     (mg)       (°C)      (% d.b.) 
+----------------------------------------------------
+0.7        0.000001   10.2172    30.07     -.12     
+19.9       0.000036   10.3009    19.91     0.70     
+39.9       0.000072   10.3669    20.01     1.35     
+59.8       0.000108   10.4250    20.01     1.91     
+79.8       0.000144   10.4783    19.99     2.43     
+99.7       0.000181   10.5276    19.99     2.92     
+149.7      0.000271   10.6381    19.99     4.00     
+199.6      0.000361   10.7360    19.99     4.95     
+249.5      0.000452   10.8251    20.00     5.82     
+299.4      0.000542   10.9080    19.99     6.64     
+349.3      0.000632   10.9856    20.00     7.39     
+399.2      0.000723   11.0590    20.00     8.11     
+449.0      0.000813   11.1286    20.00     8.79     
+498.9      0.000903   11.1956    20.00     9.45     
+598.8      0.001085   11.3216    19.99     10.68    
+698.5      0.001266   11.4390    19.99     11.83    
+798.3      0.001447   11.5492    19.99     12.90    
+897.8      0.001629   11.6535    19.99     13.92    
+997.6      0.001811   11.7519    19.99     14.88    
+1097.1     0.001993   11.8451    19.98     15.80    
+1196.9     0.002175   11.9336    19.99     16.66    
+1296.6     0.002357   12.0179    19.99     17.49    
+1396.1     0.002539   12.0985    19.99     18.27    
+1495.7     0.002722   12.1750    20.00     19.02    
+1595.3     0.002905   12.2481    19.99     19.74    
+1694.9     0.003088   12.3185    19.99     20.42    
+1793.9     0.003270   12.3848    19.99     21.07    
+1893.3     0.003453   12.4481    20.00     21.69    
+1993.6     0.003638   12.5089    20.00     22.28    
+----------------------------------------------------
+
+Scan Ends                     22:33:58 on 21 May 2017 by WR200774
+Reference State               19.99°C
+
+
+
+----------------------------------------------------------------------------------------------------
+                                S E R I E S   D A T A   R E C O R D
+----------------------------------------------------------------------------------------------------
+
+
+System Type                   IGA Systems
+System Owner                  EPFL
+System Reference              G200773
+System Serial Number          HALIGA241
+Sample Number                 0154
+Experiment Type               Sequence
+Experiment No                 014
+
+Title                         sion-66_b
+Comment                       
+Source                        
+Batch                         
+ID                            
+
+Experiment Title              Isotherm_20c_co2_hr
+Sample Wet Weight             11.8799 mg
+Sample Dry Weight             10.2293 mg
+Sample Dry Mass               10.2293 mg
+Sample Weight Loss            16.14 %d.b.
+
+Balance Trim (V)              0.0024 cc
+Balance Trim (T)              Cabinet
+Counterweight (M)             0.3065 g
+Counterweight (ρ)             7.886 g/cc
+Counterweight (T)             Air
+Tungsten (M)                  0.0568 g
+Tungsten (ρ)                  19.03976 g/cc
+Tungsten (T)                  Sample
+Chain Excess (M)              0.0719 g
+Chain Excess (ρ)              11.09856 g/cc
+Chain Excess (T)              Air
+
+Interaction Type              Not Specified
+Classification                Not Specified
+Sample Geometry               Not Specified
+Sample Dimension              Not Specified
+Presorbed                     Not Specified
+Sample Molar Mass             Not Specified
+Sample Skeletal Density       Not Specified
+Absolute Adsorption Basis     Not Specified
+Adsorbate Density             Not Specified
+Micropore Volume              Not Specified
+Dilation                      Not Specified
+
+Application Code              201510
+Mode                          Vacuum
+Source                        Gas Cylinder
+Vessel                        CF-SW High Pressure
+Reactor                       Conflat SS316L
+Pressure Sensor(s)            20 bar
+Thermostat                    Water Bath
+Species                       CO2
+EOS Option                    Lookup Table
+SVP Option                    C.L.Yaws et al
+
+Source Data                   C:\HIsorp\G200773\Sample_0154\Sequence\Sequence014\Data.txt
+Operations Log                C:\HIsorp\G200773\Sample_0154\Sequence\Sequence014\Operations Log.txt
+Method Log                    C:\HIsorp\G200773\Sample_0154\Sequence\Sequence014\Method Log.txt
+
+File created                  19:19:32 on 26 May 2017 by WR200774
+Issue Level                   Recalculation Not Issued
+Series Type                   Isothermal Series
+Data Delimiter                Space
+
+
+Scan                          2
+Course                        Desorption
+Reference State Device        Sample
+Scan Title                    
+Scan Commenced                22:33:59 on 21 May 2017 by WR200774
+
+
+Pressure   Gas        Total      Sample    %Wt      
+           Density    Weight                        
+(mbar)     (g/cc)     (mg)       (°C)      (% d.b.) 
+----------------------------------------------------
+1993.6     0.003638   12.5089    20.00     22.28    
+1789.0     0.003261   12.3807    20.01     21.03    
+1590.9     0.002897   12.2445    20.01     19.70    
+1393.1     0.002534   12.0949    20.01     18.24    
+1194.5     0.002170   11.9312    20.02     16.64    
+995.6      0.001807   11.7495    20.02     14.86    
+896.2      0.001626   11.6514    20.01     13.90    
+796.8      0.001445   11.5477    20.00     12.89    
+697.2      0.001263   11.4382    20.00     11.82    
+597.7      0.001083   11.3211    20.00     10.67    
+498.3      0.000902   11.1960    20.02     9.45     
+399.2      0.000723   11.0607    20.01     8.13     
+299.5      0.000542   10.9108    19.99     6.66     
+199.6      0.000361   10.7394    19.99     4.99     
+99.8       0.000181   10.5313    20.00     2.95     
+49.9       0.000090   10.4001    20.01     1.67     
+0.6        0.000001   10.2293    20.35     0.00     
+----------------------------------------------------
+
+Scan Ends                     02:47:11 on 22 May 2017 by WR200774
+Reference State               20.03°C
+
+
+
+
+

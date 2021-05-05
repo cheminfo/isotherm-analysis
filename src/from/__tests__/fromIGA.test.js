@@ -57,3 +57,26 @@ test('fromIGA', () => {
   expect(analysis.spectra[2].meta.adsorptionT).toBeCloseTo(59, 0);
   expect(analysis.spectra[3].meta.adsorptionT).toBeCloseTo(68, 0);
 });
+
+test('fromIGA 2', () => {
+  const file = readFileSync(
+    join(__dirname, '../../../testFiles/Isotherm_IGA_67-CO2_20C-2bar.txt'),
+    'latin1',
+  );
+
+  let analysis = fromIGA(file);
+  expect(analysis.spectra).toHaveLength(2);
+  for (let i = 0; i < 2; i++) {
+    expect(Object.keys(analysis.spectra[i].variables)).toStrictEqual([
+      'x',
+      'y',
+      'r',
+      't',
+    ]);
+
+    expect(analysis.spectra[i].dataType).toBe('Adsorption Isotherm');
+  }
+
+  expect(analysis.spectra[0].meta.adsorptionT).toBeCloseTo(20, 0);
+  expect(analysis.spectra[1].meta.adsorptionT).toBeCloseTo(20, 0);
+});
