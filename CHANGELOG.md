@@ -1,5 +1,14 @@
 # Changelog
 
+### [0.4.3](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.4.2...v0.4.3) (2021-05-05)
+
+
+### Bug Fixes
+
+* handle different columns in IGA parser ([a642336](https://www.github.com/cheminfo/isotherm-analysis/commit/a642336514494ce5dab4f926f5df66f72b4295ef))
+* rename cheminfo meta key to info ([b0aebc2](https://www.github.com/cheminfo/isotherm-analysis/commit/b0aebc2441c3607f4e45c4df4c666d9ea4644d78))
+* typo in package.json metadata ([cf89aa7](https://www.github.com/cheminfo/isotherm-analysis/commit/cf89aa762c8d4e5a57474efe2ab095a114d2c729))
+
 ### [0.4.2](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.4.1...v0.4.2) (2021-04-08)
 
 
