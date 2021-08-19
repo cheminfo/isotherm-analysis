@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.0](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.4.3...v0.5.0) (2021-08-19)
+
+
+### Features
+
+* add micrometrics excel parser ([4d2e150](https://www.github.com/cheminfo/isotherm-analysis/commit/4d2e15036482c126a9df5c9563bab9f5cbd4d32d))
+* add rubotherm ([e4ba60f](https://www.github.com/cheminfo/isotherm-analysis/commit/e4ba60f7a64f14ab9eef8cae2bd027f0b1d48014))
+
+
+### Bug Fixes
+
+* path to test files ([7d9df4c](https://www.github.com/cheminfo/isotherm-analysis/commit/7d9df4c95248d3c8a2ddc277e5c2307089e9990b))
+
 ### [0.4.3](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.4.2...v0.4.3) (2021-05-05)
 
 
