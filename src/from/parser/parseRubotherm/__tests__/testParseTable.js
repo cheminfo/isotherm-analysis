@@ -8,7 +8,7 @@ let xlsx = require('xlsx');
 const workbook = xlsx.readFile(
   join(
     __dirname,
-    '../../testFiles/8_Rubotherm_gravimetric_(Single_gas_high_pressure).xls',
+    '../../../../../testFiles/8_Rubotherm_gravimetric_(Single_gas_high_pressure).xls',
   ),
 );
 

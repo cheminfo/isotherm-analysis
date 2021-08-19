@@ -8,7 +8,7 @@ let xlsx = require('xlsx');
 const workbook = xlsx.readFile(
   join(
     __dirname,
-    '../../testFiles/Isotherm_Micromeritics_AlPyr-CO2-278K 2.XLS',
+    '../../../../../testFiles/Isotherm_Micromeritics_AlPyr-CO2-278K 2.XLS',
   ),
 );
 const matrix = getMatrixFromWorkbook(workbook);
