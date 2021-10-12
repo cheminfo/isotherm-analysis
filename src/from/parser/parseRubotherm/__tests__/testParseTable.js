@@ -15,10 +15,10 @@ const workbook = xlsx.readFile(
 const matrix = getMatrixFromWorkbook(workbook);
 
 test('parseTable', () => {
-  expect(parseTable(matrix, { i: 0 })[0].label).toStrictEqual('Temperature');
-  expect(parseTable(matrix, { i: 0 })[0].data[9]).toStrictEqual(35);
+  expect(parseTable(matrix, { i: 0 })[0].label).toBe('Temperature');
+  expect(parseTable(matrix, { i: 0 })[0].data[9]).toBe(35);
   expect(parseTable(matrix, { i: 11 })).toStrictEqual([]);
-  expect(parseTable(matrix, { i: 9 })[3].data[9]).toStrictEqual(11.84);
-  expect(parseTable(matrix, { i: 9 })[5].data[9]).toStrictEqual(11.9);
-  expect(parseTable(matrix, { i: 9 })[7].data[9]).toStrictEqual(26.749192);
+  expect(parseTable(matrix, { i: 9 })[3].data[9]).toBe(11.84);
+  expect(parseTable(matrix, { i: 9 })[5].data[9]).toBe(11.9);
+  expect(parseTable(matrix, { i: 9 })[7].data[9]).toBe(26.749192);
 });

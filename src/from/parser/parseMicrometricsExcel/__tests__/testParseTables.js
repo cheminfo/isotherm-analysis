@@ -18,15 +18,15 @@ test('parseTables', () => {
   expect(parsed['Isotherm Linear Absolute Plot'].y).toBeUndefined();
   expect(
     parsed['Isotherm Tabular Report'].data['Elapsed Time (h:min)'][9],
-  ).toStrictEqual('03:28');
+  ).toBe('03:28');
   expect(
     parsed['Isotherm Pressure Composition'][
       'AlPyr-CO2-278K : AlPyr-CO2-278K : Desorption'
     ]['Weight % CO2'][9],
-  ).toStrictEqual(2.269092491);
+  ).toBe(2.269092491);
   expect(
     parsed['Isotherm Linear Absolute Plot'][
       'AlPyr-CO2-278K : AlPyr-CO2-278K : Adsorption'
     ]['Quantity Adsorbed (mmol/g)'][0],
-  ).toStrictEqual(0.04578717);
+  ).toBe(0.04578717);
 });
