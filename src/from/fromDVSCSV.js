@@ -110,13 +110,13 @@ function parseData(lines, dataStartRow) {
   data.time = arrayColumn(parsed, 0);
   data.RH = arrayColumn(parsed, 26);
   data.targetRH = arrayColumn(parsed, 25);
-  data.targetp = arrayColumn(parsed, 9).map(function (item) {
+  data.targetp = arrayColumn(parsed, 9).map((item) => {
     return item * 0.133322; // Torr to kPa
   });
-  data.x = arrayColumn(parsed, 10).map(function (item) {
+  data.x = arrayColumn(parsed, 10).map((item) => {
     return item * 0.133322; // Torr to kPa
   });
-  data.p = arrayColumn(parsed, 9).map(function (item) {
+  data.p = arrayColumn(parsed, 9).map((item) => {
     return item / 100;
   });
 

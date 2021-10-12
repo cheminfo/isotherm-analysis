@@ -30,10 +30,10 @@ export function fromMicrometricsCSV(text) {
         //FixMe: this should be p
         x: {
           data: arrayColumn(parsed, 0)
-            .filter(function (value) {
+            .filter((value) => {
               return value !== '';
             })
-            .map(function (x) {
+            .map((x) => {
               return parseFloat(x);
             }),
           label: 'relative pressure p/p0',
@@ -42,10 +42,10 @@ export function fromMicrometricsCSV(text) {
         },
         y: {
           data: arrayColumn(parsed, 1)
-            .filter(function (value) {
+            .filter((value) => {
               return value !== '';
             })
-            .map(function (x) {
+            .map((x) => {
               return (parseFloat(x) / idealGasConstant) * 1000;
             }),
           label: 'Excess adsorption',
@@ -64,10 +64,10 @@ export function fromMicrometricsCSV(text) {
       {
         x: {
           data: arrayColumn(parsed, 2)
-            .filter(function (value) {
+            .filter((value) => {
               return value !== '';
             })
-            .map(function (x) {
+            .map((x) => {
               return parseFloat(x);
             }),
           label: 'relative pressure p/p0',
@@ -76,10 +76,10 @@ export function fromMicrometricsCSV(text) {
         },
         y: {
           data: arrayColumn(parsed, 3)
-            .filter(function (value) {
+            .filter((value) => {
               return value !== '';
             })
-            .map(function (x) {
+            .map((x) => {
               return (parseFloat(x) / idealGasConstant) * 1000;
             }),
           label: 'Excess adsorption',

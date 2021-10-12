@@ -15,12 +15,12 @@ test('fromBelsorp', () => {
   // Parsing metadata
   const meta = getAdsDesMeta(adsDesSheet);
 
-  expect(meta.sampleWeight).toStrictEqual(0.033);
-  expect(meta.sampleWeightUnit).toStrictEqual('g');
+  expect(meta.sampleWeight).toBe(0.033);
+  expect(meta.sampleWeightUnit).toBe('g');
 
-  expect(meta.adsorptionT).toStrictEqual(77);
-  expect(meta.saturatedVaporPressure).toStrictEqual(83.744);
-  expect(meta.saturatedVaporPressureUnit).toStrictEqual('kPa');
+  expect(meta.adsorptionT).toBe(77);
+  expect(meta.saturatedVaporPressure).toBe(83.744);
+  expect(meta.saturatedVaporPressureUnit).toBe('kPa');
 
   // Parse an isotherm block
   const rangeAds = {
@@ -40,10 +40,10 @@ test('fromBelsorp', () => {
   expect(data.adsorption.p0).toHaveLength(21);
   expect(data.desorption.p0).toHaveLength(11);
 
-  expect(data.adsorption.p0[0]).toStrictEqual(83.744);
+  expect(data.adsorption.p0[0]).toBe(83.744);
   expect(data.adsorption.va[20]).toBeCloseTo(9822.4457, 3);
 
-  expect(data.desorption.p0[0]).toStrictEqual(83.744);
+  expect(data.desorption.p0[0]).toBe(83.744);
   expect(data.desorption.va[10]).toBeCloseTo(8838.2381176, 3);
 
   const dataFile = readFileSync(join(__dirname, '../../../testFiles/BET.xls'));
