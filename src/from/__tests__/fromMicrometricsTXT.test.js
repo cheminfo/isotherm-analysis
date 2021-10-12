@@ -25,40 +25,40 @@ test('parsing the datablocks', () => {
   expect(data.x).toHaveLength(29);
   expect(data.y).toHaveLength(29);
   expect(data.p).toHaveLength(29);
-  expect(data.x[0]).toStrictEqual(0.004850987);
-  expect(data.x[1]).toStrictEqual(0.049878494);
+  expect(data.x[0]).toBe(0.004850987);
+  expect(data.x[1]).toBe(0.049878494);
 
-  expect(data.y[0]).toStrictEqual(1.03939);
-  expect(data.y[1]).toStrictEqual(1.61717);
+  expect(data.y[0]).toBe(1.03939);
+  expect(data.y[1]).toBe(1.61717);
   expect(data.p[0]).toStrictEqual(3.738953 * 0.13332);
 
-  expect(data.x[28]).toStrictEqual(0.949882695);
-  expect(data.y[28]).toStrictEqual(10.3795);
+  expect(data.x[28]).toBe(0.949882695);
+  expect(data.y[28]).toBe(10.3795);
 });
 
 test('parsing the metablock', () => {
   let meta = parseMetaBlock(lines, 35);
-  expect(meta.sample).toStrictEqual('gvmh97400');
-  expect(meta.operator).toStrictEqual('manohara');
-  expect(meta.submitter).toStrictEqual('degas 100');
-  expect(meta.file).toStrictEqual(
+  expect(meta.sample).toBe('gvmh97400');
+  expect(meta.operator).toBe('manohara');
+  expect(meta.submitter).toBe('degas 100');
+  expect(meta.file).toBe(
     'C:\\Gemini VII\\data\\USERS\\Manohara\\gvmh97.SMP',
   );
-  expect(meta.started).toStrictEqual('20/07/2020 15:17:42');
-  expect(meta.adsorptive).toStrictEqual('N2');
-  expect(meta.completed).toStrictEqual('20/07/2020 21:54:54');
-  expect(meta.equilibrationTime).toStrictEqual(10);
-  expect(meta.equilibrationTimeUnit).toStrictEqual('s');
-  expect(meta.reportTime).toStrictEqual('21/07/2020 12:10:01');
+  expect(meta.started).toBe('20/07/2020 15:17:42');
+  expect(meta.adsorptive).toBe('N2');
+  expect(meta.completed).toBe('20/07/2020 21:54:54');
+  expect(meta.equilibrationTime).toBe(10);
+  expect(meta.equilibrationTimeUnit).toBe('s');
+  expect(meta.reportTime).toBe('21/07/2020 12:10:01');
 
-  expect(meta.sampleWeight).toStrictEqual(0.121);
-  expect(meta.sampleWeightUnit).toStrictEqual('g');
+  expect(meta.sampleWeight).toBe(0.121);
+  expect(meta.sampleWeightUnit).toBe('g');
 
-  expect(meta.model).toStrictEqual('2390 a');
-  expect(meta.sampleDensity).toStrictEqual(1.0);
-  expect(meta.sampleDensityUnit).toStrictEqual('g/cm³');
-  expect(meta.evacRate).toStrictEqual(20);
-  expect(meta.evacRateUnit).toStrictEqual('mmHg/min');
+  expect(meta.model).toBe('2390 a');
+  expect(meta.sampleDensity).toBe(1.0);
+  expect(meta.sampleDensityUnit).toBe('g/cm³');
+  expect(meta.evacRate).toBe(20);
+  expect(meta.evacRateUnit).toBe('mmHg/min');
 });
 test('create an analysis object', () => {
   let analysis = fromMicrometricsTXT(file);
@@ -67,5 +67,5 @@ test('create an analysis object', () => {
     'y',
     'p',
   ]);
-  expect(analysis.spectra[0].dataType).toStrictEqual('Adsorption Isotherm');
+  expect(analysis.spectra[0].dataType).toBe('Adsorption Isotherm');
 });

@@ -40,27 +40,27 @@
     "trailingComma": "all"
   },
   "devDependencies": {
-    "@babel/plugin-transform-modules-commonjs": "^7.15.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.15.4",
     "@rollup/plugin-alias": "^3.1.5",
-    "@types/jest": "^27.0.1",
+    "@types/jest": "^27.0.2",
     "cheminfo-build": "^1.1.11",
     "cheminfo-publish": "^1.0.21",
     "codecov": "^3.8.3",
-    "eslint": "^7.32.0",
-    "eslint-config-cheminfo": "^5.2.4",
-    "eslint-plugin-import": "^2.24.0",
-    "eslint-plugin-jest": "^24.4.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "jest": "^27.0.6",
-    "prettier": "^2.3.2",
-    "rollup": "^2.56.2"
+    "eslint": "^8.0.0",
+    "eslint-config-cheminfo": "^5.6.0",
+    "eslint-plugin-import": "^2.25.1",
+    "eslint-plugin-jest": "^25.0.5",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^27.2.5",
+    "prettier": "^2.4.1",
+    "rollup": "^2.58.0"
   },
   "dependencies": {
-    "common-spectrum": "^0.40.0",
+    "common-spectrum": "^0.43.1",
     "ml-array-max": "^1.2.3",
     "ml-array-mean": "^1.1.5",
     "papaparse": "^5.3.1",
-    "xlsx": "^0.17.1"
+    "xlsx": "^0.17.2"
   },
   "info": {
     "logo": "https://raw.githubusercontent.com/cheminfo/font/master/src/isotherm/assignment.svg",

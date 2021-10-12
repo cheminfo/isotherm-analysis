@@ -94,7 +94,7 @@ function parseIsothermBlock(worksheet, range) {
     }
   }
 
-  data.va = data.va.map(function (x) {
+  data.va = data.va.map((x) => {
     return (x / idealGasConstant) * 1000;
   });
 
