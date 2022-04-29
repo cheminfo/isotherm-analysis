@@ -18,9 +18,7 @@ test('parseMeta', () => {
   expect(parsed.title).toBe(
     '3Flex 4.02 3Flex Version 4.02 Page 1 Serial # 811  Unit 1  Port 3',
   );
-  expect(parsed.File).toBe(
-    'C:\\3Flex\\data\\Jordi\\Nency\\AlPyr-CO2-278K.SMP',
-  );
+  expect(parsed.File).toBe('C:\\3Flex\\data\\Jordi\\Nency\\AlPyr-CO2-278K.SMP');
   expect(parsed['Analysis adsorptive']).toBe('CO2');
   expect(parsed['Summary Report']).toBeUndefined();
   expect(parsed['Qm·C']).toBe('0.00042 ± 0.0002 mmol/g');

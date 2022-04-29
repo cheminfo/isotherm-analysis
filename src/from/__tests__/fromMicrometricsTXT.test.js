@@ -41,9 +41,7 @@ test('parsing the metablock', () => {
   expect(meta.sample).toBe('gvmh97400');
   expect(meta.operator).toBe('manohara');
   expect(meta.submitter).toBe('degas 100');
-  expect(meta.file).toBe(
-    'C:\\Gemini VII\\data\\USERS\\Manohara\\gvmh97.SMP',
-  );
+  expect(meta.file).toBe('C:\\Gemini VII\\data\\USERS\\Manohara\\gvmh97.SMP');
   expect(meta.started).toBe('20/07/2020 15:17:42');
   expect(meta.adsorptive).toBe('N2');
   expect(meta.completed).toBe('20/07/2020 21:54:54');
