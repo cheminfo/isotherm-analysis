@@ -7,7 +7,7 @@ import { lineSplitTrim } from './utils';
 /**
  * Parses and standardizes the metadata
  *
- * @param {array<string>} lines
+ * @param {string[]} lines
  * @returns {object}
  */
 function parseIGAMeasurmentHeader(lines) {
