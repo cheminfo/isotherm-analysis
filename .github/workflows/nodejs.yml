@@ -8,7 +8,7 @@ on:
 
 jobs:
   nodejs:
-    # Documentation: https://github.com/zakodium/workflows#nodejs-ci
+    # Documentation: https://github.com/zakdium/workflows#nodejs-ci
     uses: zakodium/workflows/.github/workflows/nodejs.yml@nodejs-v1
     with:
-      node-version-matrix: '[12, 14, 16, 18]'
+      node-version-matrix: '[14, 16, 18]'
