@@ -64,6 +64,7 @@ function parseMetaBlock(lines, dataStartIndex) {
   }
   return meta;
 }
+
 /**
  * Find the line numbers of start and end of the
  * isotherm data

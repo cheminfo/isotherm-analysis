@@ -20,6 +20,7 @@ function valueElseUndefinedStripunits(cell) {
   let val = cell ? cell.v : undefined;
   return val.replace(']', '').replace('[', '');
 }
+
 /**
  * Find metadata in the excelsheet and safe it with
  * standardized names
@@ -65,6 +66,7 @@ function getAdsDesMeta(adsDesSheet) {
   metaData.desorptionPoints = valueElseUndefinedInt(adsDesSheet.H18);
   return metaData;
 }
+
 /**
  * Parses the cells with actual isotherm data
  *
@@ -100,6 +102,7 @@ function parseIsothermBlock(worksheet, range) {
 
   return data;
 }
+
 /**
  * Finds the cells with the isotherm data and calls the parser on them
  *
@@ -127,6 +130,7 @@ function parseAdsDesData(worksheet, adsorptionPoints, desorptionPoints) {
     desorption: desData,
   };
 }
+
 /**
  * Orchestrates the parsing of a Belsorp Excel (xls) file.
  *

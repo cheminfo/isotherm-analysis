@@ -93,6 +93,7 @@ function parseIGAMeasurmentHeader(lines) {
 
   return metaData;
 }
+
 /**
  * Find the start and end line numbers of the measurement
  *
@@ -178,6 +179,7 @@ function parseOneIGA(lines) {
   meta.scanReferenceState = lineSplitTrim(lines[measLen - 1]);
   return { meta: meta, data: dataBlock };
 }
+
 /**
  * Orchestrates the parsing of a IGA file. Creates a new Analysis element
  *
