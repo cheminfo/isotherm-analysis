@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/cheminfo/isotherm-analysis/compare/v0.5.0...v1.0.0) (2022-04-29)
+
+
+### Features
+
+* update dependencies and add new methods existing in ([ad31be1](https://github.com/cheminfo/isotherm-analysis/commit/ad31be1a2a6b6af806f8711ee39e6541c0d44503))
+
 ## [0.5.0](https://www.github.com/cheminfo/isotherm-analysis/compare/v0.4.3...v0.5.0) (2021-08-19)
 
 
