@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/cheminfo/isotherm-analysis/compare/v1.0.0...v1.1.0) (2022-05-04)
+
+
+### Features
+
+* update common-spectrum and fix build ([5578e25](https://github.com/cheminfo/isotherm-analysis/commit/5578e2587ede9936220edc21034e34261095647b))
+
 ## [1.0.0](https://github.com/cheminfo/isotherm-analysis/compare/v0.5.0...v1.0.0) (2022-04-29)
 
 

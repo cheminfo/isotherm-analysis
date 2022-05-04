@@ -1,6 +1,6 @@
 {
   "name": "isotherm-analysis",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "isotherm-analysis allows to parse and analyze isotherms. It converts from multiple formats to JCAMP-DX and provides utilities for basic analysis.",
   "main": "lib/index.js",
   "module": "src/index.js",
