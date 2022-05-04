@@ -1,14 +1,14 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-import { fromBelsorp, testables } from '../fromBelsorp';
+import { readFile } from 'xlsx';
 
-let xlsx = require('xlsx');
+import { fromBelsorp, testables } from '../fromBelsorp';
 
 const { parseIsothermBlock, getAdsDesMeta, parseAdsDesData } = testables;
 
 test('fromBelsorp', () => {
-  const workbook = xlsx.readFile(join(__dirname, '../../../testFiles/BET.xls'));
+  const workbook = readFile(join(__dirname, '../../../testFiles/BET.xls'));
 
   const adsDesSheet = workbook.Sheets.AdsDes;
 

@@ -1,11 +1,11 @@
 import { join } from 'path';
 
+import { readFile } from 'xlsx';
+
 import { getMatrixFromWorkbook } from '../getMatrixFromWorkbook';
 import { parseMeta } from '../parseMeta';
 
-let xlsx = require('xlsx');
-
-const workbook = xlsx.readFile(
+const workbook = readFile(
   join(
     __dirname,
     '../../../../../testFiles/Isotherm_Micromeritics_AlPyr-CO2-278K 2.XLS',

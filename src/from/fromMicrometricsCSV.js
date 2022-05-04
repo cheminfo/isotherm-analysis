@@ -1,6 +1,5 @@
+import { Analysis } from 'common-spectrum';
 import Papa from 'papaparse';
-
-import { Analysis } from '..';
 
 import { idealGasConstant } from './constants';
 
@@ -37,7 +36,7 @@ export function fromMicrometricsCSV(text) {
               return parseFloat(x);
             }),
           label: 'relative pressure p/p0',
-          type: 'independent',
+          isDependent: false,
           units: '',
         },
         y: {
@@ -49,7 +48,7 @@ export function fromMicrometricsCSV(text) {
               return (parseFloat(x) / idealGasConstant) * 1000;
             }),
           label: 'Excess adsorption',
-          type: 'dependent',
+          isDependent: false,
           units: 'mmol/g',
         },
       },
@@ -71,7 +70,7 @@ export function fromMicrometricsCSV(text) {
               return parseFloat(x);
             }),
           label: 'relative pressure p/p0',
-          type: 'independent',
+          isDependent: false,
           units: '',
         },
         y: {
@@ -83,7 +82,7 @@ export function fromMicrometricsCSV(text) {
               return (parseFloat(x) / idealGasConstant) * 1000;
             }),
           label: 'Excess adsorption',
-          type: 'dependent',
+          isDependent: true,
           units: 'mmol/g',
         },
       },

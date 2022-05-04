@@ -44,18 +44,18 @@
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.17.9",
     "@rollup/plugin-alias": "^3.1.9",
-    "@types/jest": "^27.4.1",
+    "@types/jest": "^27.5.0",
     "cheminfo-build": "^1.1.11",
     "cheminfo-publish": "^1.0.21",
     "codecov": "^3.8.3",
     "eslint": "^8.14.0",
     "eslint-config-cheminfo": "^7.3.0",
-    "jest": "^28.0.2",
+    "jest": "^28.0.3",
     "prettier": "^2.6.2",
-    "rollup": "^2.70.2"
+    "rollup": "^2.71.1"
   },
   "dependencies": {
-    "common-spectrum": "^1.0.1",
+    "common-spectrum": "^1.0.2",
     "ml-array-max": "^1.2.4",
     "ml-array-mean": "^1.1.6",
     "papaparse": "^5.3.2",

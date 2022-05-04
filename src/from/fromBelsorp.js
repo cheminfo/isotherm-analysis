@@ -1,6 +1,5 @@
+import { Analysis } from 'common-spectrum';
 import { read, utils } from 'xlsx';
-
-import { Analysis } from '..';
 
 import { idealGasConstant } from './constants';
 
@@ -158,19 +157,19 @@ export function fromBelsorp(dataFile) {
       x: {
         data: data.adsorption.pe,
         label: 'Pressure',
-        type: 'independent',
+        isDependent: false,
         units: 'kPa',
       },
       y: {
         data: data.adsorption.va,
         label: 'Excess adsorption',
-        type: 'dependent',
+        isDependent: true,
         units: 'mmol/g',
       },
       p: {
         data: data.adsorption.pp0,
         label: 'relative pressure',
-        type: 'independent',
+        isDependent: false,
         units: '',
       },
     },
@@ -186,19 +185,19 @@ export function fromBelsorp(dataFile) {
       x: {
         data: data.desorption.pp0,
         label: 'relative pressure',
-        type: 'independent',
+        isDependent: false,
         units: '',
       },
       y: {
         data: data.desorption.va,
         label: 'Excess adsorption',
-        type: 'dependent',
+        isDependent: true,
         units: 'mmol/g',
       },
       p: {
         data: data.desorption.pe,
         label: 'Pressure',
-        type: 'independent',
+        isDependent: false,
         units: 'kPa',
       },
     },

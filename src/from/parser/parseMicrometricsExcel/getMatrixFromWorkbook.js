@@ -1,4 +1,4 @@
-import XLSX from 'xlsx';
+import { utils } from 'xlsx';
 
 /**
  * Converts an excel file to a matrix
@@ -7,7 +7,7 @@ import XLSX from 'xlsx';
  */
 
 export function getMatrixFromWorkbook(workbook) {
-  let csv = XLSX.utils.sheet_to_csv(workbook.Sheets[workbook.SheetNames[0]]);
+  let csv = utils.sheet_to_csv(workbook.Sheets[workbook.SheetNames[0]]);
   let lines = csv.split(/\r?\n/);
   let matrix = [];
   for (let i = 0; i < lines.length; i++) {

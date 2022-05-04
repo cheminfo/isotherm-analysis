@@ -1,11 +1,11 @@
 import { join } from 'path';
 
+import { readFile } from 'xlsx';
+
 import { getMatrixFromWorkbook } from '../getMatrixFromWorkbook';
 import { parseHeader } from '../parseHeader';
 
-let xlsx = require('xlsx');
-
-const workbook = xlsx.readFile(
+const workbook = readFile(
   join(
     __dirname,
     '../../../../..//testFiles/8_Rubotherm_gravimetric_(Single_gas_high_pressure).xls',

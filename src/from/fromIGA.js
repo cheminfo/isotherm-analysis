@@ -1,6 +1,5 @@
+import { Analysis } from 'common-spectrum';
 import mean from 'ml-array-mean';
-
-import { Analysis } from '..';
 
 import { lineSplitTrim } from './utils';
 
@@ -97,7 +96,7 @@ function parseIGAMeasurmentHeader(lines) {
 /**
  * Find the start and end line numbers of the measurement
  *
- * @param {Array<string>} lines
+ * @param {string[]} lines
  * @returns {Array<number>} Array of length 2 [startIndex, endIndex]
  */
 function getLineNumbersOfMeasurement(lines) {
@@ -202,31 +201,31 @@ export function fromIGA(text) {
         x: {
           data: meas.data.pressure,
           label: 'Pressure',
-          type: 'independent',
+          isDependent: false,
           units: 'kPa',
         },
         y: {
           data: meas.data.excessAdsorption,
           label: 'Excess Adsorption [mmol/g]',
-          type: 'dependent',
+          isDependent: true,
           units: 'mmol/g',
         },
         p: {
           data: meas.data.pp0,
           label: 'relative pressure',
-          type: 'independent',
+          isDependent: false,
           units: '',
         },
         r: {
           data: meas.data.excessAdsorptionPercentage,
           label: 'Excess Adsorption',
-          type: 'dependent',
+          isDependent: true,
           units: '%',
         },
         t: {
           data: meas.data.sampleT,
           label: 'Sample Temperature',
-          type: 'independent',
+          isDependent: false,
           units: '°C',
         },
       };
@@ -235,25 +234,25 @@ export function fromIGA(text) {
         x: {
           data: meas.data.pressure,
           label: 'Pressure',
-          type: 'independent',
+          isDependent: false,
           units: 'kPa',
         },
         y: {
           data: meas.data.excessAdsorption,
           label: 'Excess Adsorption',
-          type: 'dependent',
+          isDependent: true,
           units: 'g/g',
         },
         r: {
           data: meas.data.wtPercent,
           label: 'Excess Adsorption',
-          type: 'dependent',
+          isDependent: true,
           units: '%',
         },
         t: {
           data: meas.data.sampleT,
           label: 'Sample Temperature',
-          type: 'independent',
+          isDependent: false,
           units: '°C',
         },
       };

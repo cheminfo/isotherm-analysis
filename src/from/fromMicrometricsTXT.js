@@ -1,4 +1,4 @@
-import { Analysis } from '..';
+import { Analysis } from 'common-spectrum';
 
 import { lineSplit } from './utils';
 
@@ -7,7 +7,7 @@ import { lineSplit } from './utils';
  * Tries to use naming that is consistent with the other
  * isotherm parsers
  *
- * @param {array<string>} lines
+ * @param {string[]} lines
  * @param {number} dataStartIndex
  * @returns {object}
  */
@@ -69,7 +69,7 @@ function parseMetaBlock(lines, dataStartIndex) {
  * Find the line numbers of start and end of the
  * isotherm data
  *
- * @param {array<string>} lines
+ * @param {string[]} lines
  * @returns {Array<number>} array of length two [startIndex, endIndex]
  */
 function findDataBlocks(lines) {
@@ -99,7 +99,7 @@ function findDataBlocks(lines) {
  * @returns {Object}
  */
 function parseIsothermTable(lines) {
-  let pSat = parseFloat(lines[5].trim() * 0.13332); // convert mmHg to kPa
+  let pSat = parseFloat(lines[5].trim()) * 0.13332; // convert mmHg to kPa
   let data = {
     x: [],
     y: [],
@@ -122,7 +122,7 @@ function parseIsothermTable(lines) {
  * Also parses relevant metadata and converts some units
  *
  * @export
- * @param {string} parsed text
+ * @param {string} text
  * @returns {Analysis}
  */
 export function fromMicrometricsTXT(text) {
@@ -147,19 +147,19 @@ export function fromMicrometricsTXT(text) {
         x: {
           data: data.x,
           label: 'relative pressure',
-          type: 'independent',
+          isDependent: false,
           units: '',
         },
         y: {
           data: data.y,
           label: 'Excess Adsorption',
-          type: 'dependent',
+          isDependent: true,
           units: 'mmol/g',
         },
         p: {
           data: data.p,
           label: 'Pressure [kPa]',
-          type: 'independent',
+          isDependent: false,
           units: 'kPa',
         },
       },
