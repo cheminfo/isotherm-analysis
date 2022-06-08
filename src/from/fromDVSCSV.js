@@ -124,6 +124,6 @@ function parseData(lines, dataStartRow) {
 }
 
 export const testables = {
-  parseMeta: parseMeta,
-  parseData: parseData,
+  parseMeta,
+  parseData,
 };

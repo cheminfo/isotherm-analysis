@@ -55,7 +55,7 @@ export function parseHeader(matrix) {
     }
   }
   return {
-    meta: meta,
-    i: i,
+    meta,
+    i,
   };
 }

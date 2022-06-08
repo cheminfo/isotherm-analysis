@@ -4,7 +4,7 @@
  * @return {object} Object containing the meta data of the workbook
  */
 export function parseMeta(baseMatrix) {
-  if (baseMatrix === []) {
+  if (baseMatrix.length < 1) {
     return {};
   }
   const matrix = [...baseMatrix];

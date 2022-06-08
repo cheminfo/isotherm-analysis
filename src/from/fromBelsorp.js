@@ -212,7 +212,7 @@ export function fromBelsorp(dataFile) {
 }
 
 export const testables = {
-  parseIsothermBlock: parseIsothermBlock,
-  getAdsDesMeta: getAdsDesMeta,
-  parseAdsDesData: parseAdsDesData,
+  parseIsothermBlock,
+  getAdsDesMeta,
+  parseAdsDesData,
 };

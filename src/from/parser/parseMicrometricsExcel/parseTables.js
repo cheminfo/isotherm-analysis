@@ -43,13 +43,11 @@ export function parseTables(matrix) {
             table[title][subtitle][matrix[i][j]] = [];
             data = table[title][subtitle][matrix[i][j]];
           }
-        } else {
-          if (matrix[i][j].match(/[0-9]+:[0-9]+$/)) {
+        } else if (matrix[i][j].match(/[0-9]+:[0-9]+$/)) {
             data.push(matrix[i][j]);
           } else {
             data.push(parseFloat(matrix[i][j]));
           }
-        }
       }
     }
   }

@@ -166,7 +166,7 @@ export function fromMicrometricsTXT(text) {
       {
         dataType: type,
         title: meta.sample,
-        meta: meta,
+        meta,
       },
     );
   }
@@ -175,7 +175,7 @@ export function fromMicrometricsTXT(text) {
 }
 
 export const testables = {
-  findDataBlocks: findDataBlocks,
-  parseIsothermTable: parseIsothermTable,
-  parseMetaBlock: parseMetaBlock,
+  findDataBlocks,
+  parseIsothermTable,
+  parseMetaBlock,
 };

@@ -12,5 +12,5 @@ export function parseMicromeriticsExcel(workbook) {
   const matrix = getMatrixFromWorkbook(workbook);
   const meta = parseMeta(matrix);
   const tables = parseTables(matrix);
-  return { meta: meta, tables: tables };
+  return { meta, tables };
 }

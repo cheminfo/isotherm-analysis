@@ -16,5 +16,5 @@ export function labelUnit(label) {
     newLabel = newLabel.replace(unit, '');
   }
   newLabel = newLabel.replace(/ $/, '');
-  return { label: newLabel, unit: unit };
+  return { label: newLabel, unit };
 }

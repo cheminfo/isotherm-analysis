@@ -176,7 +176,7 @@ function parseOneIGA(lines) {
   }
   meta.scanEnd = lineSplitTrim(lines[measLen - 2]);
   meta.scanReferenceState = lineSplitTrim(lines[measLen - 1]);
-  return { meta: meta, data: dataBlock };
+  return { meta, data: dataBlock };
 }
 
 /**
@@ -268,8 +268,8 @@ export function fromIGA(text) {
 }
 
 export const testables = {
-  getLineNumbersOfMeasurement: getLineNumbersOfMeasurement,
-  parseIGAMeasurmentHeader: parseIGAMeasurmentHeader,
-  parseIGADataBlock: parseIGADataBlock,
-  parseOneIGA: parseOneIGA,
+  getLineNumbersOfMeasurement,
+  parseIGAMeasurmentHeader,
+  parseIGADataBlock,
+  parseOneIGA,
 };
