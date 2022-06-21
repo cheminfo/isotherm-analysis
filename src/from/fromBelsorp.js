@@ -150,7 +150,7 @@ export function fromBelsorp(dataFile) {
     metaData.desorptionPoints,
   );
 
-  let analysis = new Analysis();
+  const analysis = new Analysis();
 
   analysis.pushSpectrum(
     {
