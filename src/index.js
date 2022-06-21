@@ -2,6 +2,7 @@ export {
   Analysis,
   AnalysesManager,
   toJcamp,
+  toJcamps,
   fromJcamp,
   peakPicking,
   autoPeakPicking,
