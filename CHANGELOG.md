@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/cheminfo/isotherm-analysis/compare/v1.1.0...v1.2.0) (2022-06-21)
+
+
+### Features
+
+* add fromBelsorpCSV ([be88a2e](https://github.com/cheminfo/isotherm-analysis/commit/be88a2e767312a15492976c62758b5010c1e4697))
+
+
+### Bug Fixes
+
+* empty comparison ([3a2f844](https://github.com/cheminfo/isotherm-analysis/commit/3a2f844fba629feaab038fae83710d68c79658ff))
+
 ## [1.1.0](https://github.com/cheminfo/isotherm-analysis/compare/v1.0.0...v1.1.0) (2022-05-04)
 
 
