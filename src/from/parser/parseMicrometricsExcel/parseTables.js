@@ -44,10 +44,10 @@ export function parseTables(matrix) {
             data = table[title][subtitle][matrix[i][j]];
           }
         } else if (matrix[i][j].match(/[0-9]+:[0-9]+$/)) {
-            data.push(matrix[i][j]);
-          } else {
-            data.push(parseFloat(matrix[i][j]));
-          }
+          data.push(matrix[i][j]);
+        } else {
+          data.push(parseFloat(matrix[i][j]));
+        }
       }
     }
   }
