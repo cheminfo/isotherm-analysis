@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/cheminfo/isotherm-analysis/compare/v1.2.0...v1.3.0) (2022-06-22)
+
+
+### Features
+
+* update common-spectrum ([2fd353b](https://github.com/cheminfo/isotherm-analysis/commit/2fd353b628584cc0e552d75e8508b27bccd6c3fc))
+
+
+### Bug Fixes
+
+* export toJcamps ([80c5918](https://github.com/cheminfo/isotherm-analysis/commit/80c59185aa25f22fb6b38fb9be5a527921ceca0a))
+
 ## [1.2.0](https://github.com/cheminfo/isotherm-analysis/compare/v1.1.0...v1.2.0) (2022-06-21)
 
 
