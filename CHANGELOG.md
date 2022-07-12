@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/cheminfo/isotherm-analysis/compare/v1.3.0...v1.4.0) (2022-07-12)
+
+
+### Features
+
+* update common-spectrum to have distinctLabelUnits ([7f5ddea](https://github.com/cheminfo/isotherm-analysis/commit/7f5ddea6ef53c68952af3be9bd82d3e567b203df))
+
 ## [1.3.0](https://github.com/cheminfo/isotherm-analysis/compare/v1.2.0...v1.3.0) (2022-06-22)
 
 
