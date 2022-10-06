@@ -95,9 +95,9 @@ test('fromBelsorp 2', () => {
   expect(isothermBlock.va).toHaveLength(21);
 
   // Parsing the datablock
-  const data = parseAdsDesData(adsDesSheet, 21, 11);
-  expect(data.adsorption.p0).toHaveLength(21);
-  expect(data.desorption.p0).toHaveLength(11);
+  const data = parseAdsDesData(adsDesSheet, 28, 17);
+  expect(data.adsorption.p0).toHaveLength(28);
+  expect(data.desorption.p0).toHaveLength(17);
 
   expect(data.adsorption.p0[0]).toBe(95.748);
   expect(data.adsorption.va[20]).toBeCloseTo(14667.63838, 3);
