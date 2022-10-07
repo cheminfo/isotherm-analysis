@@ -1,8 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-import { readFile } from 'xlsx';
-
 import { fromIGAExcel } from '../fromIGAExcel';
 
 test('fromIGAExcel', () => {
