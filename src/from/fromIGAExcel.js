@@ -1,6 +1,14 @@
 import { Analysis } from 'common-spectrum';
 import { read, utils } from 'xlsx';
 
+function getCourse(data) {
+  if (data.pressure[0] > data.pressure[data.pressure.length - 1]) {
+    return 'Desorption Isotherm';
+  } else {
+    return 'Adsorption Isotherm';
+  }
+}
+
 /**
  * Orchestrates the parsing of a Belsorp Excel (xls) file.
  *
@@ -11,89 +19,88 @@ import { read, utils } from 'xlsx';
 export function fromIGAExcel(dataFile) {
   const workbook = read(dataFile);
   const adsDesSheet = workbook.Sheets[workbook.SheetNames[0]];
-  ///console.log(adsDesSheet[utils.encode_cell({ r: 0, c: 1 })]);
-  parseIGAMeasurmentHeader({ start: 0, end: 76 }, adsDesSheet);
-  parseDataBlock(adsDesSheet, { start: 82, end: 95 });
-  return new Analysis();
+  let blocks = identifyBlocks(adsDesSheet);
+  const analysis = new Analysis();
+  for (let i = 0; i < blocks.metaDataBlocks.length; i++) {
+    let metaData = parseIGAMeasurmentHeader(
+      adsDesSheet,
+      blocks.metaDataBlocks[i],
+    );
+
+    let data = parseDataBlock(adsDesSheet, blocks.dataBlocks[i]);
+
+    let course = getCourse(data);
+    let spectrum;
+    if ('pp0' in data) {
+      spectrum = {
+        x: {
+          data: data.pressure,
+          label: 'Pressure',
+          isDependent: false,
+          units: 'kPa',
+        },
+        y: {
+          data: data.excessAdsorption,
+          label: 'Excess Adsorption [mmol/g]',
+          isDependent: true,
+          units: 'mmol/g',
+        },
+        p: {
+          data: data.pp0,
+          label: 'relative pressure',
+          isDependent: false,
+          units: '',
+        },
+        r: {
+          data: data.excessAdsorptionPercentage,
+          label: 'Excess Adsorption',
+          isDependent: true,
+          units: '%',
+        },
+        t: {
+          data: data.sampleT,
+          label: 'Sample Temperature',
+          isDependent: false,
+          units: '°C',
+        },
+      };
+    } else {
+      spectrum = {
+        x: {
+          data: data.pressure,
+          label: 'Pressure',
+          isDependent: false,
+          units: 'kPa',
+        },
+        y: {
+          data: data.excessAdsorption,
+          label: 'Excess Adsorption',
+          isDependent: true,
+          units: 'g/g',
+        },
+        r: {
+          data: data.wtPercent,
+          label: 'Excess Adsorption',
+          isDependent: true,
+          units: '%',
+        },
+        t: {
+          data: data.sampleT,
+          label: 'Sample Temperature',
+          isDependent: false,
+          units: '°C',
+        },
+      };
+    }
+
+    analysis.pushSpectrum(spectrum, {
+      dataType: course,
+      title: metaData.title ? metaData.title : 'IGA Isotherm',
+      meta: metaData,
+    });
+  }
+  return analysis;
 }
-
-// metaData.systemType = lineSplitTrim(lines[0]);
-//   metaData.systemOwner = lineSplitTrim(lines[1]);
-//   metaData.systemReference = lineSplitTrim(lines[2]);
-//   metaData.systemSerialNumber = lineSplitTrim(lines[3]);
-//   metaData.sampleNumber = lineSplitTrim(lines[4]);
-//   metaData.experimentType = lineSplitTrim(lines[5]);
-//   // eslint-disable-next-line radix
-//   metaData.experimentNumber = parseInt(lineSplitTrim(lines[6]));
-//   metaData.title = lineSplitTrim(lines[7]);
-//   metaData.comment = lineSplitTrim(lines[8]);
-//   metaData.source = lineSplitTrim(lines[9]);
-//   metaData.batch = lineSplitTrim(lines[10]);
-//   metaData.id = lineSplitTrim(lines[11]);
-//   metaData.experimentTitle = lineSplitTrim(lines[12]);
-//   let tmp = lineSplitTrim(lines[14]).split(/\s/);
-//   metaData.sampleWeight = parseFloat(tmp[0]);
-//   metaData.sampleWeightunits = tmp[1];
-
-//   tmp = lineSplitTrim(lines[15]).split(/\s/);
-//   metaData.sampleWeightDry = parseFloat(tmp[0]);
-//   metaData.sampleWeightDryunits = tmp[1];
-
-//   tmp = lineSplitTrim(lines[18]).split(/\s/);
-//   metaData.balanceTrimV = parseFloat(tmp[0]);
-//   metaData.balanceTrimVunits = tmp[1];
-
-//   metaData.balanceTrimT = lineSplitTrim(lines[19]);
-
-//   tmp = lineSplitTrim(lines[20]).split(/\s/);
-//   metaData.counterWeightM = parseFloat(tmp[0]);
-//   metaData.counterWeightMunits = tmp[1];
-
-//   tmp = lineSplitTrim(lines[21]).split(/\s/);
-//   metaData.counterWeightRho = parseFloat(tmp[0]);
-//   metaData.counterWeightRhounits = tmp[1];
-
-//   metaData.counterWeightT = lineSplitTrim(lines[22]);
-
-//   tmp = lineSplitTrim(lines[23]).split(/\s/);
-//   metaData.tungstenM = parseFloat(tmp[0]);
-//   metaData.tungstenMunits = tmp[1];
-
-//   tmp = lineSplitTrim(lines[24]).split(/\s/);
-//   metaData.tungstenRho = parseFloat(tmp[0]);
-//   metaData.tungstenRhounits = tmp[1];
-
-//   metaData.counterWeightT = lineSplitTrim(lines[25]);
-
-//   tmp = lineSplitTrim(lines[26]).split(/\s/);
-//   metaData.chainExcessM = parseFloat(tmp[0]);
-//   metaData.chainExcessMunits = tmp[1];
-
-//   tmp = lineSplitTrim(lines[27]).split(/\s/);
-//   metaData.chainExcessRho = parseFloat(tmp[0]);
-//   metaData.chainExcessRhounits = tmp[1];
-
-//   metaData.chainExcessT = lineSplitTrim(lines[28]);
-
-//   metaData.applicationCode = lineSplitTrim(lines[44]);
-//   metaData.mode = lineSplitTrim(lines[44]);
-//   metaData.source = lineSplitTrim(lines[45]);
-//   metaData.gasSource = lineSplitTrim(lines[46]);
-//   metaData.vessel = lineSplitTrim(lines[47]);
-//   metaData.reactor = lineSplitTrim(lines[48]);
-//   metaData.pressureSensor = lineSplitTrim(lines[49]);
-//   metaData.thermostat = lineSplitTrim(lines[50]);
-
-//   metaData.nitrogenEOS = lineSplitTrim(lines[51]);
-//   metaData.nitrogenSVP = lineSplitTrim(lines[52]);
-
-//   metaData.seriesType = lineSplitTrim(lines[59]);
-
-//   metaData.scan = parseInt(lineSplitTrim(lines[61]), 10);
-//   metaData.course = lineSplitTrim(lines[62]);
-//   metaData.referenceStateDevice = lineSplitTrim(lines[63]);
-//   metaData.scanTitle = lineSplitTrim(lines[64]);
-//   metaData.scanStart = lineSplitTrim(lines[65]);
 
 /**
  * Parses and standardizes the metadata
@@ -101,7 +108,7 @@ export function fromIGAExcel(dataFile) {
  * @param {string[]} lines
  * @returns {object}
  */
-function parseIGAMeasurmentHeader(rowRange, sheet) {
+function parseIGAMeasurmentHeader(sheet, rowRange) {
   let metaData = {};
   // loop over the rows in the sheet and extract the values
   for (let i = rowRange.start; i < rowRange.end; i++) {
@@ -228,7 +235,7 @@ function parseIGAMeasurmentHeader(rowRange, sheet) {
       }
     }
   }
-  console.log(metaData);
+  return metaData;
 }
 
 function parseDataBlock(sheet, rowRange) {
@@ -253,6 +260,58 @@ function parseDataBlock(sheet, rowRange) {
     dataBlock.bet.push(parseFloat(sheet[`G${i}`].v));
     dataBlock.sampleT.push(parseFloat(sheet[`H${i}`].v));
   }
-  console.log(dataBlock);
   return dataBlock;
+}
+
+function identifyBlocks(sheet) {
+  // in the excel sheet, find the relevant start and end rows for the data and metadata
+  // blocks.
+  // Metadatablocks start with "System Type" and end with "Scan Commenced"
+  // The Data blocks continue from there and end at "Scan Ends"
+  let metaDataBlockStarts = [];
+  let metaDataBlockEnds = [];
+  let dataBlockStarts = [];
+  let dataBlockEnds = [];
+  let range = utils.decode_range(sheet['!ref']);
+  for (let i = 0; i < range.e.r; i++) {
+    let cell = sheet[`A${i}`];
+    if (cell && cell.v === 'System Type') {
+      metaDataBlockStarts.push(i);
+    }
+    if (cell && cell.v === 'Scan Commenced') {
+      metaDataBlockEnds.push(i);
+    }
+    if (cell && cell.v === '(mbar)') {
+      dataBlockStarts.push(i + 1);
+    }
+    if (cell && cell.v === 'Scan Ends') {
+      dataBlockEnds.push(i - 2);
+    }
+  }
+  // now compile them to objects that contain the start and end rows for each block
+  let metaDataBlocks = [];
+  let dataBlocks = [];
+  for (let i = 0; i < metaDataBlockStarts.length; i++) {
+    metaDataBlocks.push({
+      start: metaDataBlockStarts[i],
+      end: metaDataBlockEnds[i],
+    });
+  }
+  for (let i = 0; i < dataBlockStarts.length; i++) {
+    dataBlocks.push({
+      start: dataBlockStarts[i],
+      end: dataBlockEnds[i],
+    });
+  }
+
+  if (metaDataBlocks.length !== dataBlocks.length) {
+    throw new Error(
+      'Number of metadata blocks does not match number of data blocks',
+    );
+  }
+
+  return {
+    metaDataBlocks,
+    dataBlocks,
+  };
 }
