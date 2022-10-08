@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/cheminfo/isotherm-analysis/compare/v1.4.0...v1.5.0) (2022-10-08)
+
+
+### Features
+
+* completed implementation ([6701c4b](https://github.com/cheminfo/isotherm-analysis/commit/6701c4b3d7a87af89d1040dce950f6f64e3282b6))
+
+
+### Bug Fixes
+
+* failing test for belsorp ([0ed3e58](https://github.com/cheminfo/isotherm-analysis/commit/0ed3e58c4a2b750a700128646cea51592aff1564)), closes [#57](https://github.com/cheminfo/isotherm-analysis/issues/57)
+
 ## [1.4.0](https://github.com/cheminfo/isotherm-analysis/compare/v1.3.0...v1.4.0) (2022-07-12)
 
 
